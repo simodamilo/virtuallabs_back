@@ -1,9 +1,9 @@
 package it.polito.ai.virtuallabs_back.controllers;
 
-import it.polito.ai.lab03.dtos.CourseDTO;
-import it.polito.ai.lab03.dtos.StudentDTO;
-import it.polito.ai.lab03.dtos.TeamDTO;
-import it.polito.ai.lab03.services.TeamService;
+import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
+import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
