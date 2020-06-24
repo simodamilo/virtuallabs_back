@@ -61,7 +61,7 @@ public class StudentController {
 
     @PostMapping({"", "/"})
     public StudentDTO addStudent(@Valid @RequestBody StudentDTO dto) {
-        if (!teamService.addStudent(dto)) throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+        if (!teamService.addStudent(dto)) throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getSerial());
         return ModelHelper.enrich(dto);
     }
 

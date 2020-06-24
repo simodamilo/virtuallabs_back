@@ -51,9 +51,10 @@ public class UserServiceImpl implements UserService {
         String temporaryPassword = RandomStringUtils.random(10, true, true);
         user.setPassword(passwordEncoder.encode(temporaryPassword));
         user.setRoles(roles);
-        if (roles.contains("ROLE_ADMIN"))
-            user.setUsername(user.getId().toString());
-        else if (roles.contains("ROLE_TEACHER"))
+        /*if (roles.contains("ROLE_ADMIN"))
+            user.setUsername(user.getId().toString());*/
+        /*else */
+        if (roles.contains("ROLE_TEACHER"))
             user.setUsername("d" + user.getId().toString());
         else if (roles.contains("ROLE_STUDENT"))
             user.setUsername("s" + user.getId().toString());

@@ -17,7 +17,7 @@ public class ModelHelper {
     }
 
     public static StudentDTO enrich(StudentDTO studentDTO) {
-        Link link = WebMvcLinkBuilder.linkTo(StudentController.class).slash(studentDTO.getId()).withSelfRel();
+        Link link = WebMvcLinkBuilder.linkTo(StudentController.class).slash(studentDTO.getSerial()).withSelfRel();
         return studentDTO.add(link);
     }
 
@@ -28,7 +28,7 @@ public class ModelHelper {
     }
 
     public static TeacherDTO enrich(TeacherDTO teacherDTO) {
-        Link selfLink = WebMvcLinkBuilder.linkTo(TeacherController.class).slash(teacherDTO.getId()).withSelfRel();
+        Link selfLink = WebMvcLinkBuilder.linkTo(TeacherController.class).slash(teacherDTO.getSerial()).withSelfRel();
         return teacherDTO.add(selfLink);
     }
 
