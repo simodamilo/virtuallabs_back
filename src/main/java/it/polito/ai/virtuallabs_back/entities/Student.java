@@ -11,17 +11,25 @@ import java.util.List;
 public class Student {
 
     @Id
-    private String id;
+    private String serial; // sxxxxxx
+    private String email;
     private String name;
-    private String firstName;
+    private String surname;
+    private Byte[] image;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_id"),
+    @JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_serial"),
             inverseJoinColumns = @JoinColumn(name = "course_name"))
     private List<Course> courses = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members")
     private List<Team> teams = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "owners")
+    private List<VM> vms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student")
+    private List<Solution> solutions = new ArrayList<>();
 
     public boolean addCourse(Course course) {
         if (courses.contains(course)) return false;
@@ -48,6 +56,34 @@ public class Student {
         if (!teams.contains(team)) return false;
         teams.remove(team);
         team.getMembers().remove(this);
+        return true;
+    }
+
+    public boolean addVm(VM vm) {
+        if (vms.contains(vm)) return false;
+        vms.add(vm);
+        vm.getOwners().add(this);
+        return true;
+    }
+
+    public boolean removeVm(VM vm) {
+        if (!vms.contains(vm)) return false;
+        vms.remove(vm);
+        vm.getOwners().remove(this);
+        return true;
+    }
+
+    public boolean addSolution(Solution solution) {
+        if (solutions.contains(solution)) return false;
+        solutions.add(solution);
+        solution.setStudent(this);
+        return true;
+    }
+
+    public boolean removeSolution(Solution solution) {
+        if (!solutions.contains(solution)) return false;
+        solutions.remove(solution);
+        solution.setStudent(this);
         return true;
     }
 }

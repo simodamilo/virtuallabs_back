@@ -13,8 +13,17 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String name; /* vedere se mettere unique */
     private int status;
+    private int vcpu;
+    private int disk;
+    private int ram;
+    private int activeInstance;
+    private int maxInstance;
+
+    @ManyToOne
+    @JoinColumn(name = "modelVM_id")
+    private ModelVM modelVM;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -22,11 +31,23 @@ public class Team {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "team_student", joinColumns = @JoinColumn(name = "team_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id"))
+            inverseJoinColumns = @JoinColumn(name = "student_serial"))
     private List<Student> members = new ArrayList<>();
 
+
+    /* vedere se ha senso mettere la possibilità di eliminare il modelVM dal team */
+    public void setModelVM(ModelVM modelVM) {
+        if (this.modelVM != null) this.modelVM.getTeams().remove(this);
+        if (modelVM == null) {
+            if (this.modelVM != null) this.modelVM = null;
+        } else {
+            this.modelVM = modelVM;
+            modelVM.getTeams().add(this);
+        }
+    }
+
     public void setCourse(Course course) {
-        if (this.course != null) this.course.getTeams().remove(this);   //rimovibile se orphanRemoval == true in Course
+        if (this.course != null) this.course.getTeams().remove(this);
         if (course == null) {
             if (this.course != null) this.course = null;
         } else {

@@ -11,14 +11,19 @@ import java.util.List;
 public class Teacher {
 
     @Id
-    private String id;
+    private String serial; // dxxxxxx
+    private String email;
     private String name;
-    private String firstName;
+    private String surname;
+    private Byte[] image;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "teacher_course", joinColumns = @JoinColumn(name = "teacher_id"),
+    @JoinTable(name = "teacher_course", joinColumns = @JoinColumn(name = "teacher_serial"),
             inverseJoinColumns = @JoinColumn(name = "course_name"))
     private List<Course> courses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "teacher")
+    private List<Assignment> assignments = new ArrayList<>();
 
     public boolean addCourse(Course course) {
         if (courses.contains(course)) return false;
@@ -31,6 +36,20 @@ public class Teacher {
         if (!courses.contains(course)) return false;
         courses.remove(course);
         course.getTeachers().remove(this);
+        return true;
+    }
+
+    public boolean addAssignment(Assignment assignment) {
+        if (assignments.contains(assignment)) return false;
+        assignments.add(assignment);
+        assignment.setTeacher(this);
+        return true;
+    }
+
+    public boolean removeAssignment(Assignment assignment) {
+        if (!assignments.contains(assignment)) return false;
+        assignments.remove(assignment);
+        assignment.setTeacher(this);
         return true;
     }
 }

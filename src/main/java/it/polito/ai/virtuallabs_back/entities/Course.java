@@ -15,6 +15,7 @@ public class Course {
 
     @Id
     private String name;
+    private String tag;
     private int min;
     private int max;
     private boolean enabled;
@@ -24,6 +25,9 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<Team> teams = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
+    private List<Assignment> assignments = new ArrayList<>();
 
     @ManyToMany(mappedBy = "courses")
     private List<Teacher> teachers = new ArrayList<>();
@@ -65,6 +69,20 @@ public class Course {
         if (!teachers.contains(teacher)) return false;
         teachers.remove(teacher);
         teacher.getCourses().remove(this);
+        return true;
+    }
+
+    public boolean addAssignment(Assignment assignment) {
+        if (assignments.contains(assignment)) return false;
+        assignments.add(assignment);
+        assignment.setCourse(this);
+        return true;
+    }
+
+    public boolean removeAssignment(Assignment assignment) {
+        if (!assignments.contains(assignment)) return false;
+        assignments.remove(assignment);
+        assignment.setCourse(this);
         return true;
     }
 }

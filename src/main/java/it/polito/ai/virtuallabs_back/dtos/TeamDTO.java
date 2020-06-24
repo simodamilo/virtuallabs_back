@@ -8,4 +8,9 @@ public class TeamDTO extends RepresentationModel<TeamDTO> {
     private Long id;
     private String name;
     private int status;
+    private int vcpu;
+    private int disk;
+    private int ram;
+    private int activeInstance;
+    private int maxInstance;
 }

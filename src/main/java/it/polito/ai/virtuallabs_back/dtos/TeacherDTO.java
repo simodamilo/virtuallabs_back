@@ -3,14 +3,13 @@ package it.polito.ai.virtuallabs_back.dtos;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotBlank;
-
 @Data
 public class TeacherDTO extends RepresentationModel<TeacherDTO> {
 
-    private String id;
-    @NotBlank
+    private String serial; // dxxxxxx
+    private String email;
     private String name;
-    @NotBlank
-    private String firstName;
+    private String surname;
+    private Byte[] image;
+
 }

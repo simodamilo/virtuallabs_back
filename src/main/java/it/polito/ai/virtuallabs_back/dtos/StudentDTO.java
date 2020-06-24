@@ -8,11 +8,15 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 public class StudentDTO extends RepresentationModel<StudentDTO> {
-    private String id;
+
+    private String serial;
     @CsvBindByName
     @NotBlank
     private String name;
     @CsvBindByName
     @NotBlank
-    private String firstName;
+    private String surname;
+    private String email;
+    private Byte[] image;
+
 }
