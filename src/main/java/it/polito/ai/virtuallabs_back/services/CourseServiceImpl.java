@@ -177,6 +177,9 @@ public class CourseServiceImpl implements CourseService {
         if (!teacherRepository.existsById(teacherId))
             throw new TeacherNotFoundException("Teacher not found");
 
+        if (!isValid(courseName))
+            throw new CourseChangeNotValidException("You have no permission to change this course");
+
         Course c = courseRepository.getOne(courseName);
         return c.addTeacher(teacherRepository.getOne(teacherId));
     }
@@ -217,6 +220,21 @@ public class CourseServiceImpl implements CourseService {
         return enrollAll(studentIds, courseName);
     }
 
+    /**
+     * With the deleteCourse method the passed course is removed if exists and if the current teacher is one
+     * of the teachers of the courses
+     */
+    @Override
+    public void deleteCourse(String courseName) {
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course not found");
+
+        if (!isValid(courseName))
+            throw new CourseChangeNotValidException("You have no permission to change this course");
+
+        courseRepository.deleteById(courseName);
+    }
+
 
     /**
      * It is an internal method used to check if the current user, that should be a teacher, is valid.
@@ -226,7 +244,9 @@ public class CourseServiceImpl implements CourseService {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Teacher teacher = teacherRepository.getOne(principal.getUsername());
         Course course = courseRepository.getOne(courseName);
-        return userRepository.findByUsername(principal.getUsername()).getRoles().contains("ROLE_ADMIN") ||
+        /*return userRepository.findByUsername(principal.getUsername()).getRoles().contains("ROLE_ADMIN") ||
+                teacher.getCourses().contains(course);*/
+        return userRepository.findByUsername(principal.getUsername()).getRoles().contains("ROLE_TEACHER") &&
                 teacher.getCourses().contains(course);
     }
 

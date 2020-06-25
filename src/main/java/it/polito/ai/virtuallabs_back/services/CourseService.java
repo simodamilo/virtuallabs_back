@@ -39,4 +39,8 @@ public interface CourseService {
 
     @PreAuthorize("hasRole('TEACHER')")
     List<Boolean> enrollCsv(Reader r, String courseName);
+
+    @PreAuthorize("hasRole('TEACHER')")
+    void deleteCourse(String name);
+
 }

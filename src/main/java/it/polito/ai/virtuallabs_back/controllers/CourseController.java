@@ -117,4 +117,9 @@ public class CourseController {
         courseService.disableCourse(name);
     }
 
+    @DeleteMapping("/{name}/delete")
+    public void deleteCourse(@PathVariable String name) {
+        courseService.deleteCourse(name);
+    }
+
 }
