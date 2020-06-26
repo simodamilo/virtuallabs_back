@@ -17,4 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT s FROM Student s INNER JOIN s.courses c WHERE c.name=:courseName " +
             "AND s NOT IN (SELECT s FROM Student s INNER JOIN s.teams t INNER JOIN t.course c WHERE c.name=:courseName)")
     List<Student> getStudentsNotInTeams(String courseName);
+
+    @Query("SELECT c FROM Course c INNER JOIN c.teachers t WHERE t.serial=:teacherSerial")
+    List<Course> getTeacherCourses(String teacherSerial);
 }

@@ -58,10 +58,18 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/teacherCourses")
+    public List<CourseDTO> getTeacherCourses() {
+        return courseService.getTeacherCourses()
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
+    }
+
     @PostMapping({"", "/"})
     public CourseDTO addCourse(@Valid @RequestBody CourseDTO courseDTO) {
         if (!courseService.addCourse(courseDTO))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, courseDTO.getName());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A course with name " + courseDTO.getName() + " already exists");
 
         return ModelHelper.enrich(courseDTO);
     }
@@ -73,7 +81,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
 
         if (!courseService.addStudentToCourse(map.get("id"), name))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, map.get("id"));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Course is not enabled");
     }
 
     @PostMapping("/{name}/assignTeacher")
@@ -107,7 +115,14 @@ public class CourseController {
         }
     }
 
-    @PutMapping("/{name}/enable")
+    @PutMapping("/modify")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Course correctly modified")
+    public void modifyCourse(@Valid @RequestBody CourseDTO courseDTO) {
+        if (!courseService.modifyCourse(courseDTO))
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+    }
+
+    /*@PutMapping("/{name}/enable")
     public void enableCourse(@PathVariable String name) {
         courseService.enableCourse(name);
     }
@@ -115,11 +130,21 @@ public class CourseController {
     @PutMapping("/{name}/disable")
     public void disableCourse(@PathVariable String name) {
         courseService.disableCourse(name);
-    }
+    }*/
 
     @DeleteMapping("/{name}/delete")
     public void deleteCourse(@PathVariable String name) {
         courseService.deleteCourse(name);
+    }
+
+    @DeleteMapping("/{name}/deleteStudent")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Student deleted")
+    public void deleteStudentFromCourse(@PathVariable String name, @RequestBody Map<String, String> map) {
+        if (!map.containsKey("id") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
+
+        if (!courseService.deleteStudentFromCourse(map.get("id"), name))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, map.get("id"));
     }
 
 }

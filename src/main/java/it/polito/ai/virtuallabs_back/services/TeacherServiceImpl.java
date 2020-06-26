@@ -1,8 +1,8 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
+import it.polito.ai.virtuallabs_back.entities.AppUser;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
-import it.polito.ai.virtuallabs_back.entities.User;
 import it.polito.ai.virtuallabs_back.repositories.TeacherRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +35,8 @@ public class TeacherServiceImpl implements TeacherService {
     public boolean addTeacher(TeacherDTO teacher) { /* forse non servono più questi metodi addTeacher e addStudent */
         List<String> roles = new ArrayList<>();
         roles.add("ROLE_TEACHER");
-        User user = userService.addUser(roles);
-        teacher.setSerial(user.getUsername());
+        AppUser appUser = userService.addUser(roles);
+        teacher.setSerial(appUser.getUsername());
         teacherRepository.save(modelMapper.map(teacher, Teacher.class));
         return true;
     }

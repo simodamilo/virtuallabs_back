@@ -6,6 +6,7 @@ import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
+import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.exception.CourseChangeNotValidException;
 import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
@@ -55,14 +56,11 @@ public class CourseServiceImpl implements CourseService {
      */
     @Override
     public boolean addCourse(CourseDTO course) {
-        /*if (courseRepository.existsById(course.getName())) return false;
-        courseRepository.save(modelMapper.map(course, Course.class));
-        return true;*/
         if (!courseRepository.existsById(course.getName())) {
             Course c = courseRepository.save(modelMapper.map(course, Course.class));
             UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Teacher teacher = teacherRepository.getOne(principal.getUsername());
-            teacher.addCourse(c); /* va fatto anche: c.addTeacher(teacher)? */
+            teacher.addCourse(c);
             return true;
         }
         return false;
@@ -119,8 +117,29 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * With the enableCourse method the specific course is enabled
+     * If the course exists and the teacher has the permissions, the course is modified with data
+     * received from the client. All fields are updated, even if they are not changed
      */
+    @Override
+    public boolean modifyCourse(CourseDTO courseDTO) {
+        if (!courseRepository.existsById(courseDTO.getName()))
+            throw new CourseNotFoundException("Course not found");
+
+        if (!isValid(courseDTO.getName()))
+            throw new CourseChangeNotValidException("You have no permission to change this course");
+
+        Course c = courseRepository.getOne(courseDTO.getName());
+        c.setTag(courseDTO.getTag());
+        c.setMin(courseDTO.getMin());
+        c.setMax(courseDTO.getMax());
+        c.setEnabled(courseDTO.isEnabled());
+
+        return true;
+    }
+
+    /*
+     * With the enableCourse method the specific course is enabled
+     *//*
     @Override
     public void enableCourse(String courseName) {
         if (!courseRepository.existsById(courseName))
@@ -132,9 +151,9 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.getOne(courseName).setEnabled(true);
     }
 
-    /**
+    *//*
      * With the disableCourse method the specific course is disabled
-     */
+     *//*
     @Override
     public void disableCourse(String courseName) {
         if (!courseRepository.existsById(courseName))
@@ -144,7 +163,7 @@ public class CourseServiceImpl implements CourseService {
             throw new CourseChangeNotValidException("You have no permission to change this course");
 
         courseRepository.getOne(courseName).setEnabled(false);
-    }
+    }*/
 
     /**
      * With the addStudentToCourse method a student is enrolled to a specific course
@@ -222,7 +241,8 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * With the deleteCourse method the passed course is removed if exists and if the current teacher is one
-     * of the teachers of the courses
+     * of the teachers of the courses. All the relationship are also deleted, for this reason a copy of the
+     * teachers list is taken in order to delete them from the course.
      */
     @Override
     public void deleteCourse(String courseName) {
@@ -232,7 +252,50 @@ public class CourseServiceImpl implements CourseService {
         if (!isValid(courseName))
             throw new CourseChangeNotValidException("You have no permission to change this course");
 
-        courseRepository.deleteById(courseName);
+        Course c = courseRepository.getOne(courseName);
+        List<Teacher> teachers = c.getTeachers();
+
+        List<Teacher> toRemove = new ArrayList<>(teachers);
+        toRemove.forEach(c::removeTeacher);
+
+        courseRepository.delete(c);
+    }
+
+    /**
+     * If the course exists and the teacher has the permissions, the student is deleted
+     * from the course.
+     */
+    @Override
+    public boolean deleteStudentFromCourse(String studentId, String courseName) {
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course not found");
+
+        if (!isValid(courseName))
+            throw new CourseChangeNotValidException("You have no permission to change this course");
+
+        Course c = courseRepository.getOne(courseName);
+        List<Student> students = c.getStudents();
+        Student toRemove = new Student();
+        for (Student s : students) {
+            if (s.getSerial().equals(studentId))
+                toRemove = s;
+        }
+
+        return c.removeStudent(toRemove);
+    }
+
+    /**
+     * This method is used to get all the courses of the authenticated teacher. In order to perform it a
+     * custom query was created in courseRepository.
+     */
+    @Override
+    public List<CourseDTO> getTeacherCourses() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Teacher teacher = teacherRepository.getOne(principal.getUsername());
+        return courseRepository.getTeacherCourses(teacher.getSerial())
+                .stream()
+                .map(c -> modelMapper.map(c, CourseDTO.class))
+                .collect(Collectors.toList());
     }
 
 

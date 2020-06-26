@@ -1,27 +1,15 @@
 package it.polito.ai.virtuallabs_back.controllers;
 
-import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
-import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
-import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
-import it.polito.ai.virtuallabs_back.services.TeamService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
 @RequestMapping("/API/students")
 public class StudentController {
 
-    @Autowired
+    /*@Autowired
     TeamService teamService;
 
     @GetMapping({"", "/"})
@@ -70,5 +58,6 @@ public class StudentController {
         List<StudentDTO> list = new ArrayList<>();
         map.forEach((s, studentDTO) -> list.add(studentDTO));
         return teamService.addAll(list);
-    }
+    }*/
+
 }

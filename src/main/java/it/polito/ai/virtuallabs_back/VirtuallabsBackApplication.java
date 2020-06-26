@@ -1,17 +1,11 @@
 package it.polito.ai.virtuallabs_back;
 
-import it.polito.ai.virtuallabs_back.entities.User;
-import it.polito.ai.virtuallabs_back.repositories.UserRepository;
 import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Arrays;
 
 @SpringBootApplication
 public class VirtuallabsBackApplication {
@@ -20,11 +14,6 @@ public class VirtuallabsBackApplication {
         return new ModelMapper();
     }
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    PasswordEncoder bCryptEncoder;
 
     @Bean
     CommandLineRunner runner(TeamService teamService) {
@@ -32,11 +21,21 @@ public class VirtuallabsBackApplication {
             @Override
             public void run(String... args) throws Exception {
 
-                User user = new User();
-                user.setUsername("a");
-                user.setPassword(bCryptEncoder.encode("aaa"));
-                user.setRoles(Arrays.asList("ROLE_ADMIN"));
-                userRepository.save(user);
+                /*AppUser appUser = new AppUser();
+                appUser.setUsername("a");
+                appUser.setPassword(bCryptEncoder.encode("aaa"));
+                appUser.setRoles(Arrays.asList("ROLE_TEACHER"));
+                userRepository.save(appUser);*/
+                /*Teacher teacher = new Teacher();
+                teacher.setName("Ahi");
+                List<String> roles = new ArrayList<>();
+                roles.add("ROLE_TEACHER");
+                AppUser appUser = userService.addUser(roles);
+                teacher.setSerial(appUser.getUsername());
+                teacherRepository.save(modelMapper.map(teacher, Teacher.class));*/
+                /*TeacherDTO teacherDTO = new TeacherDTO();
+                teacherDTO.setName("Antonio");
+                teacherService.addTeacher(teacherDTO);*/
             }
         };
     }

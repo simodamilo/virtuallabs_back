@@ -23,10 +23,13 @@ public interface CourseService {
     List<TeamDTO> getTeamsForCourse(String courseName);
 
     @PreAuthorize("hasRole('TEACHER')")
+    boolean modifyCourse(CourseDTO courseDTO);
+
+    /*@PreAuthorize("hasRole('TEACHER')")
     void enableCourse(String courseName);
 
     @PreAuthorize("hasRole('TEACHER')")
-    void disableCourse(String courseName);
+    void disableCourse(String courseName);*/
 
     @PreAuthorize("hasRole('TEACHER')")
     boolean addStudentToCourse(String studentId, String courseName);
@@ -42,5 +45,11 @@ public interface CourseService {
 
     @PreAuthorize("hasRole('TEACHER')")
     void deleteCourse(String name);
+
+    @PreAuthorize("hasRole('TEACHER')")
+    boolean deleteStudentFromCourse(String studentId, String courseName);
+
+    @PreAuthorize("hasRole('TEACHER')")
+    List<CourseDTO> getTeacherCourses();
 
 }

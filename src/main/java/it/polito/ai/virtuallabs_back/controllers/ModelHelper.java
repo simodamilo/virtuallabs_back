@@ -11,9 +11,9 @@ public class ModelHelper {
 
     public static CourseDTO enrich(CourseDTO courseDTO) {
         Link selfLink = WebMvcLinkBuilder.linkTo(CourseController.class).slash(courseDTO.getName()).withSelfRel();
-        Link enrolledLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CourseController.class)
-                .enrolledStudents(courseDTO.getName())).withRel("enrolled");
-        return courseDTO.add(selfLink, enrolledLink);
+        /*Link enrolledLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CourseController.class)
+                .enrolledStudents(courseDTO.getName())).withRel("enrolled");*/
+        return courseDTO.add(selfLink/*, enrolledLink*/);
     }
 
     public static StudentDTO enrich(StudentDTO studentDTO) {
@@ -22,9 +22,10 @@ public class ModelHelper {
     }
 
     public static TeamDTO enrich(TeamDTO teamDTO) {
-        Link membersLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(StudentController.class)
+        /*Link membersLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(StudentController.class)
                 .getTeamMembers(teamDTO.getId())).withRel("members");
-        return teamDTO.add(membersLink);
+        */
+        return teamDTO.add(/*membersLink*/);
     }
 
     public static TeacherDTO enrich(TeacherDTO teacherDTO) {
