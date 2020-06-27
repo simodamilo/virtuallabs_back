@@ -9,13 +9,11 @@ import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,14 +94,14 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.deleteById(teamId);
     }
 
-    @Override
-    @Scheduled(fixedRate = 600000)
-    public void clearToken() {
-        tokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
-                .forEach(t -> {
-                    evictTeam(t.getTeamId());
-                    tokenRepository.delete(t);
-                });
-    }
+//    @Override
+//    @Scheduled(fixedRate = 600000)
+//    public void clearToken() {
+//        tokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
+//                .forEach(t -> {
+//                    evictTeam(t.getTeamId());
+//                    tokenRepository.delete(t);
+//                });
+//    }
 
 }
