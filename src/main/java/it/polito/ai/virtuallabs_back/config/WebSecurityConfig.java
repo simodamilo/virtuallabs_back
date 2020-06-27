@@ -31,9 +31,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-// configure AuthenticationManager so that it knows from where to load
-// user for matching credentials
-// Use BCryptPasswordEncoder
         auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
     }
 
@@ -54,11 +51,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.csrf().disable()
 // dont authenticate this particular request
                 .authorizeRequests()
-                .antMatchers("/authenticate", "/notification/**")
+                .antMatchers("/API/**", "/authenticate", "/notification/**")
                 .permitAll()
 // all other requests need to be authenticated
-                .antMatchers("/API/**")
-                .authenticated()
+                //.antMatchers("/API/**")
+                //.authenticated()
                 .and()
 // make sure we use stateless session; session won't be used to
 // store user's state.

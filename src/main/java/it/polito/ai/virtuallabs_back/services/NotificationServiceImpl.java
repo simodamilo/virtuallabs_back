@@ -1,8 +1,8 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.entities.AppUser;
 import it.polito.ai.virtuallabs_back.entities.Token;
-import it.polito.ai.virtuallabs_back.entities.User;
 import it.polito.ai.virtuallabs_back.repositories.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -84,13 +84,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void notifyUser(User user, String pass) {
-        String address = user.getUsername() + "@studenti.polito.it";
+    public void notifyUser(AppUser appUser, String pass) {
+        String address = appUser.getUsername() + "@studenti.polito.it";
         System.out.println(address + " user");
         String subject = "Account creation";
         String body = "Hello \r\n" +
                 "an account has been created for you, to access the application use the following credentials. \r\n" +
-                "Username: " + user.getUsername() + "\r\n" +
+                "Username: " + appUser.getUsername() + "\r\n" +
                 "Password: " + pass;
         sendMessage(address, subject, body);
     }

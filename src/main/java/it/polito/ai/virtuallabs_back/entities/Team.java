@@ -26,7 +26,7 @@ public class Team {
     private ModelVM modelVM;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "course_name")
     private Course course;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
