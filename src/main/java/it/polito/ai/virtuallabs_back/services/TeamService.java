@@ -17,6 +17,6 @@ public interface TeamService {
 
     void evictTeam(Long teamId);
 
-    void clearToken();
+    /*void clearToken();*/
 
 }

@@ -15,5 +15,5 @@ public interface NotificationService {
 
     void notifyTeam(TeamDTO dto, List<String> memberIds);
 
-    void notifyUser(AppUser appUser, String pass);
+    void notifyUser(AppUser appUser, String name, String surname);
 }

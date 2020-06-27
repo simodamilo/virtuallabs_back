@@ -27,6 +27,7 @@ public class AppUser implements UserDetails {
     private Long id;
     private String username;
     private String password;
+    private boolean status;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

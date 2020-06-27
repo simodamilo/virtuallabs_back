@@ -3,7 +3,9 @@ package it.polito.ai.virtuallabs_back.services;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.entities.AppUser;
 import it.polito.ai.virtuallabs_back.entities.Token;
+import it.polito.ai.virtuallabs_back.entities.UserToken;
 import it.polito.ai.virtuallabs_back.repositories.TokenRepository;
+import it.polito.ai.virtuallabs_back.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,23 +21,25 @@ import java.util.UUID;
 public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
-    public JavaMailSender javaMailSender;
+    JavaMailSender javaMailSender;
 
     @Autowired
-    public TokenRepository tokenRepository;
+    TokenRepository tokenRepository;
 
     @Autowired
-    public TeamService teamService;
+    UserTokenRepository userTokenRepository;
+
+    @Autowired
+    TeamService teamService;
 
     @Override
     public void sendMessage(String address, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         //message.setTo(address);
-        message.setTo("gianmarcoliaci@hotmail.it");
+        message.setTo("ApplicazioniInternet2020@gmail.com");
         message.setSubject(subject);
         message.setText(body);
-        System.out.println("Fino a qui tutto ok");
-        //javaMailSender.send(message);
+        javaMailSender.send(message);
     }
 
     @Override
@@ -85,14 +89,21 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void notifyUser(AppUser appUser, String pass) {
-        String address = appUser.getUsername() + "@studenti.polito.it";
-        System.out.println(address + " user");
+    public void notifyUser(AppUser appUser, String name, String surname) {
+        String address = appUser.getUsername();
         String subject = "Account creation";
+        UserToken token = UserToken.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(appUser.getId())
+                .name(name)
+                .surname(surname)
+                .expiryDate(new Timestamp(System.currentTimeMillis() + /*3600000*24*/120000))
+                .build();
+        userTokenRepository.save(token);
         String body = "Hello \r\n" +
-                "an account has been created for you, to access the application use the following credentials. \r\n" +
-                "Username: " + appUser.getUsername() + "\r\n" +
-                "Password: " + pass;
+                "an account has been created for you, to confirm click the following link: \r\n" +
+                "Confirm : http://localhost:8080/confirm/" + token.getId() + " \r\n";
+        //TODO sistemare email con link al login
         sendMessage(address, subject, body);
     }
 }

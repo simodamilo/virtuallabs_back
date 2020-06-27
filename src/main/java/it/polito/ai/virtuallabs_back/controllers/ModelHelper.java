@@ -1,9 +1,6 @@
 package it.polito.ai.virtuallabs_back.controllers;
 
-import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
-import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
-import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
-import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.dtos.*;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 
@@ -31,6 +28,11 @@ public class ModelHelper {
     public static TeacherDTO enrich(TeacherDTO teacherDTO) {
         Link selfLink = WebMvcLinkBuilder.linkTo(TeacherController.class).slash(teacherDTO.getSerial()).withSelfRel();
         return teacherDTO.add(selfLink);
+    }
+
+    public static VMDTO enrich(VMDTO vmdto) {
+        Link selfLink = WebMvcLinkBuilder.linkTo(VMController.class).slash(vmdto.getId()).withSelfRel();
+        return vmdto.add(selfLink);
     }
 
 }

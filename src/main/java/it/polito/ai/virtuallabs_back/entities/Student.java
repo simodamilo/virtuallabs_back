@@ -1,6 +1,9 @@
 package it.polito.ai.virtuallabs_back.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -8,10 +11,14 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student {
 
     @Id
-    private String serial; // sxxxxxx
+    private String serial;
+    @Column(unique = true)
     private String email;
     private String name;
     private String surname;

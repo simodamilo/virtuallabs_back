@@ -4,10 +4,12 @@ import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
 import it.polito.ai.virtuallabs_back.services.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,11 +33,4 @@ public class TeacherController {
         return ModelHelper.enrich(teacherService.getTeacher(id).get());
     }
 
-    @PostMapping({"", "/"})
-    public TeacherDTO addTeacher(@Valid @RequestBody TeacherDTO dto) {
-        if (!teacherService.addTeacher(dto))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getSerial());
-
-        return ModelHelper.enrich(dto);
-    }
 }
