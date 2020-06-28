@@ -1,6 +1,5 @@
 package it.polito.ai.virtuallabs_back.services;
 
-import it.polito.ai.virtuallabs_back.dtos.AssignmentDTO;
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
 
 import java.util.List;
@@ -10,7 +9,7 @@ public interface SolutionService {
 
     Optional<SolutionDTO> getSolution(Long id);
 
-    List<SolutionDTO> getSolutionByAssignment(AssignmentDTO assignmentDTO);
+    List<SolutionDTO> getSolutionsByAssignment(Long id);
 
     boolean addSolution(SolutionDTO solutionDTO);
 

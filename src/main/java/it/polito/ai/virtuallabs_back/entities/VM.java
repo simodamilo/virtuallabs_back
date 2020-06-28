@@ -16,14 +16,14 @@ public class VM {
     private int vcpu;
     private int disk;
     private int ram;
-    private boolean on;
+    private boolean active;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "vm_student", joinColumns = @JoinColumn(name = "wm_id"),
+    @JoinTable(name = "vm_student", joinColumns = @JoinColumn(name = "vm_id"),
             inverseJoinColumns = @JoinColumn(name = "student_serial"))
     private List<Student> owners = new ArrayList<>();
 

@@ -1,6 +1,5 @@
 package it.polito.ai.virtuallabs_back.services;
 
-import it.polito.ai.virtuallabs_back.dtos.AssignmentDTO;
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
 import it.polito.ai.virtuallabs_back.entities.Solution;
 import it.polito.ai.virtuallabs_back.repositories.SolutionRepository;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,8 +28,11 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public List<SolutionDTO> getSolutionByAssignment(AssignmentDTO assignmentDTO) {
-        return null;
+    public List<SolutionDTO> getSolutionsByAssignment(Long id) {
+        return solutionRepository.findAllByAssignmentId(id)
+                .stream()
+                .map(s -> modelMapper.map(s, SolutionDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override

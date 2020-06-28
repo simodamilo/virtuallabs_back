@@ -8,13 +8,13 @@ import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Validated
@@ -69,18 +69,5 @@ public class StudentController {
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
-    }
-
-    @PostMapping({"", "/"})
-    public StudentDTO addStudent(@Valid @RequestBody StudentDTO dto) {
-        if (!studentService.addStudent(dto)) throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getSerial());
-        return ModelHelper.enrich(dto);
-    }
-
-    @PostMapping({"/addAll"})
-    public List<Boolean> addAll(@RequestBody Map<String, @Valid StudentDTO> map) {
-        List<StudentDTO> list = new ArrayList<>();
-        map.forEach((s, studentDTO) -> list.add(studentDTO));
-        return studentService.addAll(list);
     }
 }
