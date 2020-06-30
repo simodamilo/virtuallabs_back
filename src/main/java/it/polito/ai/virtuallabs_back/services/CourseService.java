@@ -25,12 +25,6 @@ public interface CourseService {
     @PreAuthorize("hasRole('TEACHER')")
     boolean modifyCourse(CourseDTO courseDTO);
 
-    /*@PreAuthorize("hasRole('TEACHER')")
-    void enableCourse(String courseName);
-
-    @PreAuthorize("hasRole('TEACHER')")
-    void disableCourse(String courseName);*/
-
     @PreAuthorize("hasRole('TEACHER')")
     boolean addStudentToCourse(String studentId, String courseName);
 

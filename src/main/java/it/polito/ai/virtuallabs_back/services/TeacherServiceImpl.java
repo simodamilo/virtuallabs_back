@@ -25,18 +25,12 @@ public class TeacherServiceImpl implements TeacherService {
     ModelMapper modelMapper;
 
 
-    /**
-     * With the getTeacher method all details about the teacher are returned
-     */
     @Override
     public Optional<TeacherDTO> getTeacher(String teacherId) {
         return teacherRepository.findById(teacherId)
                 .map(t -> modelMapper.map(t, TeacherDTO.class));
     }
 
-    /**
-     * With the getAllTeachers method all teachers details are returned
-     */
     @Override
     public List<TeacherDTO> getAllTeachers() {
         return teacherRepository.findAll()

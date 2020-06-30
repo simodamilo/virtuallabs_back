@@ -22,7 +22,7 @@ public class Teacher {
     private String email;
     private String name;
     private String surname;
-    private Byte[] image;
+    private byte[] image;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "teacher_course", joinColumns = @JoinColumn(name = "teacher_serial"),

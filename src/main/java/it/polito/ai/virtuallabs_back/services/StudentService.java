@@ -9,15 +9,36 @@ import java.util.Optional;
 
 public interface StudentService {
 
+    /**
+     * @param studentId
+     * @return
+     */
     Optional<StudentDTO> getStudent(String studentId);
 
+    /**
+     * @return
+     */
     List<StudentDTO> getAllStudents();
 
+    /**
+     * @return
+     */
     List<CourseDTO> getCourses();
 
+    /**
+     * @param courseName
+     * @return
+     */
     List<StudentDTO> getStudentsInTeams(String courseName);
 
+    /**
+     * @param courseName
+     * @return
+     */
     List<StudentDTO> getAvailableStudents(String courseName);
 
+    /**
+     * @return
+     */
     List<TeamDTO> getTeamsForStudent();
 }

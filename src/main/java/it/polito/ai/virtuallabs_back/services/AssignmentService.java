@@ -9,24 +9,36 @@ import java.util.Optional;
 public interface AssignmentService {
 
     /**
-     *
+     * @param id
+     * @return
      */
     Optional<AssignmentDTO> getAssignment(Long id);
 
     /**
      *
+     * @param courseName
+     * @return
      */
     List<AssignmentDTO> getAssignmentsByCourse(String courseName);
 
     /**
      *
+     * @param assignmentDTO
+     * @return
      */
     @PreAuthorize("hasRole('TEACHER')")
-    boolean addAssignment(AssignmentDTO assignmentDTO);
+    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName);
+
+    /**
+     * @param assignmentDTO
+     * @return
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    AssignmentDTO modifyAssignment(AssignmentDTO assignmentDTO);
 
     /**
      *
      */
-    @PreAuthorize("hasRole('TEACHER')")
-    boolean modifyAssignment(AssignmentDTO assignmentDTO);
+    void assignmentExpired();
+
 }

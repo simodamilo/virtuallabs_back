@@ -4,6 +4,7 @@ import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
 import it.polito.ai.virtuallabs_back.entities.Student;
+import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.entities.Team;
 import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.*;
@@ -26,6 +27,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     StudentRepository studentRepository;
+
+    @Autowired
+    TeacherRepository teacherRepository;
 
     @Autowired
     TeamRepository teamRepository;
@@ -80,6 +84,30 @@ public class TeamServiceImpl implements TeamService {
         TeamDTO teamDTO = modelMapper.map(teamRepository.save(team), TeamDTO.class);
         notificationService.notifyTeam(teamDTO, memberIds);
         return teamDTO;
+    }
+
+    @Override
+    public TeamDTO acceptTeam(TeamDTO teamDTO) {
+        return null;
+    }
+
+    @Override
+    public TeamDTO setTeamParams(TeamDTO teamDTO) {
+        if (!teamRepository.existsById(teamDTO.getId()))
+            throw new TeamNotFoundException("Team not found");
+        Team team = teamRepository.getOne(teamDTO.getId());
+        if (team.getStatus() == 0)
+            throw new TeamNotFoundException("Team is no active");
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Teacher t = teacherRepository.getOne(principal.getUsername().split("@")[0]);
+        if (!t.getCourses().contains(team.getCourse()))
+            throw new CourseNotValidException("Tou are not allowed to change this team");
+        team.setActiveInstance(teamDTO.getActiveInstance());
+        team.setVcpu(teamDTO.getVcpu());
+        team.setDisk(teamDTO.getDisk());
+        team.setMaxInstance(teamDTO.getMaxInstance());
+        team.setRam(teamDTO.getRam());
+        return modelMapper.map(team, TeamDTO.class);
     }
 
     @Override

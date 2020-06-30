@@ -16,7 +16,7 @@ public class Assignment {
     private Long id;
     private Date releaseDate;
     private Date deadline;
-    private Byte[] content;
+    private byte[] content;
 
     @ManyToOne
     @JoinColumn(name = "course_name")

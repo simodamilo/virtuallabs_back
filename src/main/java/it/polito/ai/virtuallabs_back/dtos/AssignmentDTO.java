@@ -14,6 +14,5 @@ public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
     private Date releaseDate;
     @NotNull
     private Date deadline;
-    @NotNull
-    private Byte[] content;
+    private byte[] content;
 }

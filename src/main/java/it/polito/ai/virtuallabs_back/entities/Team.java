@@ -13,6 +13,7 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String name; /* vedere se mettere unique */
     private int status;
     private int vcpu;

@@ -19,7 +19,6 @@ public class ModelVM {
     @OneToMany(mappedBy = "modelVM")
     private List<Team> teams = new ArrayList<>();
 
-
     public boolean addTeam(Team team) {
         if (teams.contains(team)) return false;
         team.setModelVM(this);

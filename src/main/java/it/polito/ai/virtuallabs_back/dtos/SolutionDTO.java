@@ -11,13 +11,11 @@ import java.sql.Timestamp;
 public class SolutionDTO extends RepresentationModel<SolutionDTO> {
 
     private Long id;
-    @NotNull
-    private Byte[] content;
+    private byte[] content;
     @NotNull
     private Solution.State state;
     @NotNull
     private Timestamp deliveryTs;
-    @NotNull
     private boolean active;
 
 }
