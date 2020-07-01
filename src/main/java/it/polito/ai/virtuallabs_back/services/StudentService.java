@@ -41,4 +41,10 @@ public interface StudentService {
      * @return
      */
     List<TeamDTO> getTeamsForStudent();
+
+    /**
+     * @param image
+     * @return
+     */
+    StudentDTO uploadImage(byte[] image);
 }

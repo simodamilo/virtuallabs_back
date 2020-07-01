@@ -113,22 +113,25 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Scheduled(fixedRate = 10000)
     public void assignmentExpired() {
         assignmentRepository.findAllByDeadlineBefore(new Date()).forEach(a -> {
-            a.getCourse().getStudents().forEach(student -> {
-                if (solutionRepository.getAllByStudentAndAssignment(student, a)
-                        .stream()
-                        .noneMatch(solution -> solution.getState().equals(Solution.State.DELIVERED))) {
-                    solutionRepository.save(Solution.builder()
-                            .active(false)
-                            .assignment(a)
-                            .content(null)
-                            .deliveryTs(new Timestamp(System.currentTimeMillis()))
-                            .student(student)
-                            .state(Solution.State.DELIVERED)
-                            .build());
-                }
-
-            });
+            if (!a.isTerminated()) {
+                a.getCourse().getStudents().forEach(student -> {
+                    if (solutionRepository.getAllByStudentAndAssignment(student, a)
+                            .stream()
+                            .noneMatch(solution -> solution.getState().equals(Solution.State.DELIVERED))) {
+                        solutionRepository.save(Solution.builder()
+                                .active(false)
+                                .assignment(a)
+                                .content(null)
+                                .deliveryTs(new Timestamp(System.currentTimeMillis()))
+                                .student(student)
+                                .state(Solution.State.DELIVERED)
+                                .build());
+                    }
+                });
+                a.setTerminated(true);
+            }
         });
+
     }
 
 }

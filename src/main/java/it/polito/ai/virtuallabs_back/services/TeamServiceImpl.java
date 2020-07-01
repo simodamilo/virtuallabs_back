@@ -35,6 +35,9 @@ public class TeamServiceImpl implements TeamService {
     TeamRepository teamRepository;
 
     @Autowired
+    VMRepository vmRepository;
+
+    @Autowired
     UserService userService;
 
     @Autowired
@@ -88,6 +91,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDTO acceptTeam(TeamDTO teamDTO) {
+
         return null;
     }
 
@@ -101,7 +105,15 @@ public class TeamServiceImpl implements TeamService {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Teacher t = teacherRepository.getOne(principal.getUsername().split("@")[0]);
         if (!t.getCourses().contains(team.getCourse()))
-            throw new CourseNotValidException("Tou are not allowed to change this team");
+            throw new CourseNotValidException("You are not allowed to change this team");
+
+        team.getVms().forEach(vm -> {
+            int totalDisk = +vm.getDisk();
+            int totalRam = +vm.getRam();
+            int totalVcpu = +vm.getVcpu();
+            if (totalDisk > teamDTO.getDisk() || totalRam > teamDTO.getRam() || totalVcpu > teamDTO.getVcpu())
+                throw new TeamChangeNotValidException("New parameters do not respect current values");
+        });
         team.setActiveInstance(teamDTO.getActiveInstance());
         team.setVcpu(teamDTO.getVcpu());
         team.setDisk(teamDTO.getDisk());

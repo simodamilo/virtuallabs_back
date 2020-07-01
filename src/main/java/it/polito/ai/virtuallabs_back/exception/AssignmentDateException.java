@@ -1,6 +1,10 @@
 package it.polito.ai.virtuallabs_back.exception;
 
-public class AssignmentDateException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.CONFLICT)
+public class AssignmentDateException extends AssignmentServiceException {
     public AssignmentDateException(String msg) {
         super(msg);
     }

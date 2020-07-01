@@ -3,6 +3,7 @@ package it.polito.ai.virtuallabs_back.services;
 import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
 import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
@@ -83,6 +84,15 @@ public class StudentServiceImpl implements StudentService {
                 .stream()
                 .map(t -> modelMapper.map(t, TeamDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public StudentDTO uploadImage(byte[] image) {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Student student = studentRepository.getOne(principal.getUsername().split("@")[0]);
+
+        student.setImage(/*compressBytes(image)*/image);
+        return modelMapper.map(student, StudentDTO.class);
     }
 
 }
