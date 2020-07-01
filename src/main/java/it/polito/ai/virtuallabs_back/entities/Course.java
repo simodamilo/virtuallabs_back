@@ -27,6 +27,9 @@ public class Course {
     private List<Team> teams = new ArrayList<>();
 
     @OneToMany(mappedBy = "course")
+    private List<VM> vms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
     private List<Assignment> assignments = new ArrayList<>();
 
     @ManyToMany(mappedBy = "courses")
@@ -55,6 +58,20 @@ public class Course {
     public boolean removeTeam(Team team) {
         if (!teams.contains(team)) return false;
         team.setCourse(null);
+        return true;
+    }
+
+    public boolean addVm(VM vm) {
+        if (vms.contains(vm)) return false;
+        vms.add(vm);
+        vm.setCourse(this);
+        return true;
+    }
+
+    public boolean removeVm(VM vm) {
+        if (!vms.contains(vm)) return false;
+        vms.remove(vm);
+        vm.setCourse(this);
         return true;
     }
 

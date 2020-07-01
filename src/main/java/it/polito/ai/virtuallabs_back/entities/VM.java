@@ -16,11 +16,15 @@ public class VM {
     private int vcpu;
     private int disk;
     private int ram;
-    private boolean on;
+    private boolean active;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @ManyToOne
+    @JoinColumn(name = "course_name")
+    private Course course;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "vm_student", joinColumns = @JoinColumn(name = "wm_id"),
@@ -35,6 +39,16 @@ public class VM {
         } else {
             this.team = team;
             team.getVms().add(this);
+        }
+    }
+
+    public void setCourse(Course course) {
+        if (this.course != null) this.course.getVms().remove(this);
+        if (course == null) {
+            if (this.course != null) this.course = null;
+        } else {
+            this.course = course;
+            course.getVms().add(this);
         }
     }
 

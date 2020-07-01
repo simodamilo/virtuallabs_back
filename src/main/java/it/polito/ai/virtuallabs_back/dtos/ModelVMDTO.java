@@ -6,6 +6,7 @@ import org.springframework.hateoas.RepresentationModel;
 @Data
 public class ModelVMDTO extends RepresentationModel<ModelVMDTO> {
 
-    private String id;
+    private Long id;
     private String name;
+    private String type;
 }

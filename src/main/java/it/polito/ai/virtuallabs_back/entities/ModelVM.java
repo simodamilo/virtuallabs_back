@@ -1,34 +1,33 @@
 package it.polito.ai.virtuallabs_back.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ModelVM {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
+    private String type;
+    @OneToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
-    @OneToMany(mappedBy = "modelVM")
-    private List<Team> teams = new ArrayList<>();
 
-
-    public boolean addTeam(Team team) {
-        if (teams.contains(team)) return false;
-        team.setModelVM(this);
-        return true;
-    }
-
-    public boolean removeTeam(Team team) {
-        if (!teams.contains(team)) return false;
-        team.setModelVM(null);
-        return true;
+    public void setTeam(Team team) {
+        if (team != null) {
+            this.team = team;
+            getTeam().setModelVM(this);
+        }
     }
 }

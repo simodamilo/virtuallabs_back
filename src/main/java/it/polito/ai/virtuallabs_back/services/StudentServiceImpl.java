@@ -1,12 +1,8 @@
 package it.polito.ai.virtuallabs_back.services;
 
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
-import it.polito.ai.virtuallabs_back.entities.AppUser;
-import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
 import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
@@ -17,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,7 +47,7 @@ public class StudentServiceImpl implements StudentService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+    /*@Override
     public boolean addStudent(StudentDTO student) {
         List<String> roles = new ArrayList<>();
         roles.add("ROLE_STUDENT");
@@ -61,10 +55,10 @@ public class StudentServiceImpl implements StudentService {
         student.setSerial(appUser.getUsername());
         studentRepository.save(modelMapper.map(student, Student.class));
         return true;
-    }
+    }*/
 
 
-    @Override
+    /*@Override
     public List<Boolean> addAll(List<StudentDTO> students) {
         List<Boolean> result = new ArrayList<>();
         for (StudentDTO s : students) result.add(addStudent(s));
@@ -79,7 +73,7 @@ public class StudentServiceImpl implements StudentService {
                 .build();
         List<StudentDTO> students = csvToBean.parse();
         return addAll(students);
-    }
+    }*/
 
     @Override
     public List<CourseDTO> getCourses() {

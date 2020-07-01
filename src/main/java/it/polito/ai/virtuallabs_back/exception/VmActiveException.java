@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class VmChangeNotValidException extends TeamServiceException {
-    public VmChangeNotValidException(String msg) {
+public class VmActiveException extends TeamServiceException {
+    public VmActiveException(String msg) {
         super(msg);
     }
 }

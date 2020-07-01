@@ -27,30 +27,52 @@ public class VMController {
         return ModelHelper.enrich(vmService.getVm(id).get());
     }
 
-    @GetMapping("/teams/{teamId}") //TODO
-    public List<VMDTO> getVMForTeam(@PathVariable String courseName) {
-        return vmService.getVMForTeam(courseName)
+    @GetMapping("/getStudentVm")
+    public List<VMDTO> getVmForStudent() {
+        return vmService.getVmForStudent()
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/{courseName}/addOne")
-    public VMDTO addVm(@Valid @RequestBody VMDTO vmDTO, @PathVariable String courseName) {
-        if (!vmService.addVm(vmDTO, courseName))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A vm with id " + vmDTO.getId() + " already exists");
-
-        return ModelHelper.enrich(vmDTO);
+    @GetMapping("/{teamId}/getTeamVm")
+    public List<VMDTO> getVmForTeam(@PathVariable Long teamId) {
+        return vmService.getVmForTeam(teamId)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
+
+    @GetMapping("/{courseName}/getAll")
+    public List<VMDTO> getVmForCourse(@PathVariable String courseName) {
+        return vmService.getVmForCourse(courseName)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
+    }
+
+
+    @PostMapping("/{teamId}/add")
+    public VMDTO addVm(@Valid @RequestBody VMDTO vmDTO, @PathVariable Long teamId) {
+        return ModelHelper.enrich(vmService.addVm(vmDTO, teamId));
+    }
+
 
     @PutMapping("/modify")
-    public VMDTO modifyVm(@Valid @RequestBody VMDTO vmDTO) { // forse le put si possono fare in questo modo
-        VMDTO vm = vmService.modifyVm(vmDTO);
-        if (vm == null)
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "It is not possible to modify the vm");
-        else
-            return vm;
+    public VMDTO modifyVm(@Valid @RequestBody VMDTO vmDTO) {
+        return ModelHelper.enrich(vmService.modifyVm(vmDTO));
     }
+
+    @PutMapping("/{id}/onOff")
+    public VMDTO onOff(@PathVariable Long id) {
+        return ModelHelper.enrich(vmService.onOff(id));
+    }
+
+    @PutMapping("/{id}/addOwner/{serial}")
+    public VMDTO addOwner(@PathVariable Long id, @PathVariable String serial) {
+        return ModelHelper.enrich(vmService.addOwner(id, serial));
+    }
+
 
     @DeleteMapping("/{id}/delete")
     public void deleteVm(@PathVariable Long id) {

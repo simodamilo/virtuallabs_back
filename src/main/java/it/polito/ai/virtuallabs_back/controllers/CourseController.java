@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.controllers;
 
 import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,73 +67,67 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
 
+
     @PostMapping({"", "/"})
     public CourseDTO addCourse(@Valid @RequestBody CourseDTO courseDTO) {
-        if (!courseService.addCourse(courseDTO))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A course with name " + courseDTO.getName() + " already exists");
-
-        return ModelHelper.enrich(courseDTO);
+        return ModelHelper.enrich(courseService.addCourse(courseDTO));
     }
 
     @PostMapping("/{name}/enrollOne")
     @ResponseStatus(code = HttpStatus.OK, reason = "Student enrolled")
-    public void enrollStudent(@PathVariable String name, @RequestBody Map<String, String> map) {
+    public StudentDTO enrollStudent(@PathVariable String name, @RequestBody Map<String, String> map) {
         if (!map.containsKey("id") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
 
-        if (!courseService.addStudentToCourse(map.get("id"), name))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Course is not enabled");
+        return ModelHelper.enrich(courseService.addStudentToCourse(map.get("id"), name));
     }
 
     @PostMapping("/{name}/assignTeacher")
     @ResponseStatus(code = HttpStatus.OK, reason = "Teacher assigned")
-    public void assignTeacher(@PathVariable String name, @RequestBody Map<String, String> map) {
+    public TeacherDTO assignTeacher(@PathVariable String name, @RequestBody Map<String, String> map) {
         if (!map.containsKey("id") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
 
-        if (!courseService.addTeacherToCourse(map.get("id"), name))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, map.get("id"));
+        return ModelHelper.enrich(courseService.addTeacherToCourse(map.get("id"), name));
     }
 
     @PostMapping("/{name}/enrollAll")
-    public List<Boolean> enrollAll(@PathVariable String name, @RequestBody Map<String, Object> map) {
+    public List<StudentDTO> enrollAll(@PathVariable String name, @RequestBody Map<String, Object> map) {
         if (!map.containsKey("ids") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
-        return courseService.enrollAll((List<String>) map.get("ids"), name);
+        return courseService.enrollAll((List<String>) map.get("ids"), name)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/{name}/enrollAllCsv")
-    public List<Boolean> enrollAllCsv(@PathVariable String name, @RequestParam("file") MultipartFile file) {
+    public List<StudentDTO> enrollAllCsv(@PathVariable String name, @RequestParam("file") MultipartFile file) {
         if (!file.getContentType().equals("text/csv"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
 
         try {
             Reader reader = new InputStreamReader(file.getInputStream());
-            return courseService.enrollCsv(reader, name);
+            return courseService.enrollCsv(reader, name)
+                    .stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
         } catch (IOException ioe) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
+
     @PutMapping("/modify")
     @ResponseStatus(code = HttpStatus.OK, reason = "Course correctly modified")
-    public void modifyCourse(@Valid @RequestBody CourseDTO courseDTO) {
-        if (!courseService.modifyCourse(courseDTO))
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+    public CourseDTO modifyCourse(@Valid @RequestBody CourseDTO courseDTO) {
+        return ModelHelper.enrich(courseService.modifyCourse(courseDTO));
     }
 
-    /*@PutMapping("/{name}/enable")
-    public void enableCourse(@PathVariable String name) {
-        courseService.enableCourse(name);
-    }
-
-    @PutMapping("/{name}/disable")
-    public void disableCourse(@PathVariable String name) {
-        courseService.disableCourse(name);
-    }*/
 
     @DeleteMapping("/{name}/delete")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Course correctly deleted")
     public void deleteCourse(@PathVariable String name) {
         courseService.deleteCourse(name);
     }
@@ -143,8 +138,7 @@ public class CourseController {
         if (!map.containsKey("id") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
 
-        if (!courseService.deleteStudentFromCourse(map.get("id"), name))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, map.get("id"));
+        courseService.deleteStudentFromCourse(map.get("id"), name);
     }
 
 }

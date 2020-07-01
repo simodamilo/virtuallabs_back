@@ -13,7 +13,7 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name; /* vedere se mettere unique */
+    private String name;
     private int status;
     private int vcpu;
     private int disk;
@@ -21,8 +21,7 @@ public class Team {
     private int activeInstance;
     private int maxInstance;
 
-    @ManyToOne
-    @JoinColumn(name = "modelVM_id")
+    @OneToOne(mappedBy = "team")
     private ModelVM modelVM;
 
     @OneToMany(mappedBy = "team")
@@ -52,12 +51,9 @@ public class Team {
 
     /* vedere se ha senso mettere la possibilità di eliminare il modelVM dal team */
     public void setModelVM(ModelVM modelVM) {
-        if (this.modelVM != null) this.modelVM.getTeams().remove(this);
-        if (modelVM == null) {
-            if (this.modelVM != null) this.modelVM = null;
-        } else {
+        if (modelVM != null) {
             this.modelVM = modelVM;
-            modelVM.getTeams().add(this);
+            getModelVM().setTeam(this);
         }
     }
 
