@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class StudentAlreadyInTeamException extends StudentServiceException {
-    public StudentAlreadyInTeamException(String msg) {
+public class SolutionChangeNotValid extends RuntimeException {
+    public SolutionChangeNotValid(String msg) {
         super(msg);
     }
 }

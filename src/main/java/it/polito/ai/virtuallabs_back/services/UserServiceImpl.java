@@ -11,7 +11,6 @@ import it.polito.ai.virtuallabs_back.repositories.TeacherRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -90,7 +89,7 @@ public class UserServiceImpl implements UserService {
         if (token1.getExpiryDate().before(new Timestamp(System.currentTimeMillis())))
             return false;
 
-        AppUser user = userRepository.getOne(token1.getUserId());
+        AppUser user = userRepository.getOne(token1.getAppUserId());
         List<String> roles = new ArrayList<>();
         if (user.getUsername().endsWith("studenti.polito.it")) {
             roles.add("ROLE_STUDENT");
@@ -107,18 +106,18 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
-    @Override
+/*    @Override
     @Scheduled(fixedRate = 10000)
     public void clearUser() {
         userTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
                 .forEach(t -> {
-                    if (!userRepository.findById(t.getUserId()).isPresent())
+                    if (!userRepository.findById(t.getAppUserId()).isPresent())
                         return;
-                    AppUser user = userRepository.findById(t.getUserId()).get();
+                    AppUser user = userRepository.findById(t.getAppUserId()).get();
                     userRepository.delete(user);
                     userTokenRepository.delete(t);
                 });
-    }
+    }*/
 
 
     private void addStudent(UserToken token, String email) {

@@ -3,6 +3,7 @@ package it.polito.ai.virtuallabs_back.services;
 import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
 import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
@@ -47,38 +48,10 @@ public class StudentServiceImpl implements StudentService {
                 .collect(Collectors.toList());
     }
 
-    /*@Override
-    public boolean addStudent(StudentDTO student) {
-        List<String> roles = new ArrayList<>();
-        roles.add("ROLE_STUDENT");
-        AppUser appUser = userService.addUser(roles);
-        student.setSerial(appUser.getUsername());
-        studentRepository.save(modelMapper.map(student, Student.class));
-        return true;
-    }*/
-
-
-    /*@Override
-    public List<Boolean> addAll(List<StudentDTO> students) {
-        List<Boolean> result = new ArrayList<>();
-        for (StudentDTO s : students) result.add(addStudent(s));
-        return result;
-    }
-
-    @Override
-    public List<Boolean> addAllCSV(Reader r) {
-        CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder<StudentDTO>(r)
-                .withType(StudentDTO.class)
-                .withIgnoreLeadingWhiteSpace(true)
-                .build();
-        List<StudentDTO> students = csvToBean.parse();
-        return addAll(students);
-    }*/
-
     @Override
     public List<CourseDTO> getCourses() {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return studentRepository.getOne(principal.getUsername())
+        return studentRepository.getOne(principal.getUsername().split("@")[0])
                 .getCourses()
                 .stream()
                 .map(c -> modelMapper.map(c, CourseDTO.class))
@@ -106,11 +79,20 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<TeamDTO> getTeamsForStudent() {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return studentRepository.getOne(principal.getUsername())
+        return studentRepository.getOne(principal.getUsername().split("@")[0])
                 .getTeams()
                 .stream()
                 .map(t -> modelMapper.map(t, TeamDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public StudentDTO uploadImage(byte[] image) {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Student student = studentRepository.getOne(principal.getUsername().split("@")[0]);
+
+        student.setImage(/*compressBytes(image)*/image);
+        return modelMapper.map(student, StudentDTO.class);
     }
 
 }

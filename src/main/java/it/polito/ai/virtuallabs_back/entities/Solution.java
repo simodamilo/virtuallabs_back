@@ -1,22 +1,29 @@
 package it.polito.ai.virtuallabs_back.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 
-@Data
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Solution {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Byte[] content;
+    private byte[] content;
     private State state;
     private Timestamp deliveryTs;
     private boolean active;
+    private String grade;
     @ManyToOne
     @JoinColumn(name = "student_serial")
     private Student student;

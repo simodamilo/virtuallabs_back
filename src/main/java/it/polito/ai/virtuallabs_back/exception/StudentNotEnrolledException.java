@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class StudentNotEnrolledException extends TeamServiceException {
+public class StudentNotEnrolledException extends StudentServiceException {
     public StudentNotEnrolledException(String msg) {
         super(msg);
     }

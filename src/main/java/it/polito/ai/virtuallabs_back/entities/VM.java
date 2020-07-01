@@ -27,7 +27,7 @@ public class VM {
     private Course course;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "vm_student", joinColumns = @JoinColumn(name = "wm_id"),
+    @JoinTable(name = "vm_student", joinColumns = @JoinColumn(name = "vm_id"),
             inverseJoinColumns = @JoinColumn(name = "student_serial"))
     private List<Student> owners = new ArrayList<>();
 

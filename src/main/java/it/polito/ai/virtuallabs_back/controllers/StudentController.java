@@ -8,12 +8,11 @@ import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,16 +70,11 @@ public class StudentController {
                 .collect(Collectors.toList());
     }
 
-    /*@PostMapping({"", "/"})
-    public StudentDTO addStudent(@Valid @RequestBody StudentDTO dto) {
-        if (!studentService.addStudent(dto)) throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getSerial());
-        return ModelHelper.enrich(dto);
-    }
+    @PutMapping("/uploadImage")
+    public StudentDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
+        if (!file.getContentType().split("/")[0].equals("image"))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
 
-    @PostMapping({"/addAll"})
-    public List<Boolean> addAll(@RequestBody Map<String, @Valid StudentDTO> map) {
-        List<StudentDTO> list = new ArrayList<>();
-        map.forEach((s, studentDTO) -> list.add(studentDTO));
-        return studentService.addAll(list);
-    }*/
+        return studentService.uploadImage(file.getBytes());
+    }
 }

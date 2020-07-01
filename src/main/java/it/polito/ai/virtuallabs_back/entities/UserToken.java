@@ -18,7 +18,7 @@ public class UserToken {
 
     @Id
     private String id;
-    private Long userId;
+    private Long appUserId;
     private Timestamp expiryDate;
     private String name;
     private String surname;

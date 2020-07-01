@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,11 +29,13 @@ public class AssignmentController {
         return assignmentService.getAssignment(id).get();
     }
 
-    @PostMapping({"", "/"})
-    public AssignmentDTO addAssign(@RequestBody AssignmentDTO dto) {
-        if (!assignmentService.addAssignment(dto))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId().toString());
-        return dto;
+    @PostMapping("/{courseName}")
+    public AssignmentDTO addAssignment(@Valid @RequestBody AssignmentDTO dto, @PathVariable String courseName) {
+        return assignmentService.addAssignment(dto, courseName);
     }
 
+    @PutMapping({"", "/"})
+    public AssignmentDTO modifyAssignment(@Valid @RequestBody AssignmentDTO dto) {
+        return assignmentService.modifyAssignment(dto);
+    }
 }

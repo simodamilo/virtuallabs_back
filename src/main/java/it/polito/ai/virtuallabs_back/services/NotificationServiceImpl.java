@@ -94,7 +94,7 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = "Account creation";
         UserToken token = UserToken.builder()
                 .id(UUID.randomUUID().toString())
-                .userId(appUser.getId())
+                .appUserId(appUser.getId())
                 .name(name)
                 .surname(surname)
                 .expiryDate(new Timestamp(System.currentTimeMillis() + /*3600000*24*/120000))
