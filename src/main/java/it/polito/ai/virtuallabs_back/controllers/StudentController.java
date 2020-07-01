@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Validated
@@ -102,7 +103,7 @@ public class StudentController {
 
     @PutMapping("/uploadImage")
     public StudentDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
-        if (!file.getContentType().split("/")[0].equals("image"))
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         return studentService.uploadImage(file.getBytes());
     }

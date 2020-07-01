@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface SolutionRepository extends JpaRepository<Solution, Long> {
-    Solution getByStudentSerialAndAssignmentAndActiveFalse(String serial, Assignment assignment);
+    Solution getByStudentSerialAndAssignmentAndModifiableFalse(String serial, Assignment assignment);
 
     List<Solution> getAllByStudentAndAssignment(Student student, Assignment assignment);
 }

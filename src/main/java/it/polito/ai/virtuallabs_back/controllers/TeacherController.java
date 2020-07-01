@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,7 +42,7 @@ public class TeacherController {
 
     @PutMapping("/uploadImage")
     public TeacherDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
-        if (!file.getContentType().split("/")[0].equals("image"))
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         return teacherService.uploadImage(file.getBytes());
     }

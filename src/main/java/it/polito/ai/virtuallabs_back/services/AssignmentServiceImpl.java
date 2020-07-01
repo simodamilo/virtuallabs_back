@@ -84,7 +84,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                             .deliveryTs(new Timestamp(assignmentDTO.getReleaseDate().getTime()))
                             .state(Solution.State.NULL)
                             .student(student)
-                            .active(true)
+                            .modifiable(true)
                             .build();
                     solutionRepository.save(s);
                 }
@@ -119,7 +119,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                             .stream()
                             .noneMatch(solution -> solution.getState().equals(Solution.State.DELIVERED))) {
                         solutionRepository.save(Solution.builder()
-                                .active(false)
+                                .modifiable(false)
                                 .assignment(a)
                                 .content(null)
                                 .deliveryTs(new Timestamp(System.currentTimeMillis()))

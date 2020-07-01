@@ -1,19 +1,18 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
-import it.polito.ai.virtuallabs_back.entities.Course;
-import it.polito.ai.virtuallabs_back.entities.Student;
-import it.polito.ai.virtuallabs_back.entities.Teacher;
-import it.polito.ai.virtuallabs_back.entities.Team;
+import it.polito.ai.virtuallabs_back.entities.*;
 import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class TeamServiceImpl implements TeamService {
     UserService userService;
 
     @Autowired
-    TokenRepository tokenRepository;
+    TeamTokenRepository teamTokenRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -51,41 +50,52 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     NotificationService notificationService;
 
-
-    @Override
-    public List<TeamDTO> getCourseTeams(String courseName) {
-        if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not Found");
-
-        return courseRepository.getOne(courseName)
-                .getTeams()
-                .stream()
-                .map(t -> modelMapper.map(t, TeamDTO.class))
-                .collect(Collectors.toList());
-    }
-
     @Override
     public List<TeamDTO> getStudentTeams() {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return studentRepository.getOne(principal.getUsername().split("@")[0])
                 .getTeams()
                 .stream()
+                .filter(team -> team.getStatus() == 1)
                 .map(t -> modelMapper.map(t, TeamDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public TeamDTO proposeTeam(String courseName, String name, List<String> memberIds) {
+    public List<TeamDTO> getStudentPendingTeams() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentRepository.getOne(principal.getUsername().split("@")[0])
+                .getTeams()
+                .stream()
+                .filter(team -> team.getStatus() == 0)
+                .map(t -> modelMapper.map(t, TeamDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeamDTO> getCourseTeams(String courseName) {
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course not Found");
+        return courseRepository.getOne(courseName)
+                .getTeams()
+                .stream()
+                .filter(team -> team.getStatus() == 1)
+                .map(t -> modelMapper.map(t, TeamDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TeamDTO proposeTeam(String courseName, String name, List<String> studentSerials) {
         if (!courseRepository.existsById(courseName)) throw new CourseNotFoundException("Course not found");
         Course c = courseRepository.getOne(courseName);
         if (!c.isEnabled()) throw new CourseNotEnabledException("Course is not active");
-        if (memberIds.size() < c.getMin() || memberIds.size() > c.getMax())
+        if (studentSerials.size() < c.getMin() || studentSerials.size() > c.getMax())
             throw new CourseSizeException("Team does not respect the size of the course");
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!memberIds.contains(user.getUsername()))
+        if (!studentSerials.contains(user.getUsername()))
             throw new UserRequestNotValidException("You are not part of the team");
         Team team = new Team();
-        for (String s : memberIds) {
+        for (String s : studentSerials) {
             if (!studentRepository.existsById(s)) throw new StudentNotFoundException("Student not found");
             Student student = studentRepository.getOne(s);
             if (!c.getStudents().contains(student))
@@ -97,14 +107,21 @@ public class TeamServiceImpl implements TeamService {
         team.setName(name);
         team.setCourse(c);
         TeamDTO teamDTO = modelMapper.map(teamRepository.save(team), TeamDTO.class);
-        notificationService.notifyTeam(teamDTO, memberIds);
+        notificationService.notifyTeam(teamDTO, studentSerials);
         return teamDTO;
     }
 
     @Override
-    public TeamDTO acceptTeam(TeamDTO teamDTO) {
+    public TeamDTO acceptTeam(Long teamId) {
+        Team team = isValid(teamId);
+        if (teamTokenRepository.findAllByTeamId(teamId).isEmpty())
+            team.setStatus(1);
+        return modelMapper.map(team, TeamDTO.class);
+    }
 
-        return null;
+    @Override
+    public void rejectTeam(Long teamId) {
+        teamRepository.delete(isValid(teamId));
     }
 
     @Override
@@ -134,26 +151,29 @@ public class TeamServiceImpl implements TeamService {
         return modelMapper.map(team, TeamDTO.class);
     }
 
-    @Override
-    public void enableTeam(Long teamId) {
-        if (!teamRepository.existsById(teamId)) throw new TeamNotFoundException("Team not found");
-        teamRepository.getOne(teamId).setStatus(1);
+    private Team isValid(Long teamId) {
+        if (!teamRepository.existsById(teamId))
+            throw new TeamNotFoundException("Team not found");
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Student student = studentRepository.getOne(principal.getUsername().split("@")[0]);
+        if (!teamTokenRepository.existsByTeamIdAndStudentSerial(teamId, student.getSerial()))
+            throw new TeamTokenNotFoundException("token not found");
+        TeamToken teamToken = teamTokenRepository.getByTeamIdAndStudentSerial(teamId, student.getSerial());
+        if (teamToken.getExpiryDate().before(new Timestamp(System.currentTimeMillis())))
+            throw new TeamTokenExpiredException("Token already expired");
+        return teamRepository.getOne(teamId);
     }
 
     @Override
-    public void evictTeam(Long teamId) {
-        if (!teamRepository.existsById(teamId)) throw new TeamNotFoundException("Team not found");
-        teamRepository.deleteById(teamId);
+    @Scheduled(fixedRate = 600000)
+    public void clearToken() {
+        teamTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
+                .forEach(teamToken -> {
+                    if (teamRepository.existsById(teamToken.getTeamId())) {
+                        teamRepository.delete(teamRepository.getOne(teamToken.getTeamId()));
+                    }
+                    teamTokenRepository.delete(teamToken);
+                });
     }
-
-//    @Override
-//    @Scheduled(fixedRate = 600000)
-//    public void clearToken() {
-//        tokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
-//                .forEach(t -> {
-//                    evictTeam(t.getTeamId());
-//                    tokenRepository.delete(t);
-//                });
-//    }
 
 }

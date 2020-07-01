@@ -31,7 +31,7 @@ public class JwtAuthenticationController {
     private UserService userService;
 
     @PostMapping(value = "/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody JwtRequest authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = userService
                 .loadUserByUsername(authenticationRequest.getUsername());
@@ -49,7 +49,7 @@ public class JwtAuthenticationController {
     @GetMapping("/confirm/{token}")
     public String confirmRegistration(@PathVariable String token) {
         if (userService.confirmRegistration(token)) return "ConfirmPageTrue";
-        else return "ConfirmPageFalse";
+        else return "ConfirmPageFalse"; //TODO sistemare
     }
 
 

@@ -14,10 +14,11 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Token {
+public class TeamToken {
 
     @Id
     private String id;
     private Long teamId;
+    private String studentSerial;
     private Timestamp expiryDate;
 }

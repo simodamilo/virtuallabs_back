@@ -85,7 +85,7 @@ public class SolutionServiceImpl implements SolutionService {
         Assignment assignment = assignmentRepository.getOne(assignmentId);
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Student student = studentRepository.getOne(principal.getUsername().split("@")[0]);
-        if (solutionRepository.getByStudentSerialAndAssignmentAndActiveFalse(student.getSerial(), assignment) != null)
+        if (solutionRepository.getByStudentSerialAndAssignmentAndModifiableFalse(student.getSerial(), assignment) != null)
             throw new SolutionChangeNotValid("Impossible to change this solution");
         Solution s = solutionRepository.save(modelMapper.map(solutionDTO, Solution.class));
         student.addSolution(s);

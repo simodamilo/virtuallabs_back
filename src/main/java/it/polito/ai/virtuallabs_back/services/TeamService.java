@@ -13,6 +13,11 @@ public interface TeamService {
     List<TeamDTO> getStudentTeams();
 
     /**
+     * @return
+     */
+    List<TeamDTO> getStudentPendingTeams();
+
+    /**
      * With the getTeamsForCourse method all teams of the specific course are returned.
      *
      * @param courseName it is the course for which the user want the list of teams.
@@ -30,10 +35,15 @@ public interface TeamService {
     TeamDTO proposeTeam(String courseName, String name, List<String> memberIds);
 
     /**
-     * @param teamDTO
+     * @param teamId
      * @return
      */
-    TeamDTO acceptTeam(TeamDTO teamDTO);
+    TeamDTO acceptTeam(Long teamId);
+
+    /**
+     * @param teamId
+     */
+    void rejectTeam(Long teamId);
 
     /**
      * @param teamDTO
@@ -43,14 +53,7 @@ public interface TeamService {
     TeamDTO setTeamParams(TeamDTO teamDTO);
 
     /**
-     * @param teamId
+     *
      */
-    @PreAuthorize("hasRole('STUDENT')")
-    void enableTeam(Long teamId);
-
-
-    void evictTeam(Long teamId);
-
-    /*void clearToken();*/
-
+    void clearToken();
 }

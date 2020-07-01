@@ -5,9 +5,13 @@ import it.polito.ai.virtuallabs_back.services.SolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/API/solutions")
@@ -34,22 +38,31 @@ public class SolutionController {
     }
 
     @PostMapping("/{assignmentId}")
-    public SolutionDTO addSolution(@RequestBody SolutionDTO solutionDTO, @PathVariable Long assignmentId) {
+    public SolutionDTO addSolution(@Valid @RequestBody SolutionDTO solutionDTO,
+                                   @RequestParam(value = "imageFile") MultipartFile file,
+                                   @PathVariable Long assignmentId) throws IOException {
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        solutionDTO.setContent(file.getBytes());
         return solutionService.addSolution(solutionDTO, assignmentId);
     }
 
     @PostMapping("/review")
-    public SolutionDTO addSolutionReview(@RequestBody SolutionDTO solutionDTO) {
+    public SolutionDTO addSolutionReview(@Valid @RequestBody SolutionDTO solutionDTO,
+                                         @RequestParam(value = "imageFile") MultipartFile file) throws IOException {
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        solutionDTO.setContent(file.getBytes());
         return solutionService.addSolutionReview(solutionDTO);
     }
 
     @PutMapping("/modifiable")
-    public SolutionDTO setModifiable(@RequestBody SolutionDTO solutionDTO) {
+    public SolutionDTO setModifiable(@Valid @RequestBody SolutionDTO solutionDTO) {
         return solutionService.setModifiable(solutionDTO);
     }
 
     @PutMapping("/{grade}")
-    public SolutionDTO setGrade(@RequestBody SolutionDTO solutionDTO, @PathVariable String grade) {
+    public SolutionDTO setGrade(@Valid @RequestBody SolutionDTO solutionDTO, @PathVariable String grade) {
         return solutionService.setGrade(solutionDTO, grade);
     }
 }

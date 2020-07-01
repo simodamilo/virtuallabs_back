@@ -4,18 +4,21 @@ import com.opencsv.bean.CsvBindByName;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 public class StudentDTO extends RepresentationModel<StudentDTO> {
 
+    @CsvBindByName
+    @NotEmpty
     private String serial;
     @CsvBindByName
-    @NotBlank
+    @NotEmpty
     private String name;
     @CsvBindByName
-    @NotBlank
+    @NotEmpty
     private String surname;
+    @NotEmpty
     private String email;
     private byte[] image;
 
