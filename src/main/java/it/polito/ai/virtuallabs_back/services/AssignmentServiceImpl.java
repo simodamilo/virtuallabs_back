@@ -52,7 +52,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<AssignmentDTO> getAssignmentsByCourse(String courseName) {
+    public List<AssignmentDTO> getCourseAssignments(String courseName) {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course not found");
         return courseRepository.getOne(courseName)

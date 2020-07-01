@@ -1,6 +1,5 @@
 package it.polito.ai.virtuallabs_back.services;
 
-import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -9,14 +8,19 @@ import java.util.List;
 public interface TeamService {
 
     /**
-     * @param teamId
      * @return
      */
-    @PreAuthorize("hasRole('STUDENT')")
-    List<StudentDTO> getMembers(Long teamId);
+    List<TeamDTO> getStudentTeams();
 
     /**
+     * With the getTeamsForCourse method all teams of the specific course are returned.
      *
+     * @param courseName it is the course for which the user want the list of teams.
+     * @return list of all teams inside the course.
+     */
+    List<TeamDTO> getCourseTeams(String courseName);
+
+    /**
      * @param courseName
      * @param name
      * @param memberIds

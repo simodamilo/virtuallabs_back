@@ -17,25 +17,25 @@ public class AssignmentController {
     @Autowired
     AssignmentService assignmentService;
 
-    @GetMapping("/courses/{name}")
-    public List<AssignmentDTO> allByCourse(@PathVariable String name) {
-        return assignmentService.getAssignmentsByCourse(name);
-    }
-
     @GetMapping("/{id}")
-    public AssignmentDTO getOne(@PathVariable Long id) {
+    public AssignmentDTO getAssignment(@PathVariable Long id) {
         if (!assignmentService.getAssignment(id).isPresent())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, id.toString());
         return assignmentService.getAssignment(id).get();
     }
 
+    @GetMapping("/courses/{courseName}")
+    public List<AssignmentDTO> getCourseAssignments(@PathVariable String courseName) {
+        return assignmentService.getCourseAssignments(courseName);
+    }
+
     @PostMapping("/{courseName}")
-    public AssignmentDTO addAssignment(@Valid @RequestBody AssignmentDTO dto, @PathVariable String courseName) {
-        return assignmentService.addAssignment(dto, courseName);
+    public AssignmentDTO addAssignment(@Valid @RequestBody AssignmentDTO assignmentDTO, @PathVariable String courseName) {
+        return assignmentService.addAssignment(assignmentDTO, courseName);
     }
 
     @PutMapping({"", "/"})
-    public AssignmentDTO modifyAssignment(@Valid @RequestBody AssignmentDTO dto) {
-        return assignmentService.modifyAssignment(dto);
+    public AssignmentDTO modifyAssignment(@Valid @RequestBody AssignmentDTO assignmentDTO) {
+        return assignmentService.modifyAssignment(assignmentDTO);
     }
 }

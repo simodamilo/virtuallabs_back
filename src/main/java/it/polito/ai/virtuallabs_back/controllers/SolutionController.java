@@ -16,40 +16,40 @@ public class SolutionController {
     @Autowired
     SolutionService solutionService;
 
-    @GetMapping("/{id}")
-    public SolutionDTO getOne(@PathVariable Long id) {
-        if (!solutionService.getSolution(id).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, id.toString());
-        return solutionService.getSolution(id).get();
+    @GetMapping("/{solutionId}")
+    public SolutionDTO getSolution(@PathVariable Long solutionId) {
+        if (!solutionService.getSolution(solutionId).isPresent())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, solutionId.toString());
+        return solutionService.getSolution(solutionId).get();
     }
 
-    @GetMapping("/assignments/{id}")
-    public List<SolutionDTO> allByAssignment(@PathVariable Long id) {
-        return solutionService.getSolutionsByAssignment(id);
+    @GetMapping("/assignments/{assignmentId}")
+    public List<SolutionDTO> getAssignmentSolutions(@PathVariable Long assignmentId) {
+        return solutionService.getAssignmentSolutions(assignmentId);
     }
 
     @GetMapping("/courses/{courseName}")
-    public List<SolutionDTO> allByStudent(@PathVariable String courseName) {
-        return solutionService.getSolutionsByStudent(courseName);
+    public List<SolutionDTO> getStudentSolutions(@PathVariable String courseName) {
+        return solutionService.getStudentSolutions(courseName);
     }
 
     @PostMapping("/{assignmentId}")
-    public SolutionDTO addSolution(@RequestBody SolutionDTO dto, @PathVariable Long assignmentId) {
-        return solutionService.addSolution(dto, assignmentId);
+    public SolutionDTO addSolution(@RequestBody SolutionDTO solutionDTO, @PathVariable Long assignmentId) {
+        return solutionService.addSolution(solutionDTO, assignmentId);
     }
 
     @PostMapping("/review")
-    public SolutionDTO addReview(@RequestBody SolutionDTO dto) {
-        return solutionService.reviewSolution(dto);
+    public SolutionDTO addSolutionReview(@RequestBody SolutionDTO solutionDTO) {
+        return solutionService.addSolutionReview(solutionDTO);
     }
 
-    @PutMapping("/active")
-    public SolutionDTO setActive(@RequestBody SolutionDTO dto) {
-        return solutionService.setActive(dto);
+    @PutMapping("/modifiable")
+    public SolutionDTO setModifiable(@RequestBody SolutionDTO solutionDTO) {
+        return solutionService.setModifiable(solutionDTO);
     }
 
-    @PutMapping("/{vote}")
-    public SolutionDTO addGrade(@RequestBody SolutionDTO dto, @PathVariable String vote) {
-        return solutionService.setVote(dto, vote);
+    @PutMapping("/{grade}")
+    public SolutionDTO setGrade(@RequestBody SolutionDTO solutionDTO, @PathVariable String grade) {
+        return solutionService.setGrade(solutionDTO, grade);
     }
 }

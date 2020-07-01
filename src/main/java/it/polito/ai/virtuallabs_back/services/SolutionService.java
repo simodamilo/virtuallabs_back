@@ -9,24 +9,24 @@ import java.util.Optional;
 public interface SolutionService {
 
     /**
-     * @param id
+     * @param solutionId
      * @return
      */
-    Optional<SolutionDTO> getSolution(Long id);
+    Optional<SolutionDTO> getSolution(Long solutionId);
 
     /**
-     * @param id
+     * @param assignmentId
      * @return
      */
     @PreAuthorize("hasRole('TEACHER')")
-    List<SolutionDTO> getSolutionsByAssignment(Long id);
+    List<SolutionDTO> getAssignmentSolutions(Long assignmentId);
 
     /**
      * @param courseName
      * @return
      */
     @PreAuthorize("hasRole('STUDENT')")
-    List<SolutionDTO> getSolutionsByStudent(String courseName);
+    List<SolutionDTO> getStudentSolutions(String courseName);
 
     /**
      * @param solutionDTO
@@ -35,26 +35,25 @@ public interface SolutionService {
     @PreAuthorize("hasRole('STUDENT')")
     SolutionDTO addSolution(SolutionDTO solutionDTO, Long assignmentId);
 
+    /**
+     * @param solutionDTO
+     * @return
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    SolutionDTO addSolutionReview(SolutionDTO solutionDTO);
 
     /**
      * @param solutionDTO
      * @return
      */
     @PreAuthorize("hasRole('TEACHER')")
-    SolutionDTO reviewSolution(SolutionDTO solutionDTO);
+    SolutionDTO setModifiable(SolutionDTO solutionDTO);
 
     /**
      * @param solutionDTO
+     * @param grade
      * @return
      */
     @PreAuthorize("hasRole('TEACHER')")
-    SolutionDTO setActive(SolutionDTO solutionDTO);
-
-    /**
-     * @param solutionDTO
-     * @param vote
-     * @return
-     */
-    @PreAuthorize("hasRole('TEACHER')")
-    SolutionDTO setVote(SolutionDTO solutionDTO, String vote);
+    SolutionDTO setGrade(SolutionDTO solutionDTO, String grade);
 }

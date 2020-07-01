@@ -1,6 +1,5 @@
 package it.polito.ai.virtuallabs_back.services;
 
-import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
 import it.polito.ai.virtuallabs_back.entities.Student;
@@ -52,13 +51,26 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     NotificationService notificationService;
 
+
     @Override
-    public List<StudentDTO> getMembers(Long teamId) {
-        if (!teamRepository.existsById(teamId)) throw new TeamNotFoundException("Team not found");
-        return teamRepository.getOne(teamId)
-                .getMembers()
+    public List<TeamDTO> getCourseTeams(String courseName) {
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course not Found");
+
+        return courseRepository.getOne(courseName)
+                .getTeams()
                 .stream()
-                .map(s -> modelMapper.map(s, StudentDTO.class))
+                .map(t -> modelMapper.map(t, TeamDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeamDTO> getStudentTeams() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentRepository.getOne(principal.getUsername().split("@")[0])
+                .getTeams()
+                .stream()
+                .map(t -> modelMapper.map(t, TeamDTO.class))
                 .collect(Collectors.toList());
     }
 

@@ -1,10 +1,7 @@
 package it.polito.ai.virtuallabs_back.controllers;
 
-import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
-import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.services.StudentService;
-import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Validated
@@ -22,59 +22,96 @@ import java.util.stream.Collectors;
 public class StudentController {
 
     @Autowired
-    TeamService teamService;
-
-    @Autowired
     StudentService studentService;
 
+    @GetMapping("/{studentSerial}")
+    public StudentDTO getStudent(@PathVariable String studentSerial) {
+        if (!studentService.getStudent(studentSerial).isPresent())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, studentSerial);
+        return ModelHelper.enrich(studentService.getStudent(studentSerial).get());
+    }
+
     @GetMapping({"", "/"})
-    public List<StudentDTO> all() {
+    public List<StudentDTO> getAllStudents() {
         return studentService.getAllStudents().stream().map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
-    public StudentDTO getOne(@PathVariable String id) {
-        if (!studentService.getStudent(id).isPresent()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, id);
-        return ModelHelper.enrich(studentService.getStudent(id).get());
-    }
-
-    @GetMapping("/courses")
-    public List<CourseDTO> getCourses() {
-        return studentService.getCourses()
+    @GetMapping("/{courseName}/enrolled")
+    public List<StudentDTO> getEnrolledStudents(@PathVariable String courseName) {
+        return studentService.getEnrolledStudents(courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/teams")
-    public List<TeamDTO> getStudentTeams() {
-        return studentService.getTeamsForStudent()
+    @GetMapping("/{courseName}/available")
+    public List<StudentDTO> getAvailableStudents(@PathVariable String courseName) {
+        return studentService.getAvailableStudents(courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{name}/available")
-    public List<StudentDTO> getAvailableStudents(@PathVariable String name) {
-        return studentService.getAvailableStudents(name)
+    @GetMapping("/{courseName}/engaged")
+    public List<StudentDTO> getEngagedStudents(@PathVariable String courseName) {
+        return studentService.getEngagedStudents(courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{name}/engaged")
-    public List<StudentDTO> getEngagedStudents(@PathVariable String name) {
-        return studentService.getStudentsInTeams(name)
+    @GetMapping("/{teamId}/members")
+    public List<StudentDTO> getTeamStudents(@PathVariable Long teamId) {
+        return studentService.getTeamStudents(teamId)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{courseName}/enroll")
+    public StudentDTO addStudentToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
+        if (!map.containsKey("id") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
+        return ModelHelper.enrich(studentService.addStudentToCourse(map.get("id"), courseName));
+    }
+
+    @PostMapping("/{courseName}/enrollAll")
+    public List<StudentDTO> enrollAll(@PathVariable String courseName, @RequestBody Map<String, Object> map) {
+        if (!map.containsKey("ids") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        return studentService.enrollAll((List<String>) map.get("ids"), courseName)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{courseName}/enrollCsv")
+    public List<StudentDTO> enrollCsv(@PathVariable String courseName, @RequestParam("file") MultipartFile file) {
+        if (!file.getContentType().equals("text/csv"))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        try {
+            Reader reader = new InputStreamReader(file.getInputStream());
+            return studentService.enrollCsv(reader, courseName)
+                    .stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (IOException ioe) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
     }
 
     @PutMapping("/uploadImage")
     public StudentDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!file.getContentType().split("/")[0].equals("image"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-
         return studentService.uploadImage(file.getBytes());
+    }
+
+    @DeleteMapping("/{courseName}/deleteStudent")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Student deleted")
+    public void deleteStudentFromCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
+        if (!map.containsKey("id") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
+        studentService.deleteStudentFromCourse(map.get("id"), courseName);
     }
 }

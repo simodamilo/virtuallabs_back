@@ -14,12 +14,12 @@ public class ModelVMController {
     @Autowired
     ModelVMService modelVMService;
 
-    @PostMapping("/{teamId}/add")
+    @PostMapping("/{teamId}")
     public ModelVMDTO addModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO, @PathVariable Long teamId) {
         return modelVMService.addModelVm(modelVmDTO, teamId);
     }
 
-    @PutMapping("/modify")
+    @PutMapping({"", "/"})
     public ModelVMDTO modifyModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO) {
         return modelVMService.modifyModelVm(modelVmDTO);
     }

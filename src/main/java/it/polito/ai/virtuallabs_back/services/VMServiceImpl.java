@@ -50,7 +50,7 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public List<VMDTO> getVmForStudent() {
+    public List<VMDTO> getStudentVms() {
         Student student = getStudentFromPrincipal();
 
         return student
@@ -61,7 +61,7 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public List<VMDTO> getVmForTeam(Long teamId) {
+    public List<VMDTO> getTeamVms(Long teamId) {
         if (!teamRepository.existsById(teamId))
             throw new TeamNotFoundException("Team does not exist");
 
@@ -79,7 +79,7 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public List<VMDTO> getVmForCourse(String courseName) {
+    public List<VMDTO> getCourseVms(String courseName) {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Teacher teacher = teacherRepository.getOne(principal.getUsername().split("@")[0]);
 

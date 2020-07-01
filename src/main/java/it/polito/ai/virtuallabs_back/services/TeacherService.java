@@ -11,10 +11,10 @@ public interface TeacherService {
     /**
      * With the getTeacher method all details about the teacher are returned.
      *
-     * @param teacherId it is the id of the searched teacher.
+     * @param teacherSerial it is the id of the searched teacher.
      * @return it returns an optional that could be empty if the teacher is not found.
      */
-    Optional<TeacherDTO> getTeacher(String teacherId);
+    Optional<TeacherDTO> getTeacher(String teacherSerial);
 
     /**
      * With the getAllTeachers method all teachers details are returned.
@@ -24,12 +24,21 @@ public interface TeacherService {
     List<TeacherDTO> getAllTeachers();
 
     /**
-     * This method is used to upload the profile image of the teacher.
+     * With the addTeacherToCourse method a teacher is added to a specific course by the chief teacher.
+     *
+     * @param teacherSerial it is the serial of the teacher that must be added to the course.
+     * @param courseName    it is the course in which the teacher be must be added.
+     * @return it returns the teacherDTO if all is ok, otherwise it returns null.
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    TeacherDTO addTeacherToCourse(String teacherSerial, String courseName);
+
+    /**
+     * This method is used to upload the profile image of the teacher
      *
      * @param image it is the image that must be saved.
      * @return new TeacherDTO
      */
     @PreAuthorize("hasRole('TEACHER')")
     TeacherDTO uploadImage(byte[] image);
-
 }

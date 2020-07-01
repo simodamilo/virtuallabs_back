@@ -18,65 +18,59 @@ public class VMController {
     @Autowired
     VMService vmService;
 
-
-    @GetMapping("/{id}")
-    public VMDTO getOne(@PathVariable Long id) {
-        if (!vmService.getVm(id).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "VM with id " + id + "does not exist");
-
-        return ModelHelper.enrich(vmService.getVm(id).get());
+    @GetMapping("/{vmId}")
+    public VMDTO getVm(@PathVariable Long vmId) {
+        if (!vmService.getVm(vmId).isPresent())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "VM with id " + vmId + "does not exist");
+        return ModelHelper.enrich(vmService.getVm(vmId).get());
     }
 
-    @GetMapping("/getStudentVm")
-    public List<VMDTO> getVmForStudent() {
-        return vmService.getVmForStudent()
+    @GetMapping("/students")
+    public List<VMDTO> getStudentVms() {
+        return vmService.getStudentVms()
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{teamId}/getTeamVm")
-    public List<VMDTO> getVmForTeam(@PathVariable Long teamId) {
-        return vmService.getVmForTeam(teamId)
+    @GetMapping("/teams/{teamId}")
+    public List<VMDTO> getTeamVms(@PathVariable Long teamId) {
+        return vmService.getTeamVms(teamId)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{courseName}/getAll")
-    public List<VMDTO> getVmForCourse(@PathVariable String courseName) {
-        return vmService.getVmForCourse(courseName)
+    @GetMapping("/courses/{courseName}")
+    public List<VMDTO> getCourseVms(@PathVariable String courseName) {
+        return vmService.getCourseVms(courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-
-    @PostMapping("/{teamId}/add")
+    @PostMapping("/{teamId}")
     public VMDTO addVm(@Valid @RequestBody VMDTO vmDTO, @PathVariable Long teamId) {
         return ModelHelper.enrich(vmService.addVm(vmDTO, teamId));
     }
 
-
-    @PutMapping("/modify")
+    @PutMapping({"", "/"})
     public VMDTO modifyVm(@Valid @RequestBody VMDTO vmDTO) {
         return ModelHelper.enrich(vmService.modifyVm(vmDTO));
     }
 
-    @PutMapping("/{id}/onOff")
-    public VMDTO onOff(@PathVariable Long id) {
-        return ModelHelper.enrich(vmService.onOff(id));
+    @PutMapping("/{vmId}/onOff")
+    public VMDTO onOff(@PathVariable Long vmId) {
+        return ModelHelper.enrich(vmService.onOff(vmId));
     }
 
-    @PutMapping("/{id}/addOwner/{serial}")
-    public VMDTO addOwner(@PathVariable Long id, @PathVariable String serial) {
-        return ModelHelper.enrich(vmService.addOwner(id, serial));
+    @PutMapping("/{vmId}/addOwner/{studentSerial}")
+    public VMDTO addOwner(@PathVariable Long vmId, @PathVariable String studentSerial) {
+        return ModelHelper.enrich(vmService.addOwner(vmId, studentSerial));
     }
 
-
-    @DeleteMapping("/{id}/delete")
-    public void deleteVm(@PathVariable Long id) {
-        vmService.deleteVm(id);
+    @DeleteMapping("/{vmId}")
+    public void deleteVm(@PathVariable Long vmId) {
+        vmService.deleteVm(vmId);
     }
-
 }

@@ -22,7 +22,7 @@ public class Solution {
     private byte[] content;
     private State state;
     private Timestamp deliveryTs;
-    private boolean active;
+    private boolean modifiable;
     private String grade;
     @ManyToOne
     @JoinColumn(name = "student_serial")

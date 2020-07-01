@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -19,26 +20,29 @@ public class TeacherController {
     @Autowired
     TeacherService teacherService;
 
+    @GetMapping("/{teacherSerial}")
+    public TeacherDTO getTeacher(@PathVariable String teacherSerial) {
+        if (!teacherService.getTeacher(teacherSerial).isPresent())
+            throw new ResponseStatusException(HttpStatus.CONFLICT, teacherSerial);
+        return ModelHelper.enrich(teacherService.getTeacher(teacherSerial).get());
+    }
+
     @GetMapping({"", "/"})
-    public List<TeacherDTO> getAll() {
+    public List<TeacherDTO> getAllTeachers() {
         return teacherService.getAllTeachers().stream().map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
-    public TeacherDTO getTeacher(@PathVariable String id) {
-        if (!teacherService.getTeacher(id).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, id);
-
-        return ModelHelper.enrich(teacherService.getTeacher(id).get());
+    @PostMapping("/{courseName}/assign")
+    public TeacherDTO addTeacherToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
+        if (!map.containsKey("id") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
+        return ModelHelper.enrich(teacherService.addTeacherToCourse(map.get("id"), courseName));
     }
-
 
     @PutMapping("/uploadImage")
     public TeacherDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!file.getContentType().split("/")[0].equals("image"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-
         return teacherService.uploadImage(file.getBytes());
     }
-
 }

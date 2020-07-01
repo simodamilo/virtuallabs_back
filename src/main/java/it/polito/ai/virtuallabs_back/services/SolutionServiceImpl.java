@@ -44,7 +44,7 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public List<SolutionDTO> getSolutionsByAssignment(Long assignmentId) {
+    public List<SolutionDTO> getAssignmentSolutions(Long assignmentId) {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment not found");
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -60,7 +60,7 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public List<SolutionDTO> getSolutionsByStudent(String courseName) {
+    public List<SolutionDTO> getStudentSolutions(String courseName) {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course not found");
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -94,7 +94,7 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public SolutionDTO reviewSolution(SolutionDTO solutionDTO) {
+    public SolutionDTO addSolutionReview(SolutionDTO solutionDTO) {
         Solution s = isValid(solutionDTO);
         solutionDTO.setState(Solution.State.REVIEWED);
         solutionDTO.setId(null);
@@ -105,14 +105,14 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public SolutionDTO setActive(SolutionDTO solutionDTO) {
+    public SolutionDTO setModifiable(SolutionDTO solutionDTO) {
         Solution s = isValid(solutionDTO);
-        s.setActive(solutionDTO.isActive());
+        s.setModifiable(solutionDTO.isActive());
         return modelMapper.map(s, SolutionDTO.class);
     }
 
     @Override
-    public SolutionDTO setVote(SolutionDTO solutionDTO, String vote) {
+    public SolutionDTO setGrade(SolutionDTO solutionDTO, String vote) {
         Solution s = isValid(solutionDTO);
         s.setGrade(vote);
         return modelMapper.map(s, SolutionDTO.class);

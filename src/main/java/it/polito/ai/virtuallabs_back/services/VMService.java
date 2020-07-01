@@ -12,11 +12,10 @@ public interface VMService {
      * This method is used to get a VM by using the id passed by the client. It returns an Optional,
      * so if the VM does not exist it will be empty.
      *
-     * @param id it is the id of the searched vm.
+     * @param vmId it is the id of the searched vm.
      * @return the return is an optional, if vm does not exist it will be empty.
      */
-    Optional<VMDTO> getVm(Long id);
-
+    Optional<VMDTO> getVm(Long vmId);
 
     /**
      * This method is used to get all vms of the student by getting him/her from the principal.
@@ -24,8 +23,7 @@ public interface VMService {
      * @return the method return all vms of the student, it could be empty.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    List<VMDTO> getVmForStudent();
-
+    List<VMDTO> getStudentVms();
 
     /**
      * This method is used to get the vms of a team. The user is taken from the SecurityContextHolder and it is
@@ -36,8 +34,7 @@ public interface VMService {
      * @return the method return all vms of the student, it could be empty.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    List<VMDTO> getVmForTeam(Long teamId);
-
+    List<VMDTO> getTeamVms(Long teamId);
 
     /**
      * This method his used to get all vms of the course.
@@ -46,8 +43,7 @@ public interface VMService {
      * @return the method return all vms of the student, it could be empty.
      */
     @PreAuthorize("hasRole('TEACHER')")
-    List<VMDTO> getVmForCourse(String courseName);
-
+    List<VMDTO> getCourseVms(String courseName);
 
     /**
      * This method is used to add a new vm, the id is created when the new vm is saved. The new vm is added
@@ -60,7 +56,6 @@ public interface VMService {
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO addVm(VMDTO vmDTO, Long teamId);
 
-
     /**
      * This method is used to modify the vm. The result is the new modified vm.
      *
@@ -70,35 +65,34 @@ public interface VMService {
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO modifyVm(VMDTO vmDTO);
 
-
     /**
      * If all check are valid the status is changed by getting the negation of the previous value.
      *
-     * @param id it is the id of the vm.
+     * @param vmId it is the id of the vm.
      * @return it returns the modified vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    VMDTO onOff(Long id);
+    VMDTO onOff(Long vmId);
 
 
     /**
      * With this method an owner is added to the vm. Some check are done in order to see if the user can
      * add the student as owner.
      *
-     * @param id     it is the id of the vm.
-     * @param serial it is the serial of the student that must be added as owner.
+     * @param vmId          it is the id of the vm.
+     * @param studentSerial it is the serial of the student that must be added as owner.
      * @return it returns the modified vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    VMDTO addOwner(Long id, String serial);
+    VMDTO addOwner(Long vmId, String studentSerial);
 
 
     /**
      * This method is used to delete a vm. It can be done if the student is one of the owner of the vm.
      *
-     * @param id it is the id of the vm.
+     * @param vmId it is the id of the vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    void deleteVm(Long id);
+    void deleteVm(Long vmId);
 
 }
