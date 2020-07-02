@@ -85,7 +85,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public TeamDTO proposeTeam(String courseName, String name, List<String> studentSerials) {
+    public TeamDTO proposeTeam(String courseName, String teamName, List<String> studentSerials) {
         if (!courseRepository.existsById(courseName)) throw new CourseNotFoundException("Course not found");
         Course c = courseRepository.getOne(courseName);
         if (!c.isEnabled()) throw new CourseNotEnabledException("Course is not active");
@@ -95,16 +95,16 @@ public class TeamServiceImpl implements TeamService {
         if (!studentSerials.contains(user.getUsername()))
             throw new UserRequestNotValidException("You are not part of the team");
         Team team = new Team();
-        for (String s : studentSerials) {
-            if (!studentRepository.existsById(s)) throw new StudentNotFoundException("Student not found");
-            Student student = studentRepository.getOne(s);
+        for (String serial : studentSerials) {
+            if (!studentRepository.existsById(serial)) throw new StudentNotFoundException("Student not found");
+            Student student = studentRepository.getOne(serial);
             if (!c.getStudents().contains(student))
                 throw new StudentNotEnrolledException("One or more student are not enrolled in the course");
             if (courseRepository.getStudentsInTeams(courseName).contains(student))
                 throw new StudentAlreadyInTeamException("One or more student are already in team");
             if (!team.addMember(student)) throw new StudentDuplicatedException("Team contains duplicate");
         }
-        team.setName(name);
+        team.setName(teamName);
         team.setCourse(c);
         TeamDTO teamDTO = modelMapper.map(teamRepository.save(team), TeamDTO.class);
         notificationService.notifyTeam(teamDTO, studentSerials);
@@ -151,6 +151,18 @@ public class TeamServiceImpl implements TeamService {
         return modelMapper.map(team, TeamDTO.class);
     }
 
+    @Override
+    @Scheduled(fixedRate = 600000)
+    public void clearTeamToken() {
+        teamTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
+                .forEach(teamToken -> {
+                    if (teamRepository.existsById(teamToken.getTeamId())) {
+                        teamRepository.delete(teamRepository.getOne(teamToken.getTeamId()));
+                    }
+                    teamTokenRepository.delete(teamToken);
+                });
+    }
+
     private Team isValid(Long teamId) {
         if (!teamRepository.existsById(teamId))
             throw new TeamNotFoundException("Team not found");
@@ -163,17 +175,4 @@ public class TeamServiceImpl implements TeamService {
             throw new TeamTokenExpiredException("Token already expired");
         return teamRepository.getOne(teamId);
     }
-
-    @Override
-    @Scheduled(fixedRate = 600000)
-    public void clearToken() {
-        teamTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
-                .forEach(teamToken -> {
-                    if (teamRepository.existsById(teamToken.getTeamId())) {
-                        teamRepository.delete(teamRepository.getOne(teamToken.getTeamId()));
-                    }
-                    teamTokenRepository.delete(teamToken);
-                });
-    }
-
 }

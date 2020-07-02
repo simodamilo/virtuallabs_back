@@ -49,11 +49,10 @@ public class NotificationServiceImpl implements NotificationService {
             TeamToken teamToken = TeamToken.builder()
                     .id(UUID.randomUUID().toString())
                     .teamId(teamDTO.getId())
-                    .expiryDate(new Timestamp(System.currentTimeMillis() + 3600000))
+                    .expiryDate(new Timestamp(System.currentTimeMillis() + teamDTO.getDuration()))
                     .build();
             teamTokenRepository.save(teamToken);
             String address = serial + "@studenti.polito.it";
-            System.out.println(address + " team");
             String body = "Hello \r\n" +
                     "a team has been created, confirm or refuse participation ";
             String subject = "Team confirmation";

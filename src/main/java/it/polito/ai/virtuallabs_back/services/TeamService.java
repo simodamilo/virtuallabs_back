@@ -8,52 +8,63 @@ import java.util.List;
 public interface TeamService {
 
     /**
-     * @return
+     * Used to get the list of active teams of a student.
+     *
+     * @return list of teams found.
      */
     List<TeamDTO> getStudentTeams();
 
     /**
-     * @return
+     * Used to get the list of pending teams request of a student.
+     * @return list of teams found.
      */
     List<TeamDTO> getStudentPendingTeams();
 
     /**
-     * With the getTeamsForCourse method all teams of the specific course are returned.
-     *
-     * @param courseName it is the course for which the user want the list of teams.
+     * Used to get the list of active teams of the specific course.
+     * @param courseName in which teams are searched.
      * @return list of all teams inside the course.
      */
     List<TeamDTO> getCourseTeams(String courseName);
 
     /**
-     * @param courseName
-     * @param name
-     * @param memberIds
-     * @return
+     * Used to add a new team, checks the constraints generates the team
+     * and a token for each student invited.
+     *
+     * @param courseName     in which teams are searched.
+     * @param teamName       decided by the student.
+     * @param studentSerials list of the members of the team.
+     * @return the team to confirm the creation.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    TeamDTO proposeTeam(String courseName, String name, List<String> memberIds);
+    TeamDTO proposeTeam(String courseName, String teamName, List<String> studentSerials);
 
     /**
-     * @param teamId
-     * @return
-     */
-    TeamDTO acceptTeam(Long teamId);
-
-    /**
-     * @param teamId
-     */
-    void rejectTeam(Long teamId);
-
-    /**
-     * @param teamDTO
-     * @return
+     * Used to set or update the parameters of a team.
+     *
+     * @param teamDTO contains the new vale for the parameters.
+     * @return the updated team.
      */
     @PreAuthorize("hasRole('TEACHER')")
     TeamDTO setTeamParams(TeamDTO teamDTO);
 
     /**
+     * Used to accept an invitation to a group.
      *
+     * @param teamId of the proposed team.
+     * @return the team, if all students accepted status = 1.
      */
-    void clearToken();
+    TeamDTO acceptTeam(Long teamId);
+
+    /**
+     * Used to reject an invitation to a group
+     * @param teamId of the proposed team.
+     */
+    void rejectTeam(Long teamId);
+
+    /**
+     * Periodically checks the expired teamToken and
+     * delete the relative team when needed.
+     */
+    void clearTeamToken();
 }

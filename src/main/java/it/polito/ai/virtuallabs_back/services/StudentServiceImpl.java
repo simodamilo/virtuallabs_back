@@ -64,9 +64,26 @@ public class StudentServiceImpl implements StudentService {
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course not found");
-
         return courseRepository.getOne(courseName)
                 .getStudents()
+                .stream()
+                .map(s -> modelMapper.map(s, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StudentDTO> getAvailableStudents(String courseName) {
+        if (!courseRepository.existsById(courseName)) throw new CourseNotFoundException("Course not Found");
+        return courseRepository.getStudentsNotInTeams(courseName)
+                .stream()
+                .map(s -> modelMapper.map(s, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StudentDTO> getEngagedStudents(String courseName) {
+        if (!courseRepository.existsById(courseName)) throw new CourseNotFoundException("Course not Found");
+        return courseRepository.getStudentsInTeams(courseName)
                 .stream()
                 .map(s -> modelMapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
@@ -86,18 +103,14 @@ public class StudentServiceImpl implements StudentService {
     public StudentDTO addStudentToCourse(String studentId, String courseName) {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course not found");
-
         if (!studentRepository.existsById(studentId))
             throw new StudentNotFoundException("Student not found");
         Student student = studentRepository.getOne(studentId);
-
         if (!isValid(courseName))
             throw new CourseChangeNotValidException("You have no permission to change this course");
-
         Course course = courseRepository.getOne(courseName);
         if (!course.isEnabled())
             throw new CourseNotEnabledException("Course is not enabled");
-
         if (course.addStudent(student))
             return modelMapper.map(student, StudentDTO.class);
         else
@@ -108,11 +121,9 @@ public class StudentServiceImpl implements StudentService {
     public List<StudentDTO> enrollAll(List<String> studentIds, String courseName) {
         if (!isValid(courseName))
             throw new CourseChangeNotValidException("You have no permission to change this course");
-
         List<StudentDTO> result = new ArrayList<>();
         for (String s : studentIds)
             result.add(addStudentToCourse(s, courseName));
-
         return result;
     }
 
@@ -122,51 +133,11 @@ public class StudentServiceImpl implements StudentService {
                 .withType(StudentDTO.class)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
-
         List<StudentDTO> students = csvToBean.parse();
-
         List<String> studentIds = new ArrayList<>();
         for (StudentDTO student : students)
             studentIds.add(student.getSerial());
-
         return enrollAll(studentIds, courseName);
-    }
-
-    @Override
-    public List<StudentDTO> getEngagedStudents(String courseName) {
-        if (!courseRepository.existsById(courseName)) throw new CourseNotFoundException("Course not Found");
-        return courseRepository.getStudentsInTeams(courseName)
-                .stream()
-                .map(s -> modelMapper.map(s, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<StudentDTO> getAvailableStudents(String courseName) {
-        if (!courseRepository.existsById(courseName)) throw new CourseNotFoundException("Course not Found");
-        return courseRepository.getStudentsNotInTeams(courseName)
-                .stream()
-                .map(s -> modelMapper.map(s, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteStudentFromCourse(String studentId, String courseName) {
-        if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not found");
-
-        if (!isValid(courseName))
-            throw new CourseChangeNotValidException("You have no permission to change this course");
-
-        Course c = courseRepository.getOne(courseName);
-        List<Student> students = c.getStudents();
-        Student toRemove = new Student();
-        for (Student s : students) {
-            if (s.getSerial().equals(studentId))
-                toRemove = s;
-        }
-
-        c.removeStudent(toRemove);
     }
 
     @Override
@@ -178,15 +149,27 @@ public class StudentServiceImpl implements StudentService {
         return modelMapper.map(student, StudentDTO.class);
     }
 
-    /**
-     * It is an internal method used to check if the current user, that should be a teacher, is valid.
-     * A teacher is valid if he/she is actually a teacher for the passed course.
-     */
+    @Override
+    public void deleteStudentFromCourse(String studentId, String courseName) {
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course not found");
+        if (!isValid(courseName))
+            throw new CourseChangeNotValidException("You have no permission to change this course");
+        Course c = courseRepository.getOne(courseName);
+        List<Student> students = c.getStudents();
+        Student toRemove = new Student();
+        for (Student s : students) {
+            if (s.getSerial().equals(studentId))
+                toRemove = s;
+        }
+
+        c.removeStudent(toRemove);
+    }
+
     private boolean isValid(String courseName) {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Teacher teacher = teacherRepository.getOne(principal.getUsername());
         Course course = courseRepository.getOne(courseName);
-
         return userRepository.findByUsername(principal.getUsername()).getRoles().contains("ROLE_TEACHER") &&
                 teacher.getCourses().contains(course);
     }

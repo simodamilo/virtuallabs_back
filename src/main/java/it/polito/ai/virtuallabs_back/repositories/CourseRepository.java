@@ -20,4 +20,5 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
     @Query("SELECT c FROM Course c INNER JOIN c.teachers t WHERE t.serial=:teacherSerial")
     List<Course> getTeacherCourses(String teacherSerial);
+
 }

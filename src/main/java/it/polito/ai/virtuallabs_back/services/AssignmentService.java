@@ -11,14 +11,13 @@ public interface AssignmentService {
     /**
      * Used to get an assignment by the Id.
      *
-     * @param id of the desired assignment.
+     * @param assignmentId of the desired assignment.
      * @return empty optional if the assignment misses.
      */
-    Optional<AssignmentDTO> getAssignment(Long id);
+    Optional<AssignmentDTO> getAssignment(Long assignmentId);
 
     /**
      * Used to get the list of assignments of a course.
-     *
      * @param courseName in which assignments are searched.
      * @return list of found assignments.
      */
@@ -27,6 +26,7 @@ public interface AssignmentService {
     /**
      * Used by the teacher to add an assignment to the course.
      * @param assignmentDTO which needs to be added.
+     * @param courseName in which assignments are searched.
      * @return the added assignment.
      */
     @PreAuthorize("hasRole('TEACHER')")

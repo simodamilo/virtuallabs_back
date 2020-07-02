@@ -1,10 +1,12 @@
 package it.polito.ai.virtuallabs_back.dtos;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotEmpty;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class VMDTO extends RepresentationModel<VMDTO> {
 
@@ -16,5 +18,4 @@ public class VMDTO extends RepresentationModel<VMDTO> {
     @NotEmpty
     private int ram;
     private boolean active;
-
 }

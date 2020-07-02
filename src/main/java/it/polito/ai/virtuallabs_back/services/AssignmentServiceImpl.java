@@ -131,7 +131,5 @@ public class AssignmentServiceImpl implements AssignmentService {
                 a.setTerminated(true);
             }
         });
-
     }
-
 }

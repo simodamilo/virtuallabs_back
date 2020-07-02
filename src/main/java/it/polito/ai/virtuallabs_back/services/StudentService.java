@@ -10,89 +10,87 @@ import java.util.Optional;
 public interface StudentService {
 
     /**
-     * @param studentSerial
-     * @return
+     * Used to get a student by the Id.
+     *
+     * @param studentSerial of the desired student.
+     * @return empty optional if the student misses.
      */
     Optional<StudentDTO> getStudent(String studentSerial);
 
     /**
-     * @return
+     * Used to get the list of students.
+     * @return list of all students.
      */
     List<StudentDTO> getAllStudents();
 
     /**
-     * With the getEnrolledStudents method all students enrolled to the specific course are returned.
-     *
-     * @param courseName it is the course for which the user want the enrolled students.
+     * Used to get all the team that are enrolled in the course.
+     * @param courseName in which students are searched.
      * @return list of enrolled students.
      */
     List<StudentDTO> getEnrolledStudents(String courseName);
 
     /**
-     * @param courseName
-     * @return
+     * Used to get all the students without team for the course.
+     * @param courseName in which students are searched.
+     * @return list of students available for the course.
      */
     List<StudentDTO> getAvailableStudents(String courseName);
 
     /**
-     * @param courseName
-     * @return
+     * Used to get all the students that already have a team for the course.
+     * @param courseName in which students are searched.
+     * @return list of students engaged for the course.
      */
     List<StudentDTO> getEngagedStudents(String courseName);
 
     /**
-     * @param teamId
-     * @return
+     * Used to get the members of a team.
+     * @param teamId of the team selected.
+     * @return list of students engaged in the team passed.
      */
     @PreAuthorize("hasRole('STUDENT')")
     List<StudentDTO> getTeamStudents(Long teamId);
 
     /**
-     * With the addStudentToCourse method a student is enrolled to a specific course.
-     *
-     * @param studentSerial it is the serial of the student that must be enrolled.
-     * @param courseName    it is the name of the course in which the student must be enrolled.
-     * @return the enrolled studentDTO is returned, if it is not possible the studentDTO is null.
+     * Used to enroll a student to the course passed.
+     * @param studentSerial to identify the student.
+     * @param courseName in which student is added.
+     * @return the student that was added to the course.
      */
     @PreAuthorize("hasRole('TEACHER')")
     StudentDTO addStudentToCourse(String studentSerial, String courseName);
 
     /**
-     * With the enrollAll method all students are enrolled to the specific course,
-     * it invokes the addStudentToCourse method for each student in the list.
-     *
-     * @param studentSerials it is a list of student serials that must be added to the course.
-     * @param courseName     it is the name of the course in which students must be enrolled.
-     * @return it returns a list of studentDTOs, if a problem occurs for one student,
-     * null will be inserted inside the list.
+     * Used to enroll a list of students.
+     * @param studentSerials list of serial that must be added to the course.
+     * @param courseName in which student are added.
+     * @return the list of the students that have been enrolled to che course.
      */
     @PreAuthorize("hasRole('TEACHER')")
     List<StudentDTO> enrollAll(List<String> studentSerials, String courseName);
 
     /**
-     * With the enrollAll method all students are enrolled to the specific course,
-     * it invokes the enrollAll by passing a list of student serials and the course name.
-     *
-     * @param reader     it is used to take all the student from the csv file.
-     * @param courseName it is the name of the course in which students must be enrolled.
-     * @return it returns a list of studentDTOs, if a problem occurs for one student,
-     * null will be inserted inside the list.
+     * Used to enroll a list of students that is passed by a csv file.
+     * @param reader used to handle the csv file.
+     * @param courseName in which student are added.
+     * @return the list of the students that have been enrolled to che course.
      */
     @PreAuthorize("hasRole('TEACHER')")
     List<StudentDTO> enrollCsv(Reader reader, String courseName);
 
     /**
-     * @param image
-     * @return
+     * Used by the student to add an image for the student.
+     * @param image updated by the student.
+     * @return the student modified.
      */
+    @PreAuthorize("hasRole('STUDENT')")
     StudentDTO uploadImage(byte[] image);
 
     /**
-     * If the course exists and the teacher has the permissions, the student is deleted
-     * from the course.
-     *
-     * @param studentSerial it is the serial of the student that must be deleted from the course.
-     * @param courseName    it is the name of the course from which student must be enrolled.
+     * Used by the teacher to remove a student from the course, if allowed.
+     * @param studentSerial to identify the student.
+     * @param courseName from which student is removed.
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteStudentFromCourse(String studentSerial, String courseName);
