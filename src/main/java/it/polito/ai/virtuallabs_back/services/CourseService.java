@@ -17,6 +17,7 @@ public interface CourseService {
 
     /**
      * Used to get the list of courses.
+     *
      * @return list of found courses.
      */
     List<CourseDTO> getAllCourses();
