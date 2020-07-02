@@ -11,5 +11,4 @@ import java.util.List;
 public interface UserTokenRepository extends JpaRepository<UserToken, String> {
 
     List<UserToken> findAllByExpiryDateBefore(Timestamp t);
-
 }

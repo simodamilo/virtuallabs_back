@@ -11,6 +11,7 @@ import it.polito.ai.virtuallabs_back.repositories.TeacherRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,9 +51,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         AppUser appUser = userRepository.findByUsername(username);
-        if (appUser == null || !appUser.isStatus()) {
+        if (appUser == null || !appUser.isStatus())
             throw new UsernameNotFoundException("User not found with username: " + username);
-        }
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         List<String> roles = appUser.getRoles();
         for (String role : roles) {
@@ -65,17 +65,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean registration(RegistrationRequest registrationRequest) {
         String serial = registrationRequest.getEmail().split("@")[0];
-
         if ((userRepository.findByUsername(registrationRequest.getEmail()) != null)
                 || !serial.equals(registrationRequest.getSerial()))
             return false;
-
         AppUser user = AppUser.builder()
                 .password(passwordEncoder.encode(registrationRequest.getPassword())) //vedere il sale
                 .username(registrationRequest.getEmail())
                 .status(false)
                 .build();
-
         userRepository.save(user);
         notificationService.notifyUser(user, registrationRequest.getName(), registrationRequest.getSurname());
         return true;
@@ -106,7 +103,7 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
-/*    @Override
+    @Override
     @Scheduled(fixedRate = 10000)
     public void clearUser() {
         userTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
@@ -117,32 +114,28 @@ public class UserServiceImpl implements UserService {
                     userRepository.delete(user);
                     userTokenRepository.delete(t);
                 });
-    }*/
+    }
 
 
     private void addStudent(UserToken token, String email) {
         String serial = email.split("@")[0];
-
         Student student = Student.builder()
                 .serial(serial)
                 .email(email)
                 .name(token.getName())
                 .surname(token.getSurname())
                 .build();
-
         studentRepository.save(student);
     }
 
     private void addTeacher(UserToken token, String email) {
         String serial = email.split("@")[0];
-
         Teacher teacher = Teacher.builder()
                 .serial(serial)
                 .email(email)
                 .name(token.getName())
                 .surname(token.getSurname())
                 .build();
-
         teacherRepository.save(teacher);
     }
 }

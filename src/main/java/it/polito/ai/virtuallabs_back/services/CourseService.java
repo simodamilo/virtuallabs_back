@@ -10,7 +10,6 @@ public interface CourseService {
 
     /**
      * Used to get the course by the name.
-     *
      * @param courseName of the desired course.
      * @return empty optional if the course misses.
      */
@@ -18,7 +17,6 @@ public interface CourseService {
 
     /**
      * With the getAllCourses method all courses with all details are returned.
-     *
      * @return it returns the list of all courses in the application.
      */
     List<CourseDTO> getAllCourses();
@@ -26,7 +24,6 @@ public interface CourseService {
     /**
      * This method is used to get all the courses of the authenticated teacher. In order to perform it a
      * custom query was created in courseRepository.
-     *
      * @return it returns all the courses of the authenticated teacher.
      */
     @PreAuthorize("hasRole('TEACHER')")

@@ -107,7 +107,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Override
     public SolutionDTO setModifiable(SolutionDTO solutionDTO) {
         Solution s = isValid(solutionDTO);
-        s.setModifiable(solutionDTO.isActive());
+        s.setModifiable(solutionDTO.isModifiable());
         return modelMapper.map(s, SolutionDTO.class);
     }
 
@@ -128,5 +128,4 @@ public class SolutionServiceImpl implements SolutionService {
             throw new SolutionChangeNotValid("You have no permission to change this Solution");
         return s;
     }
-
 }
