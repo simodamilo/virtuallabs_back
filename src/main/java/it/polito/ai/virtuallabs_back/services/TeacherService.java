@@ -9,35 +9,32 @@ import java.util.Optional;
 public interface TeacherService {
 
     /**
-     * With the getTeacher method all details about the teacher are returned.
+     * Used to get the teacher by the serial.
      *
-     * @param teacherSerial it is the id of the searched teacher.
-     * @return it returns an optional that could be empty if the teacher is not found.
+     * @param teacherSerial of the desired teacher.
+     * @return empty optional if the course misses.
      */
     Optional<TeacherDTO> getTeacher(String teacherSerial);
 
     /**
-     * With the getAllTeachers method all teachers details are returned.
-     *
-     * @return it returns a list of teachers.
+     * Used to get the list of all teachers.
+     * @return list of found teachers.
      */
     List<TeacherDTO> getAllTeachers();
 
     /**
-     * With the addTeacherToCourse method a teacher is added to a specific course by the chief teacher.
-     *
-     * @param teacherSerial it is the serial of the teacher that must be added to the course.
-     * @param courseName    it is the course in which the teacher be must be added.
-     * @return it returns the teacherDTO if all is ok, otherwise it returns null.
+     * Used to add a teacher to the course by another teacher.
+     * @param teacherSerial which needs to be added.
+     * @param courseName in which the teacher is added.
+     * @return the added teacher.
      */
     @PreAuthorize("hasRole('TEACHER')")
     TeacherDTO addTeacherToCourse(String teacherSerial, String courseName);
 
     /**
-     * This method is used to upload the profile image of the teacher
-     *
-     * @param image it is the image that must be saved.
-     * @return new TeacherDTO
+     * Used to add an image to the teacher.
+     * @param image which needs to be added.
+     * @return the modified teacher.
      */
     @PreAuthorize("hasRole('TEACHER')")
     TeacherDTO uploadImage(byte[] image);

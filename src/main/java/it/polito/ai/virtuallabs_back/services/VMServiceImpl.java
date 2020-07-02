@@ -95,7 +95,6 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public VMDTO addVm(VMDTO vmDTO, Long teamId) {
-        //TODO numero di vm già create
         if (!teamRepository.existsById(teamId))
             throw new TeamNotFoundException("Team does not exist");
 
@@ -112,6 +111,9 @@ public class VMServiceImpl implements VMService {
             throw new VmChangeNotValidException("It is not possible to add a new VM");
 
         constraintsCheck(vmDTO, teamId); /* check related to vcpu, ram and disk */
+
+        if (team.getVms().size() >= team.getMaxInstance())
+            throw new VmConstraintException("There are too many vm instances for this team");
 
         VM vm = vmRepository.save(modelMapper.map(vmDTO, VM.class));
         team.addVm(vm); /* add vm to team */
@@ -136,14 +138,21 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public VMDTO onOff(Long id) {
-        //TODO numero di vm già attive
         if (!vmRepository.existsById(id))
             throw new VmNotFoundException("Vm not found");
         if (isNotValid(id))
             throw new VmChangeNotValidException("You have no permission to modify this vm");
 
         VM vm = vmRepository.getOne(id);
-        if (!vm.getTeam().getCourse().isEnabled())
+        /*long alreadyActiveVms = vm.getTeam().getVms()
+                .stream()
+                .filter(VM::isActive)
+                .count();*/
+        int alreadyActiveVms = vmRepository.countVMSByTeamAndActiveTrue(vm.getTeam());
+        if (alreadyActiveVms >= vm.getTeam().getActiveInstance())
+            throw new VmChangeNotValidException("There are too many active vms");
+
+        if (!vm.getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
 
         vm.setActive(!vm.isActive());
