@@ -43,19 +43,6 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    public CourseDTO addCourse(CourseDTO courseDTO) {
-        if (courseRepository.existsById(courseDTO.getName()))
-            throw new CourseAlreadyExistsException("Course already exists");
-
-        Course course = courseRepository.save(modelMapper.map(courseDTO, Course.class));
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Teacher teacher = teacherRepository.getOne(principal.getUsername().split("@")[0]);
-        teacher.addCourse(course);
-
-        return modelMapper.map(course, CourseDTO.class);
-    }
-
-    @Override
     public Optional<CourseDTO> getCourse(String courseName) {
         return courseRepository.findById(courseName)
                 .map(c -> modelMapper.map(c, CourseDTO.class));
@@ -69,7 +56,38 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<CourseDTO> getTeacherCourses() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Teacher teacher = teacherRepository.getOne(principal.getUsername());
+        return courseRepository.getTeacherCourses(teacher.getSerial())
+                .stream()
+                .map(c -> modelMapper.map(c, CourseDTO.class))
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<CourseDTO> getStudentCourses() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentRepository.getOne(principal.getUsername().split("@")[0])
+                .getCourses()
+                .stream()
+                .map(c -> modelMapper.map(c, CourseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CourseDTO addCourse(CourseDTO courseDTO) {
+        if (courseRepository.existsById(courseDTO.getName()))
+            throw new CourseAlreadyExistsException("Course already exists");
+
+        Course course = courseRepository.save(modelMapper.map(courseDTO, Course.class));
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Teacher teacher = teacherRepository.getOne(principal.getUsername().split("@")[0]);
+        teacher.addCourse(course);
+
+        return modelMapper.map(course, CourseDTO.class);
+    }
 
     @Override
     public CourseDTO modifyCourse(CourseDTO courseDTO) {
@@ -89,16 +107,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseDTO> getStudentCourses() {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return studentRepository.getOne(principal.getUsername().split("@")[0])
-                .getCourses()
-                .stream()
-                .map(c -> modelMapper.map(c, CourseDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public void deleteCourse(String courseName) {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course not found");
@@ -113,16 +121,6 @@ public class CourseServiceImpl implements CourseService {
         toRemove.forEach(c::removeTeacher);
 
         courseRepository.delete(c);
-    }
-
-    @Override
-    public List<CourseDTO> getTeacherCourses() {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Teacher teacher = teacherRepository.getOne(principal.getUsername());
-        return courseRepository.getTeacherCourses(teacher.getSerial())
-                .stream()
-                .map(c -> modelMapper.map(c, CourseDTO.class))
-                .collect(Collectors.toList());
     }
 
     /**

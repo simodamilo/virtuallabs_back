@@ -5,20 +5,18 @@ import it.polito.ai.virtuallabs_back.dtos.ModelVMDTO;
 public interface ModelVMService {
 
     /**
-     * This method is used to add a ModelVM from which the students of the corresponding team can create the vms.
+     * Used by the student to add a modelVM.
      *
-     * @param modelVMDTO it is the modelVMDTO that must be added.
-     * @param teamId     it is the corresponding team.
-     * @return it returns the added modelVMDTO.
+     * @param modelVMDTO which needs to be added.
+     * @param teamId     in which the modelVM is added.
+     * @return the added modelVM.
      */
     ModelVMDTO addModelVm(ModelVMDTO modelVMDTO, Long teamId);
 
     /**
-     * This method is used to modify the modelVM, it is possible only if there are no vms for the team.
-     * If students want to modify it, they must delete all the vms before.
-     *
-     * @param modelVMDTO it is the new modelVMDTO
-     * @return it returns the same instance of the modified modelVMDTO
+     * Used by the student to modify a modelVM.
+     * @param modelVMDTO which needs to be modified.
+     * @return the modified modelVM.
      */
     ModelVMDTO modifyModelVm(ModelVMDTO modelVMDTO);
 }

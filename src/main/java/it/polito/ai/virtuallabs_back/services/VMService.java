@@ -9,88 +9,73 @@ import java.util.Optional;
 public interface VMService {
 
     /**
-     * This method is used to get a VM by using the id passed by the client. It returns an Optional,
-     * so if the VM does not exist it will be empty.
+     * Used to get the vm by the id.
      *
-     * @param vmId it is the id of the searched vm.
-     * @return the return is an optional, if vm does not exist it will be empty.
+     * @param vmId of the desired vm.
+     * @return empty optional if the vm misses.
      */
     Optional<VMDTO> getVm(Long vmId);
 
     /**
-     * This method is used to get all vms of the student by getting him/her from the principal.
-     *
-     * @return the method return all vms of the student, it could be empty.
+     * Used to get the list of the vms of the authenticated student.
+     * @return list of found vms.
      */
     @PreAuthorize("hasRole('STUDENT')")
     List<VMDTO> getStudentVms();
 
     /**
-     * This method is used to get the vms of a team. The user is taken from the SecurityContextHolder and it is
-     * used to get the corresponding student. Once I have the student, it is used to get the team with the
-     * passed teamId and then all team's vms are taken.
-     *
-     * @param teamId we search all vms of the passed teamId.
-     * @return the method return all vms of the student, it could be empty.
+     * Used to get the list of the vms of the team.
+     * @param teamId of the desired team.
+     * @return list of found vms.
      */
     @PreAuthorize("hasRole('STUDENT')")
     List<VMDTO> getTeamVms(Long teamId);
 
     /**
-     * This method his used to get all vms of the course.
-     *
-     * @param courseName we search all vms of the passed course.
-     * @return the method return all vms of the student, it could be empty.
+     * Used to get the list of the vms of the course.
+     * @param courseName of the desired course.
+     * @return list of found vms.
      */
     @PreAuthorize("hasRole('TEACHER')")
     List<VMDTO> getCourseVms(String courseName);
 
     /**
-     * This method is used to add a new vm, the id is created when the new vm is saved. The new vm is added
-     * to the team and to the student.
-     *
-     * @param vmDTO  it is the vm that must be added.
-     * @param teamId it is the the team in which we insert the vm.
+     * Used by the student to add a vm.
+     * @param vmDTO which needs to be added.
+     * @param teamId in which the vm is added.
      * @return it returns the inserted vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO addVm(VMDTO vmDTO, Long teamId);
 
     /**
-     * This method is used to modify the vm. The result is the new modified vm.
-     *
-     * @param vmDTO it is the vm that must be modified.
-     * @return it returns the modified vm.
+     * Used by the student to modify a vm.
+     * @param vmDTO which needs to be modified.
+     * @return the modified vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO modifyVm(VMDTO vmDTO);
 
     /**
-     * If all check are valid the status is changed by getting the negation of the previous value.
-     *
-     * @param vmId it is the id of the vm.
-     * @return it returns the modified vm.
+     * Used to turn on/off a vm.
+     * @param vmId which needs to be turned on/off.
+     * @return the turned on/off vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO onOff(Long vmId);
 
-
     /**
-     * With this method an owner is added to the vm. Some check are done in order to see if the user can
-     * add the student as owner.
-     *
-     * @param vmId          it is the id of the vm.
-     * @param studentSerial it is the serial of the student that must be added as owner.
-     * @return it returns the modified vm.
+     * Used by the student to add an owner to the vm.
+     * @param vmId in which the owner is added.
+     * @param studentSerial which needs to be added.
+     * @return the modified vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO addOwner(Long vmId, String studentSerial);
 
-
     /**
-     * This method is used to delete a vm. It can be done if the student is one of the owner of the vm.
-     *
-     * @param vmId it is the id of the vm.
+     * Used by the student to delete a vm.
+     * @param vmId which needs to be deleted.
      */
     @PreAuthorize("hasRole('STUDENT')")
     void deleteVm(Long vmId);
