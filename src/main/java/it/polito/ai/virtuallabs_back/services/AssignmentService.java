@@ -18,15 +18,18 @@ public interface AssignmentService {
 
     /**
      * Used to get the list of assignments of a course.
+     *
      * @param courseName in which assignments are searched.
      * @return list of found assignments.
      */
     List<AssignmentDTO> getCourseAssignments(String courseName);
 
     /**
-     * Used by the teacher to add an assignment to the course.
+     * Used by the teacher to add an assignment to the course and
+     * generate a empty solution for each student of the course.
+     *
      * @param assignmentDTO which needs to be added.
-     * @param courseName in which assignments are searched.
+     * @param courseName    in which assignments are searched.
      * @return the added assignment.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -34,6 +37,7 @@ public interface AssignmentService {
 
     /**
      * Used by the teacher to modify an assignment.
+     *
      * @param assignmentDTO which needs to be modified.
      * @return the modified assignment.
      */

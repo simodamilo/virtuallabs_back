@@ -10,6 +10,7 @@ public interface CourseService {
 
     /**
      * Used to get the course by the name.
+     *
      * @param courseName of the desired course.
      * @return empty optional if the course misses.
      */
@@ -24,6 +25,7 @@ public interface CourseService {
 
     /**
      * Used to get the list of courses of the authenticated teacher.
+     *
      * @return list of found courses.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -31,12 +33,15 @@ public interface CourseService {
 
     /**
      * Used to get the list of courses of the authenticated student.
+     *
      * @return list of found courses.
      */
+    @PreAuthorize("hasRole('STUDENT')")
     List<CourseDTO> getStudentCourses();
 
     /**
      * Used by the teacher to add a course.
+     *
      * @param courseDTO which needs to be added.
      * @return the added course.
      */
@@ -45,6 +50,7 @@ public interface CourseService {
 
     /**
      * Used by the teacher to modify a course.
+     *
      * @param courseDTO which needs to be modified.
      * @return the modified course.
      */
@@ -53,6 +59,7 @@ public interface CourseService {
 
     /**
      * Used by the teacher to delete a course.
+     *
      * @param courseName which needs to be deleted.
      */
     @PreAuthorize("hasRole('TEACHER')")

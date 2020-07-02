@@ -19,12 +19,14 @@ public interface StudentService {
 
     /**
      * Used to get the list of students.
+     *
      * @return list of all students.
      */
     List<StudentDTO> getAllStudents();
 
     /**
      * Used to get all the team that are enrolled in the course.
+     *
      * @param courseName in which students are searched.
      * @return list of enrolled students.
      */
@@ -32,6 +34,7 @@ public interface StudentService {
 
     /**
      * Used to get all the students without team for the course.
+     *
      * @param courseName in which students are searched.
      * @return list of students available for the course.
      */
@@ -39,6 +42,7 @@ public interface StudentService {
 
     /**
      * Used to get all the students that already have a team for the course.
+     *
      * @param courseName in which students are searched.
      * @return list of students engaged for the course.
      */
@@ -46,16 +50,17 @@ public interface StudentService {
 
     /**
      * Used to get the members of a team.
+     *
      * @param teamId of the team selected.
      * @return list of students engaged in the team passed.
      */
-    @PreAuthorize("hasRole('STUDENT')")
     List<StudentDTO> getTeamStudents(Long teamId);
 
     /**
      * Used to enroll a student to the course passed.
+     *
      * @param studentSerial to identify the student.
-     * @param courseName in which student is added.
+     * @param courseName    in which student is added.
      * @return the student that was added to the course.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -63,8 +68,9 @@ public interface StudentService {
 
     /**
      * Used to enroll a list of students.
+     *
      * @param studentSerials list of serial that must be added to the course.
-     * @param courseName in which student are added.
+     * @param courseName     in which student are added.
      * @return the list of the students that have been enrolled to che course.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -72,7 +78,8 @@ public interface StudentService {
 
     /**
      * Used to enroll a list of students that is passed by a csv file.
-     * @param reader used to handle the csv file.
+     *
+     * @param reader     used to handle the csv file.
      * @param courseName in which student are added.
      * @return the list of the students that have been enrolled to che course.
      */
@@ -81,6 +88,7 @@ public interface StudentService {
 
     /**
      * Used by the student to add an image for the student.
+     *
      * @param image updated by the student.
      * @return the student modified.
      */
@@ -89,8 +97,9 @@ public interface StudentService {
 
     /**
      * Used by the teacher to remove a student from the course, if allowed.
+     *
      * @param studentSerial to identify the student.
-     * @param courseName from which student is removed.
+     * @param courseName    from which student is removed.
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteStudentFromCourse(String studentSerial, String courseName);

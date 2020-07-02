@@ -2,27 +2,27 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import it.polito.ai.virtuallabs_back.entities.Student;
-import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.entities.Team;
 import it.polito.ai.virtuallabs_back.entities.VM;
 import it.polito.ai.virtuallabs_back.exception.*;
-import it.polito.ai.virtuallabs_back.repositories.*;
+import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
+import it.polito.ai.virtuallabs_back.repositories.TeamRepository;
+import it.polito.ai.virtuallabs_back.repositories.VMRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class VMServiceImpl implements VMService {
+
+    @Autowired
+    UtilityService utilityService;
 
     @Autowired
     ModelMapper modelMapper;
@@ -36,24 +36,15 @@ public class VMServiceImpl implements VMService {
     @Autowired
     TeamRepository teamRepository;
 
-    @Autowired
-    CourseRepository courseRepository;
-
-    @Autowired
-    TeacherRepository teacherRepository;
-
 
     @Override
-    public Optional<VMDTO> getVm(Long id) {
-        return vmRepository.findById(id)
-                .map(v -> modelMapper.map(v, VMDTO.class));
+    public Optional<VMDTO> getVm(Long vmId) {
+        return vmRepository.findById(vmId).map(vm -> modelMapper.map(vm, VMDTO.class));
     }
 
     @Override
     public List<VMDTO> getStudentVms() {
-        Student student = getStudentFromPrincipal();
-
-        return student
+        return utilityService.getStudent()
                 .getVms()
                 .stream()
                 .map(vm -> modelMapper.map(vm, VMDTO.class))
@@ -62,17 +53,13 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public List<VMDTO> getTeamVms(Long teamId) {
-        if (!teamRepository.existsById(teamId))
-            throw new TeamNotFoundException("Team does not exist");
-
-        Team team = teamRepository.getOne(teamId);
-        Student student = getStudentFromPrincipal();
+        Team team = utilityService.getTeam(teamId);
+        Student student = utilityService.getStudent();
 
         if (!student.getTeams().contains(team))
-            throw new TeamNotFoundException("Team does not exist"); // fare nuova eccezione?
+            throw new TeamNotFoundException("The student is not part of the team");
 
-        return teamRepository.getOne(teamId)
-                .getVms()
+        return team.getVms()
                 .stream()
                 .map(vm -> modelMapper.map(vm, VMDTO.class))
                 .collect(Collectors.toList());
@@ -80,13 +67,9 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public List<VMDTO> getCourseVms(String courseName) {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Teacher teacher = teacherRepository.getOne(principal.getUsername().split("@")[0]);
+        utilityService.courseOwnerValid(courseName);
 
-        if (!teacher.getCourses().contains(courseRepository.getOne(courseName)))
-            throw new CourseNotFoundException("Course does not exist"); // fare nuova eccezione?
-
-        return courseRepository.getOne(courseName)
+        return utilityService.getCourse(courseName)
                 .getVms()
                 .stream()
                 .map(vm -> modelMapper.map(vm, VMDTO.class))
@@ -95,14 +78,11 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public VMDTO addVm(VMDTO vmDTO, Long teamId) {
-        if (!teamRepository.existsById(teamId))
-            throw new TeamNotFoundException("Team does not exist");
-
-        Team team = teamRepository.getOne(teamId);
-        Student student = getStudentFromPrincipal();
+        Team team = utilityService.getTeam(teamId);
+        Student student = utilityService.getStudent();
 
         if (!student.getTeams().contains(team))
-            throw new TeamNotFoundException("Team does not exist"); // aggiungere una nuova eccezione?
+            throw new TeamNotFoundException("The student is not part of the team");
 
         if (!team.getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
@@ -110,15 +90,15 @@ public class VMServiceImpl implements VMService {
         if (team.getModelVM() == null)
             throw new VmChangeNotValidException("It is not possible to add a new VM");
 
-        constraintsCheck(vmDTO, teamId); /* check related to vcpu, ram and disk */
+        utilityService.constraintsCheck(vmDTO, teamId);
 
         if (team.getVms().size() >= team.getMaxInstance())
             throw new VmConstraintException("There are too many vm instances for this team");
 
         VM vm = vmRepository.save(modelMapper.map(vmDTO, VM.class));
-        team.addVm(vm); /* add vm to team */
-        vm.addOwner(student); /* add vm to student */
-        team.getCourse().addVm(vm); /* add vm to course */
+        team.addVm(vm);
+        vm.addOwner(student);
+        team.getCourse().addVm(vm);
 
         return modelMapper.map(vm, VMDTO.class);
     }
@@ -127,7 +107,7 @@ public class VMServiceImpl implements VMService {
     public VMDTO modifyVm(VMDTO vmDTO) {
         VM vm = getAndCheck(vmDTO.getId());
 
-        constraintsCheck(vmDTO, vm.getTeam().getId()); /* check related to vcpu, ram and disk */
+        utilityService.constraintsCheck(vmDTO, vm.getTeam().getId());
 
         vm.setVcpu(vmDTO.getVcpu());
         vm.setDisk(vmDTO.getDisk());
@@ -137,23 +117,21 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public VMDTO onOff(Long id) {
-        if (!vmRepository.existsById(id))
-            throw new VmNotFoundException("Vm not found");
-        if (isNotValid(id))
+    public VMDTO onOff(Long vmId) {
+        if (isNotValid(vmId))
             throw new VmChangeNotValidException("You have no permission to modify this vm");
 
-        VM vm = vmRepository.getOne(id);
-        /*long alreadyActiveVms = vm.getTeam().getVms()
-                .stream()
-                .filter(VM::isActive)
-                .count();*/
-        int alreadyActiveVms = vmRepository.countVMSByTeamAndActiveTrue(vm.getTeam());
-        if (alreadyActiveVms >= vm.getTeam().getActiveInstance())
-            throw new VmChangeNotValidException("There are too many active vms");
-
+        VM vm = utilityService.getVm(vmId);
         if (!vm.getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
+
+        long alreadyActiveVms = vm.getTeam().getVms()
+                .stream()
+                .filter(VM::isActive)
+                .count();
+
+        if (vm.isActive() && alreadyActiveVms >= vm.getTeam().getActiveInstance())
+            throw new VmChangeNotValidException("There are too many active vms");
 
         vm.setActive(!vm.isActive());
 
@@ -164,12 +142,12 @@ public class VMServiceImpl implements VMService {
     public VMDTO addOwner(Long id, String serial) {
         VM vm = getAndCheck(id);
 
-        Student studentToAdd = studentRepository.getOne(serial);
-        if (!vm.getTeam().getMembers().contains(studentToAdd))
-            throw new StudentNotFoundException("Student is not part of the team"); // vedere se inserire un'altra eccezione
+        Student student = studentRepository.getOne(serial);
+        if (!vm.getTeam().getMembers().contains(student))
+            throw new StudentNotFoundException("Student is not part of the team");
 
-        if (!vm.addOwner(studentToAdd))
-            throw new StudentDuplicatedException("Student is already owner of the vm"); // vedere se inserire un'altra eccezione
+        if (!vm.addOwner(student))
+            throw new StudentDuplicatedException("Student is already owner of the vm");
 
         return modelMapper.map(vm, VMDTO.class);
     }
@@ -178,65 +156,26 @@ public class VMServiceImpl implements VMService {
     public void deleteVm(Long id) {
         VM vm = getAndCheck(id);
 
-        vm.getTeam().removeVm(vm); /* delete vm from team */
-        vm.getCourse().removeVm(vm); /* delete vm from course */
-        List<Student> owners = vm.getOwners(); /* delete vm from owners */
-        List<Student> toRemove = new ArrayList<>(owners);
-        toRemove.forEach(vm::removeOwner);
+        vm.getTeam().removeVm(vm);
+        vm.getCourse().removeVm(vm);
+        vm.getOwners().forEach(student -> student.removeVm(vm));
 
         vmRepository.delete(vm);
     }
 
 
-    private boolean isNotValid(Long id) {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Student student = studentRepository.getOne(principal.getUsername().split("@")[0]);
-
-        VM vm = student.getVms()
+    private boolean isNotValid(Long vmId) {
+        return utilityService.getStudent()
+                .getVms()
                 .stream()
-                .filter(v -> v.getId().equals(id))
-                .findAny()
-                .orElse(null);
-
-        return vm == null;
-    }
-
-    private Student getStudentFromPrincipal() {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return studentRepository.getOne(principal.getUsername().split("@")[0]);
-    }
-
-    private void constraintsCheck(VMDTO vmDTO, Long teamId) {
-        AtomicInteger disk = new AtomicInteger(vmDTO.getDisk());
-        AtomicInteger vcpu = new AtomicInteger(vmDTO.getVcpu());
-        AtomicInteger ram = new AtomicInteger(vmDTO.getRam());
-
-        Team team = teamRepository.getOne(teamId);
-        team.getVms().forEach(vm -> {
-            if (vmDTO.getId() != null) {
-                if (!vmDTO.getId().equals(vm.getId())) {
-                    disk.set(disk.get() + vm.getDisk());
-                    vcpu.set(vcpu.get() + vm.getVcpu());
-                    ram.set(ram.get() + vm.getRam());
-                }
-            } else {
-                disk.set(disk.get() + vm.getDisk());
-                vcpu.set(vcpu.get() + vm.getVcpu());
-                ram.set(ram.get() + vm.getRam());
-            }
-        });
-
-        if (disk.get() > team.getDisk() || vcpu.get() > team.getVcpu() || ram.get() > team.getRam())
-            throw new VmConstraintException("The new vm does not respect the team constraints");
+                .noneMatch(vm -> vm.getId().equals(vmId));
     }
 
     private VM getAndCheck(Long vmId) {
-        if (!vmRepository.existsById(vmId))
-            throw new VmNotFoundException("Vm not found");
         if (isNotValid(vmId))
             throw new VmChangeNotValidException("You have no permission to modify this vm");
 
-        VM vm = vmRepository.getOne(vmId);
+        VM vm = utilityService.getVm(vmId);
         if (vm.isActive())
             throw new VmActiveException("Vm is on, so it is not possible to modify it");
         if (!vm.getCourse().isEnabled())

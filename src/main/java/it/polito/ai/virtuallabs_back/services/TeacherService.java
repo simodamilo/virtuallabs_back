@@ -18,14 +18,16 @@ public interface TeacherService {
 
     /**
      * Used to get the list of all teachers.
+     *
      * @return list of found teachers.
      */
     List<TeacherDTO> getAllTeachers();
 
     /**
      * Used to add a teacher to the course by another teacher.
+     *
      * @param teacherSerial which needs to be added.
-     * @param courseName in which the teacher is added.
+     * @param courseName    in which the teacher is added.
      * @return the added teacher.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -33,6 +35,7 @@ public interface TeacherService {
 
     /**
      * Used to add an image to the teacher.
+     *
      * @param image which needs to be added.
      * @return the modified teacher.
      */

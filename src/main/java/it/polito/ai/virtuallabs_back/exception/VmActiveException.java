@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class VmActiveException extends TeamServiceException {
+public class VmActiveException extends VMServiceException {
     public VmActiveException(String msg) {
         super(msg);
     }

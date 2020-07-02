@@ -18,6 +18,7 @@ public interface VMService {
 
     /**
      * Used to get the list of the vms of the authenticated student.
+     *
      * @return list of found vms.
      */
     @PreAuthorize("hasRole('STUDENT')")
@@ -25,14 +26,15 @@ public interface VMService {
 
     /**
      * Used to get the list of the vms of the team.
+     *
      * @param teamId of the desired team.
      * @return list of found vms.
      */
-    @PreAuthorize("hasRole('STUDENT')")
     List<VMDTO> getTeamVms(Long teamId);
 
     /**
      * Used to get the list of the vms of the course.
+     *
      * @param courseName of the desired course.
      * @return list of found vms.
      */
@@ -41,7 +43,8 @@ public interface VMService {
 
     /**
      * Used by the student to add a vm.
-     * @param vmDTO which needs to be added.
+     *
+     * @param vmDTO  which needs to be added.
      * @param teamId in which the vm is added.
      * @return it returns the inserted vm.
      */
@@ -50,6 +53,7 @@ public interface VMService {
 
     /**
      * Used by the student to modify a vm.
+     *
      * @param vmDTO which needs to be modified.
      * @return the modified vm.
      */
@@ -58,15 +62,16 @@ public interface VMService {
 
     /**
      * Used to turn on/off a vm.
+     *
      * @param vmId which needs to be turned on/off.
      * @return the turned on/off vm.
      */
-    @PreAuthorize("hasRole('STUDENT')")
     VMDTO onOff(Long vmId);
 
     /**
      * Used by the student to add an owner to the vm.
-     * @param vmId in which the owner is added.
+     *
+     * @param vmId          in which the owner is added.
      * @param studentSerial which needs to be added.
      * @return the modified vm.
      */
@@ -75,6 +80,7 @@ public interface VMService {
 
     /**
      * Used by the student to delete a vm.
+     *
      * @param vmId which needs to be deleted.
      */
     @PreAuthorize("hasRole('STUDENT')")

@@ -16,12 +16,14 @@ public interface TeamService {
 
     /**
      * Used to get the list of pending teams request of a student.
+     *
      * @return list of teams found.
      */
     List<TeamDTO> getStudentPendingTeams();
 
     /**
      * Used to get the list of active teams of the specific course.
+     *
      * @param courseName in which teams are searched.
      * @return list of all teams inside the course.
      */
@@ -54,12 +56,15 @@ public interface TeamService {
      * @param teamId of the proposed team.
      * @return the team, if all students accepted status = 1.
      */
+    @PreAuthorize("hasRole('STUDENT')")
     TeamDTO acceptTeam(Long teamId);
 
     /**
      * Used to reject an invitation to a group
+     *
      * @param teamId of the proposed team.
      */
+    @PreAuthorize("hasRole('STUDENT')")
     void rejectTeam(Long teamId);
 
     /**

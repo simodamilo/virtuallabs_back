@@ -7,14 +7,12 @@ import it.polito.ai.virtuallabs_back.entities.Solution;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.exception.AssignmentChangeNotValid;
 import it.polito.ai.virtuallabs_back.exception.AssignmentDateException;
-import it.polito.ai.virtuallabs_back.exception.AssignmentNotFoundException;
-import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
-import it.polito.ai.virtuallabs_back.repositories.*;
+import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
+import it.polito.ai.virtuallabs_back.repositories.AssignmentRepository;
+import it.polito.ai.virtuallabs_back.repositories.SolutionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,33 +27,25 @@ import java.util.stream.Collectors;
 public class AssignmentServiceImpl implements AssignmentService {
 
     @Autowired
-    AssignmentRepository assignmentRepository;
-
-    @Autowired
-    CourseRepository courseRepository;
-
-    @Autowired
-    TeacherRepository teacherRepository;
-
-    @Autowired
-    SolutionRepository solutionRepository;
-
-    @Autowired
-    StudentRepository studentRepository;
+    UtilityService utilityService;
 
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    AssignmentRepository assignmentRepository;
+
+    @Autowired
+    SolutionRepository solutionRepository;
+
     @Override
-    public Optional<AssignmentDTO> getAssignment(Long id) {
-        return assignmentRepository.findById(id).map(a -> modelMapper.map(a, AssignmentDTO.class));
+    public Optional<AssignmentDTO> getAssignment(Long assignmentId) {
+        return assignmentRepository.findById(assignmentId).map(assignment -> modelMapper.map(assignment, AssignmentDTO.class));
     }
 
     @Override
     public List<AssignmentDTO> getCourseAssignments(String courseName) {
-        if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not found");
-        return courseRepository.getOne(courseName)
+        return utilityService.getCourse(courseName)
                 .getAssignments()
                 .stream()
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
@@ -64,23 +54,25 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName) {
-        if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not found");
+        Teacher teacher = utilityService.getTeacher();
+        Course course = utilityService.getCourse(courseName);
+
+        if (!course.isEnabled())
+            throw new CourseNotEnabledException("The course is not enabled");
+
+        if (!teacher.getCourses().contains(course))
+            throw new AssignmentChangeNotValid("You have no permission to add an assignment to this course");
+
         if (!assignmentDTO.getReleaseDate().after(assignmentDTO.getDeadline()))
             throw new AssignmentDateException("Deadline before release");
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Assignment a = assignmentRepository.save(modelMapper.map(assignmentDTO, Assignment.class));
-        Teacher t = teacherRepository.getOne(principal.getUsername().split("@")[0]);
-        Course c = courseRepository.getOne(courseName);
-        if (!t.getCourses().contains(c))
-            throw new AssignmentChangeNotValid("You have no permission to add an assignment to this course");
-        t.addAssignment(a);
-        c.addAssignment(a);
-        courseRepository.getOne(courseName).getStudents().forEach(
+
+        Assignment assignment = assignmentRepository.save(modelMapper.map(assignmentDTO, Assignment.class));
+        teacher.addAssignment(assignment);
+        course.addAssignment(assignment);
+        course.getStudents().forEach(
                 student -> {
                     Solution s = Solution.builder()
-                            .assignment(a)
-                            .content(null)
+                            .assignment(assignment)
                             .deliveryTs(new Timestamp(assignmentDTO.getReleaseDate().getTime()))
                             .state(Solution.State.NULL)
                             .student(student)
@@ -89,46 +81,49 @@ public class AssignmentServiceImpl implements AssignmentService {
                     solutionRepository.save(s);
                 }
         );
-        return modelMapper.map(a, AssignmentDTO.class);
+
+        return modelMapper.map(assignment, AssignmentDTO.class);
     }
 
     @Override
     public AssignmentDTO modifyAssignment(AssignmentDTO assignmentDTO) {
-        if (!assignmentRepository.existsById(assignmentDTO.getId()))
-            throw new AssignmentNotFoundException("Assignment not found");
         if (!assignmentDTO.getReleaseDate().after(assignmentDTO.getDeadline()))
             throw new AssignmentDateException("Deadline before release");
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Teacher t = teacherRepository.getOne(principal.getUsername().split("@")[0]);
-        Assignment a = assignmentRepository.getOne(assignmentDTO.getId());
-        if (!a.getTeacher().equals(t))
-            throw new AssignmentChangeNotValid("You have no permission to add an assignment to this course");
-        a.setDeadline(assignmentDTO.getDeadline());
-        a.setReleaseDate(assignmentDTO.getReleaseDate());
-        a.setContent(assignmentDTO.getContent());
+
+        Teacher teacher = utilityService.getTeacher();
+        Assignment assignment = utilityService.getAssignment(assignmentDTO.getId());
+        if (!assignment.getCourse().isEnabled())
+            throw new CourseNotEnabledException("The course is not enabled");
+
+        if (!assignment.getTeacher().equals(teacher))
+            throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
+
+        assignment.setDeadline(assignmentDTO.getDeadline());
+        assignment.setReleaseDate(assignmentDTO.getReleaseDate());
+        assignment.setContent(assignmentDTO.getContent());
+
         return assignmentDTO;
     }
 
     @Override
     @Scheduled(fixedRate = 10000)
     public void assignmentExpired() {
-        assignmentRepository.findAllByDeadlineBefore(new Date()).forEach(a -> {
-            if (!a.isTerminated()) {
-                a.getCourse().getStudents().forEach(student -> {
-                    if (solutionRepository.getAllByStudentAndAssignment(student, a)
+        assignmentRepository.findAllByDeadlineBefore(new Date()).forEach(assignment -> {
+            if (!assignment.isTerminated()) {
+                assignment.getCourse().getStudents().forEach(student -> {
+                    if (solutionRepository.getAllByStudentAndAssignment(student, assignment)
                             .stream()
                             .noneMatch(solution -> solution.getState().equals(Solution.State.DELIVERED))) {
                         solutionRepository.save(Solution.builder()
                                 .modifiable(false)
-                                .assignment(a)
-                                .content(null)
+                                .assignment(assignment)
                                 .deliveryTs(new Timestamp(System.currentTimeMillis()))
                                 .student(student)
                                 .state(Solution.State.DELIVERED)
                                 .build());
                     }
                 });
-                a.setTerminated(true);
+                assignment.setTerminated(true);
             }
         });
     }

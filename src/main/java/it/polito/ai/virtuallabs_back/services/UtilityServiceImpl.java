@@ -1,7 +1,10 @@
 package it.polito.ai.virtuallabs_back.services;
 
+import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
+import it.polito.ai.virtuallabs_back.exception.CourseChangeNotValidException;
 import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
+import it.polito.ai.virtuallabs_back.exception.VmConstraintException;
 import it.polito.ai.virtuallabs_back.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Transactional
@@ -90,5 +94,36 @@ public class UtilityServiceImpl implements UtilityService {
         if (!vmRepository.existsById(vmId))
             throw new CourseNotFoundException("Vm not found");
         return vmRepository.getOne(vmId);
+    }
+
+    @Override
+    public void courseOwnerValid(String courseName) {
+        if (!getTeacher().getCourses().contains(getCourse(courseName)))
+            throw new CourseChangeNotValidException("You have no permission to change this course");
+    }
+
+    @Override
+    public void constraintsCheck(VMDTO vmDTO, Long teamId) {
+        AtomicInteger disk = new AtomicInteger(vmDTO.getDisk());
+        AtomicInteger vcpu = new AtomicInteger(vmDTO.getVcpu());
+        AtomicInteger ram = new AtomicInteger(vmDTO.getRam());
+
+        Team team = teamRepository.getOne(teamId);
+        team.getVms().forEach(vm -> {
+            if (vmDTO.getId() != null) {
+                if (!vmDTO.getId().equals(vm.getId())) {
+                    disk.set(disk.get() + vm.getDisk());
+                    vcpu.set(vcpu.get() + vm.getVcpu());
+                    ram.set(ram.get() + vm.getRam());
+                }
+            } else {
+                disk.set(disk.get() + vm.getDisk());
+                vcpu.set(vcpu.get() + vm.getVcpu());
+                ram.set(ram.get() + vm.getRam());
+            }
+        });
+
+        if (disk.get() > team.getDisk() || vcpu.get() > team.getVcpu() || ram.get() > team.getRam())
+            throw new VmConstraintException("The new vm does not respect the team constraints");
     }
 }

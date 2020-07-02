@@ -1,5 +1,6 @@
 package it.polito.ai.virtuallabs_back.services;
 
+import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
 
 public interface UtilityService {
@@ -19,4 +20,8 @@ public interface UtilityService {
     Team getTeam(Long teamId);
 
     VM getVm(Long vmId);
+
+    void courseOwnerValid(String courseName);
+
+    void constraintsCheck(VMDTO vmDTO, Long teamId);
 }

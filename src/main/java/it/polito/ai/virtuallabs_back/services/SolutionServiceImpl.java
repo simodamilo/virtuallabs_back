@@ -2,12 +2,13 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
-import it.polito.ai.virtuallabs_back.exception.*;
-import it.polito.ai.virtuallabs_back.repositories.*;
+import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
+import it.polito.ai.virtuallabs_back.exception.CourseNotValidException;
+import it.polito.ai.virtuallabs_back.exception.SolutionChangeNotValid;
+import it.polito.ai.virtuallabs_back.exception.StudentNotEnrolledException;
+import it.polito.ai.virtuallabs_back.repositories.SolutionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -21,39 +22,28 @@ import java.util.stream.Collectors;
 public class SolutionServiceImpl implements SolutionService {
 
     @Autowired
-    SolutionRepository solutionRepository;
-
-    @Autowired
-    AssignmentRepository assignmentRepository;
-
-    @Autowired
-    StudentRepository studentRepository;
-
-    @Autowired
-    TeacherRepository teacherRepository;
-
-    @Autowired
-    CourseRepository courseRepository;
+    UtilityService utilityService;
 
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    SolutionRepository solutionRepository;
+
     @Override
-    public Optional<SolutionDTO> getSolution(Long id) {
-        return solutionRepository.findById(id).map(s -> modelMapper.map(s, SolutionDTO.class));
+    public Optional<SolutionDTO> getSolution(Long solutionId) {
+        return solutionRepository.findById(solutionId).map(solution -> modelMapper.map(solution, SolutionDTO.class));
     }
 
     @Override
     public List<SolutionDTO> getAssignmentSolutions(Long assignmentId) {
-        if (!assignmentRepository.existsById(assignmentId))
-            throw new AssignmentNotFoundException("Assignment not found");
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Teacher t = teacherRepository.getOne(principal.getUsername().split("@")[0]);
-        Assignment a = assignmentRepository.getOne(assignmentId);
-        if (!t.getCourses().contains(a.getCourse()))
+        Teacher teacher = utilityService.getTeacher();
+        Assignment assignment = utilityService.getAssignment(assignmentId);
+
+        if (!teacher.getCourses().contains(assignment.getCourse()))
             throw new CourseNotValidException("You have no permission to see the solution of this course");
-        return assignmentRepository.getOne(assignmentId)
-                .getSolutions()
+
+        return assignment.getSolutions()
                 .stream()
                 .map(s -> modelMapper.map(s, SolutionDTO.class))
                 .collect(Collectors.toList());
@@ -61,36 +51,38 @@ public class SolutionServiceImpl implements SolutionService {
 
     @Override
     public List<SolutionDTO> getStudentSolutions(String courseName) {
-        if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not found");
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Student s = studentRepository.getOne(principal.getUsername().split("@")[0]);
-        Course c = courseRepository.getOne(courseName);
-        if (!s.getCourses().contains(c))
+        Student student = utilityService.getStudent();
+        Course course = utilityService.getCourse(courseName);
+
+        if (!student.getCourses().contains(course))
             throw new StudentNotEnrolledException("You are not enrolled in the course");
+
         List<SolutionDTO> list = new ArrayList<>();
-        courseRepository.getOne(courseName).getAssignments().forEach(assignment ->
-                solutionRepository.getAllByStudentAndAssignment(s, assignment)
+        course.getAssignments().forEach(assignment ->
+                solutionRepository.getAllByStudentAndAssignment(student, assignment)
                         .forEach(solution -> list.add(modelMapper.map(solution, SolutionDTO.class)))
         );
+
         return list;
     }
 
     @Override
     public SolutionDTO addSolution(SolutionDTO solutionDTO, Long assignmentId) {
-        if (!assignmentRepository.existsById(assignmentId))
-            throw new AssignmentNotFoundException("Assignment not found");
         if (solutionDTO.getState().equals(Solution.State.NULL) || solutionDTO.getState().equals(Solution.State.REVIEWED))
             throw new SolutionChangeNotValid("Impossible to change this solution");
-        Assignment assignment = assignmentRepository.getOne(assignmentId);
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Student student = studentRepository.getOne(principal.getUsername().split("@")[0]);
-        if (solutionRepository.getByStudentSerialAndAssignmentAndModifiableFalse(student.getSerial(), assignment) != null)
+
+        Assignment assignment = utilityService.getAssignment(assignmentId);
+        Student student = utilityService.getStudent();
+
+        if (solutionRepository.getAllByStudentAndAssignment(student, assignment)
+                .stream().anyMatch(solution -> !solution.isModifiable()))
             throw new SolutionChangeNotValid("Impossible to change this solution");
-        Solution s = solutionRepository.save(modelMapper.map(solutionDTO, Solution.class));
-        student.addSolution(s);
-        assignment.addSolution(s);
-        return modelMapper.map(s, SolutionDTO.class);
+
+        Solution solution = solutionRepository.save(modelMapper.map(solutionDTO, Solution.class));
+        student.addSolution(solution);
+        assignment.addSolution(solution);
+
+        return modelMapper.map(solution, SolutionDTO.class);
     }
 
     @Override
@@ -101,31 +93,37 @@ public class SolutionServiceImpl implements SolutionService {
         Solution solution = solutionRepository.save(modelMapper.map(solutionDTO, Solution.class));
         solution.setStudent(s.getStudent());
         solution.setAssignment(s.getAssignment());
+
         return modelMapper.map(solution, SolutionDTO.class);
     }
 
     @Override
     public SolutionDTO setModifiable(SolutionDTO solutionDTO) {
-        Solution s = isValid(solutionDTO);
-        s.setModifiable(solutionDTO.isModifiable());
-        return modelMapper.map(s, SolutionDTO.class);
+        Solution solution = isValid(solutionDTO);
+        solution.setModifiable(solutionDTO.isModifiable());
+
+        return modelMapper.map(solution, SolutionDTO.class);
     }
 
     @Override
     public SolutionDTO setGrade(SolutionDTO solutionDTO, String vote) {
-        Solution s = isValid(solutionDTO);
-        s.setGrade(vote);
-        return modelMapper.map(s, SolutionDTO.class);
+        Solution solution = isValid(solutionDTO);
+        solution.setGrade(vote);
+
+        return modelMapper.map(solution, SolutionDTO.class);
     }
 
     private Solution isValid(SolutionDTO solutionDTO) {
-        if (!solutionRepository.existsById(solutionDTO.getId()))
-            throw new SolutionNotFoundException("Solution not found");
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Teacher t = teacherRepository.getOne(principal.getUsername().split("@")[0]);
-        Solution s = solutionRepository.getOne(solutionDTO.getId());
-        if (!t.getCourses().contains(s.getAssignment().getCourse()))
+        Teacher teacher = utilityService.getTeacher();
+        Solution solution = utilityService.getSolution(solutionDTO.getId());
+        Course course = utilityService.getCourse(solution.getAssignment().getCourse().getName());
+
+        if (!course.isEnabled())
+            throw new CourseNotEnabledException("The course is not enabled");
+
+        if (!teacher.getCourses().contains(solution.getAssignment().getCourse()))
             throw new SolutionChangeNotValid("You have no permission to change this Solution");
-        return s;
+
+        return solution;
     }
 }
