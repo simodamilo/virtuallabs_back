@@ -33,6 +33,14 @@ public interface StudentService {
     List<StudentDTO> getEnrolledStudents(String courseName);
 
     /**
+     * Used to get the owner of an solution.
+     *
+     * @param solutionId of the solution searched.
+     * @return the owner of the solution.
+     */
+    StudentDTO getSolutionStudent(Long solutionId);
+
+    /**
      * Used to get all the students without team for the course.
      *
      * @param courseName in which students are searched.
@@ -111,4 +119,5 @@ public interface StudentService {
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteStudentFromCourse(String studentSerial, String courseName);
+
 }

@@ -34,8 +34,13 @@ public class SolutionController {
 
     @GetMapping("/courses/{courseName}")
     public List<SolutionDTO> getStudentSolutions(@PathVariable String courseName) {
-        return solutionService.getStudentSolutions(courseName);
+        return solutionService.getCourseSolutions(courseName);
     }
+
+//    @GetMapping("/courses/{courseName}")
+//    public List<SolutionDTO> getStudentSolutions(@PathVariable String courseName) {
+//        return solutionService.getStudentSolutions(courseName);
+//    }
 
     @PostMapping("/{assignmentId}")
     public SolutionDTO addSolution(@Valid @RequestBody SolutionDTO solutionDTO,
