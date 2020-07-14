@@ -26,6 +26,15 @@ public interface SolutionService {
     List<SolutionDTO> getAssignmentSolutions(Long assignmentId);
 
     /**
+     * Used to get the list of solution for a specific course.
+     *
+     * @param courseName in which solutions are searched.
+     * @return list of found solution.
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    List<SolutionDTO> getCourseSolutions(String courseName);
+
+    /**
      * Used to get the list of solution of an student for a specific course.
      *
      * @param courseName in which solutions are searched.
@@ -72,4 +81,5 @@ public interface SolutionService {
      */
     @PreAuthorize("hasRole('TEACHER')")
     SolutionDTO setGrade(SolutionDTO solutionDTO, String grade);
+
 }

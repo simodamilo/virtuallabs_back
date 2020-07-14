@@ -61,6 +61,12 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public StudentDTO getSolutionStudent(Long solutionId) {
+        Student student = utilityService.getSolution(solutionId).getStudent();
+        return modelMapper.map(student, StudentDTO.class);
+    }
+
+    @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course not Found");

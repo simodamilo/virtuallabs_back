@@ -13,6 +13,8 @@ public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
 
     private Long id;
     @NotEmpty
+    private String name;
+    @NotEmpty
     private Date releaseDate;
     @NotEmpty
     private Date deadline;

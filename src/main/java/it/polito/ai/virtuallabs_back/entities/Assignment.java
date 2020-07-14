@@ -14,6 +14,7 @@ public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     private Date releaseDate;
     private Date deadline;
     private byte[] content;

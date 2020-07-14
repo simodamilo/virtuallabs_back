@@ -45,9 +45,21 @@ public class SolutionServiceImpl implements SolutionService {
 
         return assignment.getSolutions()
                 .stream()
-                .map(s -> modelMapper.map(s, SolutionDTO.class))
+                .map(solution -> modelMapper.map(solution, SolutionDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<SolutionDTO> getCourseSolutions(String courseName) {
+        List<SolutionDTO> list = new ArrayList<>();
+        utilityService.getCourse(courseName)
+                .getAssignments()
+                .forEach(assignment -> assignment.getSolutions()
+                        .forEach(solution -> list.add(modelMapper.map(solution, SolutionDTO.class))
+                        ));
+        return list;
+    }
+
 
     @Override
     public List<SolutionDTO> getStudentSolutions(String courseName) {

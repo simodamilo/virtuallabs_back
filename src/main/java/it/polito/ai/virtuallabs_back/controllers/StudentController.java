@@ -34,7 +34,10 @@ public class StudentController {
 
     @GetMapping({"", "/"})
     public List<StudentDTO> getAllStudents() {
-        return studentService.getAllStudents().stream().map(ModelHelper::enrich).collect(Collectors.toList());
+        return studentService.getAllStudents()
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{courseName}/enrolled")
@@ -44,6 +47,12 @@ public class StudentController {
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
+
+    @GetMapping("/solutions/{solutionId}")
+    public StudentDTO getSolutionStudent(@PathVariable Long solutionId) {
+        return ModelHelper.enrich(studentService.getSolutionStudent(solutionId));
+    }
+
 
     @GetMapping("/{courseName}/available")
     public List<StudentDTO> getAvailableStudents(@PathVariable String courseName) {
@@ -71,16 +80,16 @@ public class StudentController {
 
     @PostMapping("/{courseName}/enroll")
     public StudentDTO addStudentToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
-        if (!map.containsKey("id") || map.keySet().size() != 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
-        return ModelHelper.enrich(studentService.addStudentToCourse(map.get("id"), courseName));
+        if (!map.containsKey("serial") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only serial");
+        return ModelHelper.enrich(studentService.addStudentToCourse(map.get("serial"), courseName));
     }
 
     @PostMapping("/{courseName}/enrollAll")
     public List<StudentDTO> enrollAll(@PathVariable String courseName, @RequestBody Map<String, Object> map) {
-        if (!map.containsKey("ids") || map.keySet().size() != 1)
+        if (!map.containsKey("serials") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        return studentService.enrollAll((List<String>) map.get("ids"), courseName)
+        return studentService.enrollAll((List<String>) map.get("serials"), courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
@@ -111,8 +120,8 @@ public class StudentController {
     @DeleteMapping("/{courseName}/deleteStudent")
     @ResponseStatus(code = HttpStatus.OK, reason = "Student deleted")
     public void deleteStudentFromCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
-        if (!map.containsKey("id") || map.keySet().size() != 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
-        studentService.deleteStudentFromCourse(map.get("id"), courseName);
+        if (!map.containsKey("serial") || map.keySet().size() != 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only serial");
+        studentService.deleteStudentFromCourse(map.get("serial"), courseName);
     }
 }
