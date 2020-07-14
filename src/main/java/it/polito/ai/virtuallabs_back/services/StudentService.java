@@ -57,6 +57,14 @@ public interface StudentService {
     List<StudentDTO> getTeamStudents(Long teamId);
 
     /**
+     * Used tog et the owners of the vm.
+     *
+     * @param vmId of the vm selected.
+     * @return list of students that own the vm.
+     */
+    List<StudentDTO> getVmOwners(Long vmId);
+
+    /**
      * Used to enroll a student to the course passed.
      *
      * @param studentSerial to identify the student.

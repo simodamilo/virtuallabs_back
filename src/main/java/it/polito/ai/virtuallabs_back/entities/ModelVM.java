@@ -20,14 +20,14 @@ public class ModelVM {
     private String name;
     private String type;
     @OneToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @JoinColumn(name = "course_id")
+    private Course course;
 
 
-    public void setTeam(Team team) {
-        if (team != null) {
-            this.team = team;
-            getTeam().setModelVM(this);
+    public void setCourse(Course course) {
+        if (course != null) {
+            this.course = course;
+            getCourse().setModelVM(this);
         }
     }
 }

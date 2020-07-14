@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -109,6 +110,7 @@ public class VMServiceImpl implements VMService {
 
         utilityService.constraintsCheck(vmDTO, vm.getTeam().getId());
 
+        vm.setName(vmDTO.getName());
         vm.setVcpu(vmDTO.getVcpu());
         vm.setDisk(vmDTO.getDisk());
         vm.setRam(vmDTO.getRam());
@@ -158,7 +160,9 @@ public class VMServiceImpl implements VMService {
 
         vm.getTeam().removeVm(vm);
         vm.getCourse().removeVm(vm);
-        vm.getOwners().forEach(student -> student.removeVm(vm));
+        List<Student> owners = vm.getOwners();
+        List<Student> toRemove = new ArrayList<>(owners);
+        toRemove.forEach(vm::removeOwner);
 
         vmRepository.delete(vm);
     }

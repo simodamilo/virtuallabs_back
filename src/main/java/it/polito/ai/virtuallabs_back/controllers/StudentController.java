@@ -69,6 +69,14 @@ public class StudentController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/{vmId}/owners")
+    public List<StudentDTO> getVmOwners(@PathVariable Long vmId) {
+        return studentService.getVmOwners(vmId)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("/{courseName}/enroll")
     public StudentDTO addStudentToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
         if (!map.containsKey("id") || map.keySet().size() != 1)

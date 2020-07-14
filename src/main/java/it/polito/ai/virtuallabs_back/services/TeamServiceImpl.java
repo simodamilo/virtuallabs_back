@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +43,16 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     TeamTokenRepository teamTokenRepository;
+
+    @Override
+    public Optional<TeamDTO> getStudentTeamByCourse(String courseName) {
+        return utilityService.getStudent()
+                .getTeams()
+                .stream()
+                .filter(team -> team.getCourse().getName().equals(courseName))
+                .map(team -> modelMapper.map(team, TeamDTO.class))
+                .findAny();
+    }
 
     @Override
     public List<TeamDTO> getStudentTeams() {

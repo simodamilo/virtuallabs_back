@@ -4,8 +4,18 @@ import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeamService {
+
+    /**
+     * Used to get the team of the authenticated student.
+     *
+     * @param courseName of the student team.
+     * @return the searched team.
+     */
+    @PreAuthorize("hasRole('STUDENT')")
+    Optional<TeamDTO> getStudentTeamByCourse(String courseName);
 
     /**
      * Used to get the list of active teams of a student.

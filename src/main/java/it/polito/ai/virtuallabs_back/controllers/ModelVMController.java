@@ -14,9 +14,9 @@ public class ModelVMController {
     @Autowired
     ModelVMService modelVMService;
 
-    @PostMapping("/{teamId}")
-    public ModelVMDTO addModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO, @PathVariable Long teamId) {
-        return modelVMService.addModelVm(modelVmDTO, teamId);
+    @PostMapping("/{courseName}")
+    public ModelVMDTO addModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO, @PathVariable String courseName) {
+        return modelVMService.addModelVm(modelVmDTO, courseName);
     }
 
     @PutMapping({"", "/"})

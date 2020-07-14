@@ -13,6 +13,7 @@ public class VM {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     private int vcpu;
     private int disk;
     private int ram;

@@ -9,11 +9,11 @@ public interface ModelVMService {
      * Used by the student to add a modelVM.
      *
      * @param modelVMDTO which needs to be added.
-     * @param teamId     in which the modelVM is added.
+     * @param courseName in which the modelVM is added.
      * @return the added modelVM.
      */
-    @PreAuthorize("hasRole('STUDENT')")
-    ModelVMDTO addModelVm(ModelVMDTO modelVMDTO, Long teamId);
+    @PreAuthorize("hasRole('TEACHER')")
+    ModelVMDTO addModelVm(ModelVMDTO modelVMDTO, String courseName);
 
     /**
      * Used by the student to modify a modelVM.
@@ -21,6 +21,6 @@ public interface ModelVMService {
      * @param modelVMDTO which needs to be modified.
      * @return the modified modelVM.
      */
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('TEACHER')")
     ModelVMDTO modifyModelVm(ModelVMDTO modelVMDTO);
 }

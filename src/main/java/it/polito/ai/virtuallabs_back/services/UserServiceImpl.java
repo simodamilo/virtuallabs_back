@@ -64,6 +64,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean registration(RegistrationRequest registrationRequest) {
+        //TODO fare check per vedere il dominio email
         String serial = registrationRequest.getEmail().split("@")[0];
         if ((userRepository.findByUsername(registrationRequest.getEmail()) != null)
                 || !serial.equals(registrationRequest.getSerial()))

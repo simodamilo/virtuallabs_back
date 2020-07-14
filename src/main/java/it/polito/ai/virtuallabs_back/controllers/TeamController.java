@@ -19,6 +19,13 @@ public class TeamController {
     @Autowired
     TeamService teamService;
 
+    @GetMapping("/{courseName}/student")
+    public TeamDTO getStudentTeamByCourse(@PathVariable String courseName) {
+        if (!teamService.getStudentTeamByCourse(courseName).isPresent())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, courseName);
+        return ModelHelper.enrich(teamService.getStudentTeamByCourse(courseName).get());
+    }
+
     @GetMapping("/students/active")
     public List<TeamDTO> getStudentTeams() {
         return teamService.getStudentTeams()

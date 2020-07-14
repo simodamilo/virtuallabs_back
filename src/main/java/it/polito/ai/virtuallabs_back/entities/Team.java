@@ -22,9 +22,6 @@ public class Team {
     private int activeInstance;
     private int maxInstance;
 
-    @OneToOne(mappedBy = "team")
-    private ModelVM modelVM;
-
     @OneToMany(mappedBy = "team")
     private List<VM> vms;
 
@@ -48,14 +45,6 @@ public class Team {
         if (!vms.contains(vm)) return false;
         vm.setTeam(null);
         return true;
-    }
-
-    /* vedere se ha senso mettere la possibilità di eliminare il modelVM dal team */
-    public void setModelVM(ModelVM modelVM) {
-        if (modelVM != null) {
-            this.modelVM = modelVM;
-            getModelVM().setTeam(this);
-        }
     }
 
     public void setCourse(Course course) {

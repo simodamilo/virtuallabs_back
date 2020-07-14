@@ -12,6 +12,8 @@ public class VMDTO extends RepresentationModel<VMDTO> {
 
     private Long id;
     @NotEmpty
+    private String name;
+    @NotEmpty
     private int vcpu;
     @NotEmpty
     private int disk;

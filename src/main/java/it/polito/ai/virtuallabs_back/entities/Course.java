@@ -2,10 +2,7 @@ package it.polito.ai.virtuallabs_back.entities;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +31,9 @@ public class Course {
 
     @ManyToMany(mappedBy = "courses")
     private List<Teacher> teachers = new ArrayList<>();
+
+    @OneToOne(mappedBy = "course")
+    private ModelVM modelVM;
 
     public boolean addStudent(Student student) {
         if (students.contains(student)) return false;
@@ -101,5 +101,13 @@ public class Course {
         assignments.remove(assignment);
         assignment.setCourse(this);
         return true;
+    }
+
+    /* vedere se ha senso mettere la possibilità di eliminare il modelVM dal team */
+    public void setModelVM(ModelVM modelVM) {
+        if (modelVM != null) {
+            this.modelVM = modelVM;
+            getModelVM().setCourse(this);
+        }
     }
 }

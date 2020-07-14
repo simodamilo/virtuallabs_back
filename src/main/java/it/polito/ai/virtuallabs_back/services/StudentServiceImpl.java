@@ -92,6 +92,15 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public List<StudentDTO> getVmOwners(Long vmId) {
+        return utilityService.getVm(vmId)
+                .getOwners()
+                .stream()
+                .map(s -> modelMapper.map(s, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public StudentDTO addStudentToCourse(String studentId, String courseName) {
         if (!studentRepository.existsById(studentId))
             throw new StudentNotFoundException("Student not found");
