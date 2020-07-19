@@ -14,6 +14,11 @@ public class ModelVMController {
     @Autowired
     ModelVMService modelVMService;
 
+    @GetMapping("/{courseName}")
+    public ModelVMDTO getModelVM(@PathVariable String courseName) {
+        return modelVMService.getModelVm(courseName);
+    }
+
     @PostMapping("/{courseName}")
     public ModelVMDTO addModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO, @PathVariable String courseName) {
         return modelVMService.addModelVm(modelVmDTO, courseName);

@@ -125,11 +125,9 @@ public class StudentController {
         return studentService.uploadImage(file.getBytes());
     }
 
-    @DeleteMapping("/{courseName}/deleteStudent")
+    @DeleteMapping("/{courseName}/deleteStudent/{studentSerial}")
     @ResponseStatus(code = HttpStatus.OK, reason = "Student deleted")
-    public void deleteStudentFromCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
-        if (!map.containsKey("serial") || map.keySet().size() != 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only serial");
-        studentService.deleteStudentFromCourse(map.get("serial"), courseName);
+    public void deleteStudentFromCourse(@PathVariable String courseName, @PathVariable String studentSerial) {
+        studentService.deleteStudentFromCourse(studentSerial, courseName);
     }
 }

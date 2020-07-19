@@ -24,4 +24,6 @@ public interface UtilityService {
     void courseOwnerValid(String courseName);
 
     void constraintsCheck(VMDTO vmDTO, Long teamId);
+
+    boolean isTeacher();
 }

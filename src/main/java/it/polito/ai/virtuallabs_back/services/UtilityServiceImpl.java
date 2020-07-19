@@ -126,4 +126,10 @@ public class UtilityServiceImpl implements UtilityService {
         if (disk.get() > team.getDisk() || vcpu.get() > team.getVcpu() || ram.get() > team.getRam())
             throw new VmConstraintException("The new vm does not respect the team constraints");
     }
+
+    @Override
+    public boolean isTeacher() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().equals("ROLE_TEACHER"));
+    }
 }

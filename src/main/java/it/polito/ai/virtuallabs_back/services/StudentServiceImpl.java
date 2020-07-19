@@ -73,6 +73,7 @@ public class StudentServiceImpl implements StudentService {
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream()
+                .filter(student -> !student.getSerial().equals(utilityService.getStudent().getSerial()))
                 .map(s -> modelMapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
     }
