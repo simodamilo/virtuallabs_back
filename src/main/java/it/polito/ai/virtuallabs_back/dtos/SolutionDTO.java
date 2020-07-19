@@ -19,6 +19,7 @@ public class SolutionDTO extends RepresentationModel<SolutionDTO> {
     private Solution.State state;
     @NotEmpty
     private Timestamp deliveryTs;
+    private String grade;
     @NotNull
     private boolean modifiable;
 }

@@ -14,8 +14,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -63,7 +65,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (!teacher.getCourses().contains(course))
             throw new AssignmentChangeNotValid("You have no permission to add an assignment to this course");
 
-        if (!assignmentDTO.getReleaseDate().after(assignmentDTO.getDeadline()))
+        if (assignmentDTO.getReleaseDate().after(assignmentDTO.getDeadline()))
             throw new AssignmentDateException("Deadline before release");
 
         Assignment assignment = assignmentRepository.save(modelMapper.map(assignmentDTO, Assignment.class));
@@ -86,23 +88,20 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentDTO modifyAssignment(AssignmentDTO assignmentDTO) {
-        if (!assignmentDTO.getReleaseDate().after(assignmentDTO.getDeadline()))
-            throw new AssignmentDateException("Deadline before release");
-
+    public AssignmentDTO addContent(Long assignmentId, MultipartFile file) {
         Teacher teacher = utilityService.getTeacher();
-        Assignment assignment = utilityService.getAssignment(assignmentDTO.getId());
+        Assignment assignment = utilityService.getAssignment(assignmentId);
         if (!assignment.getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
 
         if (!assignment.getTeacher().equals(teacher))
             throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
-
-        assignment.setDeadline(assignmentDTO.getDeadline());
-        assignment.setReleaseDate(assignmentDTO.getReleaseDate());
-        assignment.setContent(assignmentDTO.getContent());
-
-        return assignmentDTO;
+        try {
+            assignment.setContent(file.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return modelMapper.map(assignment, AssignmentDTO.class);
     }
 
     @Override
@@ -111,7 +110,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignmentRepository.findAllByDeadlineBefore(new Date()).forEach(assignment -> {
             if (!assignment.isTerminated()) {
                 assignment.getCourse().getStudents().forEach(student -> {
-                    if (solutionRepository.getAllByStudentAndAssignment(student, assignment)
+                    if (solutionRepository.getAllByStudentSerialAndAssignmentId(student.getSerial(), assignment.getId())
                             .stream()
                             .noneMatch(solution -> solution.getState().equals(Solution.State.DELIVERED))) {
                         solutionRepository.save(Solution.builder()

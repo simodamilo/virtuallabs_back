@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,22 +27,14 @@ public interface SolutionService {
     List<SolutionDTO> getAssignmentSolutions(Long assignmentId);
 
     /**
-     * Used to get the list of solution for a specific course.
+     * Used by the teacher or student to get the list of solution of an student for a specific course.
      *
-     * @param courseName in which solutions are searched.
+     * @param assignmentId of the solutions searched.
+     * @param studentId    of the solutions searched.
      * @return list of found solution.
      */
-    @PreAuthorize("hasRole('TEACHER')")
-    List<SolutionDTO> getCourseSolutions(String courseName);
+    List<SolutionDTO> getStudentSolutions(Long assignmentId, String studentId);
 
-    /**
-     * Used to get the list of solution of an student for a specific course.
-     *
-     * @param courseName in which solutions are searched.
-     * @return list of found solution.
-     */
-    @PreAuthorize("hasRole('STUDENT')")
-    List<SolutionDTO> getStudentSolutions(String courseName);
 
     /**
      * Used by the student to add a solution to the assignment.
@@ -60,26 +53,16 @@ public interface SolutionService {
      * @return the solution if the review is correctly added.
      */
     @PreAuthorize("hasRole('TEACHER')")
-    SolutionDTO addSolutionReview(SolutionDTO solutionDTO);
+    SolutionDTO addSolutionReview(SolutionDTO solutionDTO, Long assignmentId, String studentSerial);
 
     /**
      * Used by the teacher to enable/disable the possibilities
      * to modify a solution.
      *
-     * @param solutionDTO which is modified.
+     * @param solutionId which is modified.
+     * @param file       content of the solution.
      * @return the modified solution if works properly.
      */
-    @PreAuthorize("hasRole('TEACHER')")
-    SolutionDTO setModifiable(SolutionDTO solutionDTO);
-
-    /**
-     * Used by the teacher to add the grade.
-     *
-     * @param solutionDTO which is evaluated.
-     * @param grade       of the solution.
-     * @return the modified solution if works properly.
-     */
-    @PreAuthorize("hasRole('TEACHER')")
-    SolutionDTO setGrade(SolutionDTO solutionDTO, String grade);
+    SolutionDTO addContent(Long solutionId, MultipartFile file);
 
 }

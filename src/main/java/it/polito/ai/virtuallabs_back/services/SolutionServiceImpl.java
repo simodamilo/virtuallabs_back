@@ -1,18 +1,23 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
-import it.polito.ai.virtuallabs_back.entities.*;
+import it.polito.ai.virtuallabs_back.entities.Assignment;
+import it.polito.ai.virtuallabs_back.entities.Solution;
+import it.polito.ai.virtuallabs_back.entities.Student;
+import it.polito.ai.virtuallabs_back.entities.Teacher;
+import it.polito.ai.virtuallabs_back.exception.AssignmentChangeNotValid;
 import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
 import it.polito.ai.virtuallabs_back.exception.CourseNotValidException;
 import it.polito.ai.virtuallabs_back.exception.SolutionChangeNotValid;
-import it.polito.ai.virtuallabs_back.exception.StudentNotEnrolledException;
 import it.polito.ai.virtuallabs_back.repositories.SolutionRepository;
+import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,6 +35,9 @@ public class SolutionServiceImpl implements SolutionService {
     @Autowired
     SolutionRepository solutionRepository;
 
+    @Autowired
+    StudentRepository studentRepository;
+
     @Override
     public Optional<SolutionDTO> getSolution(Long solutionId) {
         return solutionRepository.findById(solutionId).map(solution -> modelMapper.map(solution, SolutionDTO.class));
@@ -43,39 +51,26 @@ public class SolutionServiceImpl implements SolutionService {
         if (!teacher.getCourses().contains(assignment.getCourse()))
             throw new CourseNotValidException("You have no permission to see the solution of this course");
 
-        return assignment.getSolutions()
+        return solutionRepository.getAllByAssignmentStudentAndMaxTs(assignmentId)
                 .stream()
                 .map(solution -> modelMapper.map(solution, SolutionDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<SolutionDTO> getCourseSolutions(String courseName) {
-        List<SolutionDTO> list = new ArrayList<>();
-        utilityService.getCourse(courseName)
-                .getAssignments()
-                .forEach(assignment -> assignment.getSolutions()
-                        .forEach(solution -> list.add(modelMapper.map(solution, SolutionDTO.class))
-                        ));
-        return list;
-    }
-
-
-    @Override
-    public List<SolutionDTO> getStudentSolutions(String courseName) {
-        Student student = utilityService.getStudent();
-        Course course = utilityService.getCourse(courseName);
-
-        if (!student.getCourses().contains(course))
-            throw new StudentNotEnrolledException("You are not enrolled in the course");
-
-        List<SolutionDTO> list = new ArrayList<>();
-        course.getAssignments().forEach(assignment ->
-                solutionRepository.getAllByStudentAndAssignment(student, assignment)
-                        .forEach(solution -> list.add(modelMapper.map(solution, SolutionDTO.class)))
-        );
-
-        return list;
+    public List<SolutionDTO> getStudentSolutions(Long assignmentId, String studentSerial) {
+        Assignment assignment = utilityService.getAssignment(assignmentId);
+        if (utilityService.isTeacher()) {
+            utilityService.courseOwnerValid(assignment.getCourse().getName());
+        } else {
+            if (!studentSerial.equals(utilityService.getStudent().getSerial()))
+                throw new SolutionChangeNotValid("you are not allowed to change this solution");
+        }
+        return assignment.getSolutions()
+                .stream()
+                .filter(solution -> solution.getStudent().getSerial().equals(studentSerial))
+                .map(solution -> modelMapper.map(solution, SolutionDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -86,7 +81,7 @@ public class SolutionServiceImpl implements SolutionService {
         Assignment assignment = utilityService.getAssignment(assignmentId);
         Student student = utilityService.getStudent();
 
-        if (solutionRepository.getAllByStudentAndAssignment(student, assignment)
+        if (solutionRepository.getAllByStudentSerialAndAssignmentId(student.getSerial(), assignment.getId())
                 .stream().anyMatch(solution -> !solution.isModifiable()))
             throw new SolutionChangeNotValid("Impossible to change this solution");
 
@@ -98,44 +93,43 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public SolutionDTO addSolutionReview(SolutionDTO solutionDTO) {
-        Solution s = isValid(solutionDTO);
-        solutionDTO.setState(Solution.State.REVIEWED);
-        solutionDTO.setId(null);
+    public SolutionDTO addSolutionReview(SolutionDTO solutionDTO, Long assignmentId, String studentSerial) {
+        if (!solutionDTO.getState().equals(Solution.State.REVIEWED))
+            throw new SolutionChangeNotValid("Impossible to change this solution");
+
+        Assignment assignment = utilityService.getAssignment(assignmentId);
+
+        utilityService.courseOwnerValid(assignment.getCourse().getName());
+
         Solution solution = solutionRepository.save(modelMapper.map(solutionDTO, Solution.class));
-        solution.setStudent(s.getStudent());
-        solution.setAssignment(s.getAssignment());
+        studentRepository.getOne(studentSerial).addSolution(solution);
+        assignment.addSolution(solution);
+
+        if (!solutionDTO.isModifiable())
+            solutionRepository.getAllByStudentSerialAndAssignmentId(studentSerial, assignmentId)
+                    .forEach(solution1 -> solution1.setModifiable(false));
+
 
         return modelMapper.map(solution, SolutionDTO.class);
     }
 
     @Override
-    public SolutionDTO setModifiable(SolutionDTO solutionDTO) {
-        Solution solution = isValid(solutionDTO);
-        solution.setModifiable(solutionDTO.isModifiable());
-
-        return modelMapper.map(solution, SolutionDTO.class);
-    }
-
-    @Override
-    public SolutionDTO setGrade(SolutionDTO solutionDTO, String vote) {
-        Solution solution = isValid(solutionDTO);
-        solution.setGrade(vote);
-
-        return modelMapper.map(solution, SolutionDTO.class);
-    }
-
-    private Solution isValid(SolutionDTO solutionDTO) {
-        Teacher teacher = utilityService.getTeacher();
-        Solution solution = utilityService.getSolution(solutionDTO.getId());
-        Course course = utilityService.getCourse(solution.getAssignment().getCourse().getName());
-
-        if (!course.isEnabled())
+    public SolutionDTO addContent(Long solutionId, MultipartFile file) {
+        Solution solution = utilityService.getSolution(solutionId);
+        if (!solution.getAssignment().getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
 
-        if (!teacher.getCourses().contains(solution.getAssignment().getCourse()))
-            throw new SolutionChangeNotValid("You have no permission to change this Solution");
+        if (utilityService.isTeacher()) {
+            Teacher teacher = utilityService.getTeacher();
+            if (!solution.getAssignment().getTeacher().equals(teacher))
+                throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
+        }
 
-        return solution;
+        try {
+            solution.setContent(file.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return modelMapper.map(solution, SolutionDTO.class);
     }
 }

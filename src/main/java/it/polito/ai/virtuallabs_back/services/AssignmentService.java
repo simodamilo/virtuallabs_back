@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.AssignmentDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,13 +37,14 @@ public interface AssignmentService {
     AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName);
 
     /**
-     * Used by the teacher to modify an assignment.
+     * Used by the teacher add the content to an assignment.
      *
-     * @param assignmentDTO which needs to be modified.
+     * @param assignmentId of the assignment modified.
+     * @param file         content of the assignment.
      * @return the modified assignment.
      */
     @PreAuthorize("hasRole('TEACHER')")
-    AssignmentDTO modifyAssignment(AssignmentDTO assignmentDTO);
+    AssignmentDTO addContent(Long assignmentId, MultipartFile file);
 
     /**
      * Periodically checks the finished assignments and

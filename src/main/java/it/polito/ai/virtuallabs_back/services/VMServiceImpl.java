@@ -88,7 +88,7 @@ public class VMServiceImpl implements VMService {
         if (!team.getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
 
-        if (team.getModelVM() == null)
+        if (team.getCourse().getModelVM() == null)
             throw new VmChangeNotValidException("It is not possible to add a new VM");
 
         utilityService.constraintsCheck(vmDTO, teamId);
