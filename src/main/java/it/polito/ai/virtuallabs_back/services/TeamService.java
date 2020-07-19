@@ -45,11 +45,12 @@ public interface TeamService {
      *
      * @param courseName     in which teams are searched.
      * @param teamName       decided by the student.
+     * @param timeout        for token requests.
      * @param studentSerials list of the members of the team.
      * @return the team to confirm the creation.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    TeamDTO proposeTeam(String courseName, String teamName, List<String> studentSerials);
+    TeamDTO proposeTeam(String courseName, String teamName, int timeout, List<String> studentSerials);
 
     /**
      * Used to set or update the parameters of a team.

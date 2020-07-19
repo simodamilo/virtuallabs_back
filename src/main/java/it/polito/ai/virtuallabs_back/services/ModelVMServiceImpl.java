@@ -5,6 +5,7 @@ import it.polito.ai.virtuallabs_back.entities.Course;
 import it.polito.ai.virtuallabs_back.entities.ModelVM;
 import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
 import it.polito.ai.virtuallabs_back.exception.ModelVMChangeNotValidException;
+import it.polito.ai.virtuallabs_back.exception.ModelVMNotFoundException;
 import it.polito.ai.virtuallabs_back.repositories.ModelVMRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,14 @@ public class ModelVMServiceImpl implements ModelVMService {
 
     @Autowired
     ModelVMRepository modelVMRepository;
+
+    @Override
+    public ModelVMDTO getModelVm(String courseName) { //TODO vedere se va bene
+        ModelVM modelVM = utilityService.getCourse(courseName).getModelVM();
+        if (modelVM == null)
+            throw new ModelVMNotFoundException("Model not found");
+        return modelMapper.map(modelVM, ModelVMDTO.class);
+    }
 
     @Override
     public ModelVMDTO addModelVm(ModelVMDTO modelVMDTO, String courseName) {

@@ -6,6 +6,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface ModelVMService {
 
     /**
+     * Used to get a modelVM.
+     *
+     * @param courseName in which the modelVM is searched.
+     * @return the searched modelVM.
+     */
+    ModelVMDTO getModelVm(String courseName);
+
+    /**
      * Used by the student to add a modelVM.
      *
      * @param modelVMDTO which needs to be added.

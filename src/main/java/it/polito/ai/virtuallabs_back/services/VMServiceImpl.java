@@ -55,10 +55,13 @@ public class VMServiceImpl implements VMService {
     @Override
     public List<VMDTO> getTeamVms(Long teamId) {
         Team team = utilityService.getTeam(teamId);
-        Student student = utilityService.getStudent();
 
-        if (!student.getTeams().contains(team))
-            throw new TeamNotFoundException("The student is not part of the team");
+        if (utilityService.isTeacher()) {
+            utilityService.courseOwnerValid(team.getCourse().getName());
+        } else {
+            if (!utilityService.getStudent().getTeams().contains(team))
+                throw new TeamNotFoundException("The student is not part of the team");
+        }
 
         return team.getVms()
                 .stream()
@@ -119,11 +122,16 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public VMDTO onOff(Long vmId) {
-        if (isNotValid(vmId))
-            throw new VmChangeNotValidException("You have no permission to modify this vm");
-
+    public VMDTO onOff(Long vmId) { //TODO fare il check per vedere se esiste la vm?
         VM vm = utilityService.getVm(vmId);
+
+        if (utilityService.isTeacher()) {
+            utilityService.courseOwnerValid(vm.getTeam().getCourse().getName());
+        } else {
+            if (!utilityService.getStudent().getTeams().contains(vm.getTeam()) || isNotValid(vmId))
+                throw new TeamNotFoundException("You have no permission to modify this vm");
+        }
+
         if (!vm.getCourse().isEnabled())
             throw new CourseNotEnabledException("The course is not enabled");
 
@@ -132,7 +140,9 @@ public class VMServiceImpl implements VMService {
                 .filter(VM::isActive)
                 .count();
 
-        if (vm.isActive() && alreadyActiveVms >= vm.getTeam().getActiveInstance())
+        System.out.println("Already active: " + alreadyActiveVms);
+
+        if (!vm.isActive() && alreadyActiveVms >= vm.getTeam().getActiveInstance())
             throw new VmChangeNotValidException("There are too many active vms");
 
         vm.setActive(!vm.isActive());

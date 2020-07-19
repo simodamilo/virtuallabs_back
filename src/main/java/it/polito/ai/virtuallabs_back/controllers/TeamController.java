@@ -22,7 +22,7 @@ public class TeamController {
     @GetMapping("/{courseName}/student")
     public TeamDTO getStudentTeamByCourse(@PathVariable String courseName) {
         if (!teamService.getStudentTeamByCourse(courseName).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, courseName);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No team available");
         return ModelHelper.enrich(teamService.getStudentTeamByCourse(courseName).get());
     }
 
@@ -52,9 +52,12 @@ public class TeamController {
 
     @PostMapping("/{courseName}")
     public TeamDTO proposeTeam(@PathVariable String courseName, @RequestBody Map<String, Object> map) {
-        if (!map.containsKey("name") || !map.containsKey("ids") || map.keySet().size() != 2)
+        if (!map.containsKey("name"))
+            System.out.println("Method called: " + map);
+        if (!map.containsKey("name") || !map.containsKey("serials") || !map.containsKey("timeout") || map.keySet().size() != 3)
             throw new ResponseStatusException(HttpStatus.CONFLICT);
-        return teamService.proposeTeam(courseName, map.get("name").toString(), (List<String>) map.get("ids"));
+        System.out.println("Method called");
+        return teamService.proposeTeam(courseName, map.get("name").toString(), Integer.parseInt(map.get("timeout").toString()), (List<String>) map.get("serials"));
     }
 
     @PutMapping({"", "/"})

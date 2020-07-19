@@ -105,7 +105,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1000000)
     public void assignmentExpired() {
         assignmentRepository.findAllByDeadlineBefore(new Date()).forEach(assignment -> {
             if (!assignment.isTerminated()) {

@@ -1,7 +1,6 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
-import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
 import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
@@ -17,6 +16,7 @@ import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,7 +85,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public TeamDTO proposeTeam(String courseName, String teamName, List<String> studentSerials) {
+    public TeamDTO proposeTeam(String courseName, String teamName, int timeout, List<String> studentSerials) {
         Course course = utilityService.getCourse(courseName);
 
         if (!course.isEnabled())
@@ -116,6 +116,7 @@ public class TeamServiceImpl implements TeamService {
         team.setName(teamName);
         team.setCourse(course);
         TeamDTO teamDTO = modelMapper.map(teamRepository.save(team), TeamDTO.class);
+        teamDTO.setDuration(timeout);
         notificationService.notifyTeam(teamDTO, studentSerials);
 
         return teamDTO;
@@ -132,7 +133,8 @@ public class TeamServiceImpl implements TeamService {
         if (!teacher.getCourses().contains(team.getCourse()))
             throw new CourseNotValidException("You are not allowed to change this team");
 
-        utilityService.constraintsCheck(new VMDTO(), teamDTO.getId());
+        //utilityService.constraintsCheck(new VMDTO(), teamDTO.getId()); //TODO questo non va bene
+        constraintCheck(teamDTO, team);
 
         team.setActiveInstance(teamDTO.getActiveInstance());
         team.setVcpu(teamDTO.getVcpu());
@@ -179,5 +181,29 @@ public class TeamServiceImpl implements TeamService {
             throw new TeamTokenExpiredException("Token already expired");
 
         return utilityService.getTeam(teamId);
+    }
+
+    private void constraintCheck(TeamDTO teamDTO, Team team) {
+        AtomicInteger ram = new AtomicInteger();
+        AtomicInteger vcpu = new AtomicInteger();
+        AtomicInteger disk = new AtomicInteger();
+        AtomicInteger maxInstance = new AtomicInteger();
+        AtomicInteger activeInstance = new AtomicInteger();
+
+        team.getVms().forEach(vm -> {
+            ram.addAndGet(vm.getRam());
+            vcpu.addAndGet(vm.getVcpu());
+            disk.addAndGet(vm.getDisk());
+            maxInstance.addAndGet(1);
+            if (vm.isActive())
+                activeInstance.addAndGet(1);
+        });
+
+        if (teamDTO.getDisk() < disk.get()
+                || teamDTO.getVcpu() < vcpu.get()
+                || teamDTO.getRam() < ram.get()
+                || teamDTO.getMaxInstance() < maxInstance.get()
+                || teamDTO.getActiveInstance() < activeInstance.get())
+            throw new TeamChangeNotValidException("It is not possible to modify the team constraints");
     }
 }

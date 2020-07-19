@@ -49,7 +49,7 @@ public class NotificationServiceImpl implements NotificationService {
             TeamToken teamToken = TeamToken.builder()
                     .id(UUID.randomUUID().toString())
                     .teamId(teamDTO.getId())
-                    .expiryDate(new Timestamp(System.currentTimeMillis() + teamDTO.getDuration()))
+                    .expiryDate(new Timestamp(System.currentTimeMillis() + teamDTO.getDuration() * 1000 * 60))
                     .build();
             teamTokenRepository.save(teamToken);
             String address = serial + "@studenti.polito.it";
