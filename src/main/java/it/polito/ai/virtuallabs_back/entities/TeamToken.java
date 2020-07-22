@@ -21,4 +21,5 @@ public class TeamToken {
     private Long teamId;
     private String studentSerial;
     private Timestamp expiryDate;
+    private int status;
 }

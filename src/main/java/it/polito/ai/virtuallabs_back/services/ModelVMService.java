@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.ModelVMDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ModelVMService {
 
@@ -24,6 +25,16 @@ public interface ModelVMService {
     ModelVMDTO addModelVm(ModelVMDTO modelVMDTO, String courseName);
 
     /**
+     * Used by the teacher add the content to an assignment.
+     *
+     * @param modelVmId of the assignment modified.
+     * @param file      content of the assignment.
+     * @return the modified assignment.
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    ModelVMDTO addContent(Long modelVmId, MultipartFile file);
+
+    /**
      * Used by the student to modify a modelVM.
      *
      * @param modelVMDTO which needs to be modified.
@@ -31,4 +42,7 @@ public interface ModelVMService {
      */
     @PreAuthorize("hasRole('TEACHER')")
     ModelVMDTO modifyModelVm(ModelVMDTO modelVMDTO);
+
+    @PreAuthorize("hasRole('TEACHER')")
+    void deleteModelVm(Long modelVmId);
 }

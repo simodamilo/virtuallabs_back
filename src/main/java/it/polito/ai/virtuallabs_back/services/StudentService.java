@@ -1,6 +1,7 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.io.Reader;
@@ -65,12 +66,21 @@ public interface StudentService {
     List<StudentDTO> getTeamStudents(Long teamId);
 
     /**
-     * Used tog et the owners of the vm.
+     * Used to get the owners of the vm.
      *
      * @param vmId of the vm selected.
      * @return list of students that own the vm.
      */
     List<StudentDTO> getVmOwners(Long vmId);
+
+    /**
+     * Used to get the status of a student
+     *
+     * @param teamId        of the team in which the student is.
+     * @param studentSerial of the searched student
+     * @return the student status.
+     */
+    TeamTokenDTO getStudentTeamStatus(Long teamId, String studentSerial);
 
     /**
      * Used to enroll a student to the course passed.

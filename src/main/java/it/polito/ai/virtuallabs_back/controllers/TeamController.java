@@ -1,6 +1,7 @@
 package it.polito.ai.virtuallabs_back.controllers;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,9 +35,9 @@ public class TeamController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/students/pending")
-    public List<TeamDTO> getStudentPendingTeams() {
-        return teamService.getStudentPendingTeams()
+    @GetMapping("/students/{courseName}/pending")
+    public List<TeamDTO> getStudentPendingTeams(@PathVariable String courseName) {
+        return teamService.getStudentPendingTeams(courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
@@ -56,7 +57,6 @@ public class TeamController {
             System.out.println("Method called: " + map);
         if (!map.containsKey("name") || !map.containsKey("serials") || !map.containsKey("timeout") || map.keySet().size() != 3)
             throw new ResponseStatusException(HttpStatus.CONFLICT);
-        System.out.println("Method called");
         return teamService.proposeTeam(courseName, map.get("name").toString(), Integer.parseInt(map.get("timeout").toString()), (List<String>) map.get("serials"));
     }
 
@@ -65,15 +65,15 @@ public class TeamController {
         return teamService.setTeamParams(teamDTO);
     }
 
-    @PutMapping("/{teamId}")
-    public TeamDTO acceptTeam(@PathVariable Long teamId) {
-        return teamService.acceptTeam(teamId);
+    @PutMapping("/accept")
+    public TeamDTO acceptTeam(@Valid @RequestBody TeamTokenDTO teamTokenDTO) {
+        return teamService.acceptTeam(teamTokenDTO);
     }
 
-    @DeleteMapping("/{teamId}")
+    @PutMapping("/reject")
     @ResponseStatus(code = HttpStatus.OK, reason = "Teams rejected")
-    public void rejectTeam(@PathVariable Long teamId) {
-        teamService.rejectTeam(teamId);
+    public void rejectTeam(@Valid @RequestBody TeamTokenDTO teamTokenDTO) {
+        teamService.rejectTeam(teamTokenDTO);
     }
 
 }

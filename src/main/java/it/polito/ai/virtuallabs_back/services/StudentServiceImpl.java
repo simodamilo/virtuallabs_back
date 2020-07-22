@@ -3,14 +3,14 @@ package it.polito.ai.virtuallabs_back.services;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
 import it.polito.ai.virtuallabs_back.entities.Student;
-import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
-import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
-import it.polito.ai.virtuallabs_back.exception.StudentAlreadyInCourseException;
-import it.polito.ai.virtuallabs_back.exception.StudentNotFoundException;
+import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
 import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
+import it.polito.ai.virtuallabs_back.repositories.TeamRepository;
+import it.polito.ai.virtuallabs_back.repositories.TeamTokenRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +37,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     CourseRepository courseRepository;
+
+    @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    TeamTokenRepository teamTokenRepository;
 
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
@@ -108,10 +114,24 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDTO addStudentToCourse(String studentId, String courseName) {
-        if (!studentRepository.existsById(studentId))
+    public TeamTokenDTO getStudentTeamStatus(Long teamId, String studentSerial) {
+        if (!studentRepository.existsById(studentSerial))
             throw new StudentNotFoundException("Student not found");
-        Student student = studentRepository.getOne(studentId);
+
+        if (!teamRepository.existsById(teamId))
+            throw new TeamNotFoundException("Team not found");
+
+        if (!teamTokenRepository.existsByTeamIdAndStudentSerial(teamId, studentSerial))
+            return null;
+        else
+            return modelMapper.map(teamTokenRepository.getByTeamIdAndStudentSerial(teamId, studentSerial), TeamTokenDTO.class);
+    }
+
+    @Override
+    public StudentDTO addStudentToCourse(String studentSerial, String courseName) {
+        if (!studentRepository.existsById(studentSerial))
+            throw new StudentNotFoundException("Student not found");
+        Student student = studentRepository.getOne(studentSerial);
 
         utilityService.courseOwnerValid(courseName);
 

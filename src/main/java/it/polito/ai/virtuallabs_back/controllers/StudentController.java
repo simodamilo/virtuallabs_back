@@ -1,6 +1,7 @@
 package it.polito.ai.virtuallabs_back.controllers;
 
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import it.polito.ai.virtuallabs_back.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,6 +85,11 @@ public class StudentController {
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("{teamId}/{studentSerial}/token")
+    public TeamTokenDTO getStudentTeamStatus(@PathVariable Long teamId, @PathVariable String studentSerial) {
+        return studentService.getStudentTeamStatus(teamId, studentSerial);
     }
 
     @PostMapping("/{courseName}/enroll")
