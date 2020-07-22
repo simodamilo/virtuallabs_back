@@ -32,6 +32,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     TeamService teamService;
 
+    @Autowired
+    UtilityService utilityService;
+
     @Override
     public void sendMessage(String address, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -46,17 +49,27 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void notifyTeam(TeamDTO teamDTO, List<String> studentSerials) {
         studentSerials.forEach(serial -> {
-            TeamToken teamToken = TeamToken.builder()
-                    .id(UUID.randomUUID().toString())
-                    .teamId(teamDTO.getId())
-                    .expiryDate(new Timestamp(System.currentTimeMillis() + teamDTO.getDuration() * 1000 * 60))
-                    .build();
-            teamTokenRepository.save(teamToken);
-            String address = serial + "@studenti.polito.it";
-            String body = "Hello \r\n" +
-                    "a team has been created, confirm or refuse participation ";
-            String subject = "Team confirmation";
-            sendMessage(address, subject, body);
+            if (utilityService.getStudent().getSerial().equals(serial)) {
+                String address = serial + "@studenti.polito.it";
+                String body = "Hello \r\n" +
+                        "your team is correctly created, wait for other members";
+                String subject = "Team creation";
+                sendMessage(address, subject, body);
+            } else {
+                TeamToken teamToken = TeamToken.builder()
+                        .id(UUID.randomUUID().toString())
+                        .studentSerial(serial)
+                        .teamId(teamDTO.getId())
+                        .expiryDate(new Timestamp(System.currentTimeMillis() + teamDTO.getDuration() * 1000 * 60))
+                        .status(0)
+                        .build();
+                teamTokenRepository.save(teamToken);
+                String address = serial + "@studenti.polito.it";
+                String body = "Hello \r\n" +
+                        "a team has been created, confirm or refuse participation ";
+                String subject = "Team confirmation";
+                sendMessage(address, subject, body);
+            }
         });
     }
 

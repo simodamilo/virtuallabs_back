@@ -1,6 +1,7 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
@@ -27,9 +28,10 @@ public interface TeamService {
     /**
      * Used to get the list of pending teams request of a student.
      *
+     * @param courseName in which teams are searched.
      * @return list of teams found.
      */
-    List<TeamDTO> getStudentPendingTeams();
+    List<TeamDTO> getStudentPendingTeams(String courseName);
 
     /**
      * Used to get the list of active teams of the specific course.
@@ -68,7 +70,7 @@ public interface TeamService {
      * @return the team, if all students accepted status = 1.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    TeamDTO acceptTeam(Long teamId);
+    TeamDTO acceptTeam(TeamTokenDTO teamTokenDTO);
 
     /**
      * Used to reject an invitation to a group
@@ -76,7 +78,7 @@ public interface TeamService {
      * @param teamId of the proposed team.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    void rejectTeam(Long teamId);
+    void rejectTeam(TeamTokenDTO teamTokenDTO);
 
     /**
      * Periodically checks the expired teamToken and

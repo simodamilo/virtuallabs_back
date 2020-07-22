@@ -19,6 +19,7 @@ public class ModelVM {
     private Long id;
     private String name;
     private String type;
+    private byte[] content;
     @OneToOne
     @JoinColumn(name = "course_id")
     private Course course;

@@ -1,6 +1,7 @@
 package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
+import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
 import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
@@ -65,11 +66,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<TeamDTO> getStudentPendingTeams() {
+    public List<TeamDTO> getStudentPendingTeams(String courseName) {
         return utilityService.getStudent()
                 .getTeams()
                 .stream()
-                .filter(team -> team.getStatus() == 0)
+                .filter(team -> team.getStatus() == 0 && team.getCourse().getName().equals(courseName))
                 .map(t -> modelMapper.map(t, TeamDTO.class))
                 .collect(Collectors.toList());
     }
@@ -108,6 +109,7 @@ public class TeamServiceImpl implements TeamService {
 
             if (courseRepository.getStudentsInTeams(courseName).contains(student))
                 throw new StudentAlreadyInTeamException("One or more student are already in team");
+            //TODO fare check per vedere se lo studente è in un team con stato 1, ho messo uno status=1 nella query
 
             if (!team.addMember(student))
                 throw new StudentDuplicatedException("Team contains duplicate");
@@ -133,7 +135,6 @@ public class TeamServiceImpl implements TeamService {
         if (!teacher.getCourses().contains(team.getCourse()))
             throw new CourseNotValidException("You are not allowed to change this team");
 
-        //utilityService.constraintsCheck(new VMDTO(), teamDTO.getId()); //TODO questo non va bene
         constraintCheck(teamDTO, team);
 
         team.setActiveInstance(teamDTO.getActiveInstance());
@@ -146,17 +147,33 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public TeamDTO acceptTeam(Long teamId) {
-        Team team = isValid(teamId);
-        if (teamTokenRepository.findAllByTeamId(teamId).isEmpty())
+    public TeamDTO acceptTeam(TeamTokenDTO teamTokenDTO) {
+        Team team = isValid(teamTokenDTO);
+        TeamToken teamToken = teamTokenRepository.getOne(teamTokenDTO.getId());
+        teamToken.setStatus(1);
+
+        boolean isNotCompleted = teamTokenRepository.findAllByTeamId(teamTokenDTO.getTeamId())
+                .stream()
+                .anyMatch(token -> token.getStatus() == 0);
+
+        if (!isNotCompleted) {
             team.setStatus(1);
+            teamTokenRepository.findAllByTeamId(teamTokenDTO.getTeamId()).forEach(teamToken1 -> teamTokenRepository.delete(teamToken1));
+
+            getStudentPendingTeams(team.getCourse().getName()).forEach(teamDTO -> {
+                Team teamToRemove = modelMapper.map(teamDTO, Team.class);
+                team.getMembers().forEach(student -> student.removeTeam(teamToRemove));
+                teamRepository.delete(teamToRemove);
+            });
+        }
 
         return modelMapper.map(team, TeamDTO.class);
     }
 
     @Override
-    public void rejectTeam(Long teamId) {
-        teamRepository.delete(isValid(teamId));
+    public void rejectTeam(TeamTokenDTO teamTokenDTO) {
+        teamRepository.delete(isValid(teamTokenDTO));
+        teamTokenRepository.findAllByTeamId(teamTokenDTO.getTeamId()).forEach(teamToken -> teamTokenRepository.delete(teamToken));
     }
 
     @Override
@@ -171,16 +188,15 @@ public class TeamServiceImpl implements TeamService {
                 });
     }
 
-    private Team isValid(Long teamId) {
-        Student student = utilityService.getStudent();
-        if (!teamTokenRepository.existsByTeamIdAndStudentSerial(teamId, student.getSerial()))
-            throw new TeamTokenNotFoundException("token not found");
+    private Team isValid(TeamTokenDTO teamTokenDTO) {
+        if (!teamTokenRepository.existsById(teamTokenDTO.getId()))
+            throw new TeamTokenNotFoundException("Token not found");
 
-        TeamToken teamToken = teamTokenRepository.getByTeamIdAndStudentSerial(teamId, student.getSerial());
+        TeamToken teamToken = teamTokenRepository.getOne(teamTokenDTO.getId());
         if (teamToken.getExpiryDate().before(new Timestamp(System.currentTimeMillis())))
             throw new TeamTokenExpiredException("Token already expired");
 
-        return utilityService.getTeam(teamId);
+        return utilityService.getTeam(teamTokenDTO.getTeamId());
     }
 
     private void constraintCheck(TeamDTO teamDTO, Team team) {

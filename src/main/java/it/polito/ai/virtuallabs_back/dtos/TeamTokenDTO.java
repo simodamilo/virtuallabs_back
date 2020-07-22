@@ -5,15 +5,16 @@ import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotEmpty;
+import java.sql.Timestamp;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class ModelVMDTO extends RepresentationModel<ModelVMDTO> {
+public class TeamTokenDTO extends RepresentationModel<TeamTokenDTO> {
 
-    private Long id;
     @NotEmpty
-    private String name;
-    @NotEmpty
-    private String type;
-    private byte[] content;
+    private String id;
+    private Long teamId;
+    private String studentSerial;
+    private Timestamp expiryDate;
+    private int status;
 }
