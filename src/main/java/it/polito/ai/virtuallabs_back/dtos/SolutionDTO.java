@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 public class SolutionDTO extends RepresentationModel<SolutionDTO> {
 
     private Long id;
-    private byte[] content;
     @NotEmpty
     private Solution.State state;
     @NotEmpty

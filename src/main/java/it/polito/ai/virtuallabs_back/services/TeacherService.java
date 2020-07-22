@@ -4,17 +4,16 @@ import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TeacherService {
 
     /**
-     * Used to get the teacher by the serial.
+     * Used to get the image of the teacher by the serial.
      *
      * @param teacherSerial of the desired teacher.
      * @return empty optional if the course misses.
      */
-    Optional<TeacherDTO> getTeacher(String teacherSerial);
+    byte[] getTeacherImage(String teacherSerial);
 
     /**
      * Used to get the list of all teachers.

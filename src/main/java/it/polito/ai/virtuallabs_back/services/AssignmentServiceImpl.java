@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,8 +40,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     SolutionRepository solutionRepository;
 
     @Override
-    public Optional<AssignmentDTO> getAssignment(Long assignmentId) {
-        return assignmentRepository.findById(assignmentId).map(assignment -> modelMapper.map(assignment, AssignmentDTO.class));
+    public byte[] getAssignmentContent(Long assignmentId) {
+        return utilityService.getAssignment(assignmentId).getContent();
     }
 
     @Override
@@ -50,7 +49,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         return utilityService.getCourse(courseName)
                 .getAssignments()
                 .stream()
-                .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                .map(assignment -> modelMapper.map(assignment, AssignmentDTO.class))
                 .collect(Collectors.toList());
     }
 

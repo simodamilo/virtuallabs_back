@@ -19,7 +19,6 @@ import javax.transaction.Transactional;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,8 +38,8 @@ public class StudentServiceImpl implements StudentService {
     CourseRepository courseRepository;
 
     @Override
-    public Optional<StudentDTO> getStudent(String studentId) {
-        return studentRepository.findById(studentId).map(student -> modelMapper.map(student, StudentDTO.class));
+    public byte[] getStudentImage(String studentSerial) {
+        return utilityService.getStudent().getImage();
     }
 
     @Override
@@ -162,10 +161,9 @@ public class StudentServiceImpl implements StudentService {
     public void deleteStudentFromCourse(String studentSerial, String courseName) {
         utilityService.courseOwnerValid(courseName);
         Course course = utilityService.getCourse(courseName);
-
-        course.getStudents().forEach(student -> {
-            if (student.getSerial().equals(studentSerial))
-                student.removeCourse(course);
-        });
+        if (studentRepository.existsById(studentSerial) &&
+                course.getStudents().contains(studentRepository.getOne(studentSerial))) {
+            studentRepository.getOne(studentSerial).removeCourse(course);
+        }
     }
 }

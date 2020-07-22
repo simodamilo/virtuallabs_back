@@ -5,17 +5,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.io.Reader;
 import java.util.List;
-import java.util.Optional;
 
 public interface StudentService {
 
     /**
-     * Used to get a student by the Id.
+     * Used to get the profile image of a student by the serial.
      *
      * @param studentSerial of the desired student.
      * @return empty optional if the student misses.
      */
-    Optional<StudentDTO> getStudent(String studentSerial);
+    byte[] getStudentImage(String studentSerial);
 
     /**
      * Used to get the list of students.

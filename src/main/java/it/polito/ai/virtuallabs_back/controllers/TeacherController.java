@@ -21,11 +21,9 @@ public class TeacherController {
     @Autowired
     TeacherService teacherService;
 
-    @GetMapping("/{teacherSerial}")
-    public TeacherDTO getTeacher(@PathVariable String teacherSerial) {
-        if (!teacherService.getTeacher(teacherSerial).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, teacherSerial);
-        return ModelHelper.enrich(teacherService.getTeacher(teacherSerial).get());
+    @GetMapping("/{studentSerial}")
+    public byte[] getTeacherImage(@PathVariable String studentSerial) {
+        return teacherService.getTeacherImage(studentSerial);
     }
 
     @GetMapping({"", "/"})

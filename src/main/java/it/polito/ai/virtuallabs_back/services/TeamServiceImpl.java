@@ -49,7 +49,7 @@ public class TeamServiceImpl implements TeamService {
         return utilityService.getStudent()
                 .getTeams()
                 .stream()
-                .filter(team -> team.getCourse().getName().equals(courseName))
+                .filter(team -> team.getCourse().getName().equals(courseName) && team.getStatus() == 1)
                 .map(team -> modelMapper.map(team, TeamDTO.class))
                 .findAny();
     }

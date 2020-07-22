@@ -5,17 +5,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AssignmentService {
 
     /**
-     * Used to get an assignment by the Id.
+     * Used to get the content of an assignment by the Id.
      *
      * @param assignmentId of the desired assignment.
-     * @return empty optional if the assignment misses.
+     * @return the content of the solution.
      */
-    Optional<AssignmentDTO> getAssignment(Long assignmentId);
+    byte[] getAssignmentContent(Long assignmentId);
 
     /**
      * Used to get the list of assignments of a course.

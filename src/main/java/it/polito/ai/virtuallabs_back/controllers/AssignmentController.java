@@ -23,11 +23,9 @@ public class AssignmentController {
     @Autowired
     ModelMapper modelMapper;
 
-    @GetMapping("/{id}")
-    public AssignmentDTO getAssignment(@PathVariable Long id) {
-        if (!assignmentService.getAssignment(id).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, id.toString());
-        return assignmentService.getAssignment(id).get();
+    @GetMapping("/{assignmentId}")
+    public byte[] getAssignmentContent(@PathVariable Long assignmentId) {
+        return assignmentService.getAssignmentContent(assignmentId);
     }
 
     @GetMapping("/courses/{courseName}")

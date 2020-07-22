@@ -5,17 +5,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface SolutionService {
 
     /**
-     * Used to get a solution by the Id.
+     * Used to get the content of a solution by the Id.
      *
      * @param solutionId of the desired solution.
-     * @return empty optional if the solution misses.
+     * @return the content of the solution.
      */
-    Optional<SolutionDTO> getSolution(Long solutionId);
+    byte[] getSolutionContent(Long solutionId);
 
     /**
      * Used to get the list of solution of an assignment.

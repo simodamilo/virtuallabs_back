@@ -3,10 +3,8 @@ package it.polito.ai.virtuallabs_back.controllers;
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
 import it.polito.ai.virtuallabs_back.services.SolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,10 +17,8 @@ public class SolutionController {
     SolutionService solutionService;
 
     @GetMapping("/{solutionId}")
-    public SolutionDTO getSolution(@PathVariable Long solutionId) {
-        if (!solutionService.getSolution(solutionId).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, solutionId.toString());
-        return solutionService.getSolution(solutionId).get();
+    public byte[] getAssignmentContent(@PathVariable Long solutionId) {
+        return solutionService.getSolutionContent(solutionId);
     }
 
     @GetMapping("/assignments/{assignmentId}")

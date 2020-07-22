@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,8 +38,8 @@ public class SolutionServiceImpl implements SolutionService {
     StudentRepository studentRepository;
 
     @Override
-    public Optional<SolutionDTO> getSolution(Long solutionId) {
-        return solutionRepository.findById(solutionId).map(solution -> modelMapper.map(solution, SolutionDTO.class));
+    public byte[] getSolutionContent(Long solutionId) {
+        return utilityService.getSolution(solutionId).getContent();
     }
 
     @Override
