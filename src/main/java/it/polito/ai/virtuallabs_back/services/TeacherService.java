@@ -4,8 +4,15 @@ import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeacherService {
+
+    /**
+     * @param teacherId
+     * @return
+     */
+    Optional<TeacherDTO> getTeacher(String teacherId);
 
     /**
      * Used to get the image of the teacher by the serial.

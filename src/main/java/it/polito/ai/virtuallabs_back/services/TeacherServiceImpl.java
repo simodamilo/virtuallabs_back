@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,11 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Autowired
     TeacherRepository teacherRepository;
+
+    @Override
+    public Optional<TeacherDTO> getTeacher(String teacherId) {
+        return teacherRepository.findById(teacherId).map(teacher -> modelMapper.map(teacher, TeacherDTO.class));
+    }
 
     @Override
     public byte[] getTeacherImage(String teacherSerial) {
