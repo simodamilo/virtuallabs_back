@@ -27,6 +27,13 @@ public class StudentController {
     StudentService studentService;
 
     @GetMapping("/{studentSerial}")
+    public StudentDTO getStudent(@PathVariable String studentSerial) {
+        if (!studentService.getStudent(studentSerial).isPresent())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, studentSerial);
+        return ModelHelper.enrich(studentService.getStudent(studentSerial).get());
+    }
+
+    @GetMapping("/{studentSerial}/image")
     public byte[] getStudentImage(@PathVariable String studentSerial) {
         return studentService.getStudentImage(studentSerial);
     }

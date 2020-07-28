@@ -19,6 +19,7 @@ import javax.transaction.Transactional;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +43,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     TeamTokenRepository teamTokenRepository;
+
+    @Override
+    public Optional<StudentDTO> getStudent(String studentId) {
+        return studentRepository.findById(studentId).map(student -> modelMapper.map(student, StudentDTO.class));
+    }
 
     @Override
     public byte[] getStudentImage(String studentSerial) {

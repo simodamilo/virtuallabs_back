@@ -21,9 +21,16 @@ public class TeacherController {
     @Autowired
     TeacherService teacherService;
 
-    @GetMapping("/{studentSerial}")
-    public byte[] getTeacherImage(@PathVariable String studentSerial) {
-        return teacherService.getTeacherImage(studentSerial);
+    @GetMapping("/{teacherSerial}")
+    public TeacherDTO getTeacher(@PathVariable String teacherSerial) {
+        if (!teacherService.getTeacher(teacherSerial).isPresent())
+            throw new ResponseStatusException(HttpStatus.CONFLICT, teacherSerial);
+        return ModelHelper.enrich(teacherService.getTeacher(teacherSerial).get());
+    }
+
+    @GetMapping("/{teacherSerial}/image")
+    public byte[] getTeacherImage(@PathVariable String teacherSerial) {
+        return teacherService.getTeacherImage(teacherSerial);
     }
 
     @GetMapping({"", "/"})
@@ -31,11 +38,16 @@ public class TeacherController {
         return teacherService.getAllTeachers().stream().map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
+/*    @GetMapping("/{courseName}")
+    public List<TeacherDTO> getCourseOwners(@PathVariable String courseName) {
+        return teacherService.getCourseOwners().stream().map(ModelHelper::enrich).collect(Collectors.toList());
+    }*/
+
     @PostMapping("/{courseName}/assign")
     public TeacherDTO addTeacherToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
-        if (!map.containsKey("id") || map.keySet().size() != 1)
+        if (!map.containsKey("serial") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
-        return ModelHelper.enrich(teacherService.addTeacherToCourse(map.get("id"), courseName));
+        return ModelHelper.enrich(teacherService.addTeacherToCourse(map.get("serial"), courseName));
     }
 
     @PutMapping("/uploadImage")

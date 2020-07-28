@@ -6,8 +6,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.Optional;
 
 public interface StudentService {
+
+    /**
+     * @param studentId
+     * @return
+     */
+    Optional<StudentDTO> getStudent(String studentId);
 
     /**
      * Used to get the profile image of a student by the serial.
