@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.ModelVMDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ModelVMService {
@@ -13,6 +14,14 @@ public interface ModelVMService {
      * @return the searched modelVM.
      */
     ModelVMDTO getModelVm(String courseName);
+
+    /**
+     * Used to get the content of a modelVm by the Id.
+     *
+     * @param modelVmId of the desired modelVm.
+     * @return the content of the modelVm.
+     */
+    byte[] getModelVmContent(@PathVariable Long modelVmId);
 
     /**
      * Used by the student to add a modelVM.

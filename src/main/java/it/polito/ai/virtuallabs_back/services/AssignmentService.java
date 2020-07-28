@@ -12,7 +12,7 @@ public interface AssignmentService {
      * Used to get the content of an assignment by the Id.
      *
      * @param assignmentId of the desired assignment.
-     * @return the content of the solution.
+     * @return the content of the assignment.
      */
     byte[] getAssignmentContent(Long assignmentId);
 

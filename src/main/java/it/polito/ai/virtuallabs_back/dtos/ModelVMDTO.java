@@ -15,5 +15,4 @@ public class ModelVMDTO extends RepresentationModel<ModelVMDTO> {
     private String name;
     @NotEmpty
     private String type;
-    private byte[] content;
 }

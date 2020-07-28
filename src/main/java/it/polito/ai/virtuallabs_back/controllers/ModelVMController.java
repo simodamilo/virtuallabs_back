@@ -23,6 +23,11 @@ public class ModelVMController {
         return modelVMService.getModelVm(courseName);
     }
 
+    @GetMapping("/{modelVmId}/image")
+    public byte[] getModelVmContent(@PathVariable Long modelVmId) {
+        return modelVMService.getModelVmContent(modelVmId);
+    }
+
     @PostMapping("/{courseName}")
     public ModelVMDTO addModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO, @PathVariable String courseName) {
         return modelVMService.addModelVm(modelVmDTO, courseName);
