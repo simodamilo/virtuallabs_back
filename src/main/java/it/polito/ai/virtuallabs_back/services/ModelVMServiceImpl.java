@@ -12,6 +12,7 @@ import it.polito.ai.virtuallabs_back.repositories.ModelVMRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
@@ -36,6 +37,11 @@ public class ModelVMServiceImpl implements ModelVMService {
         if (modelVM == null)
             throw new ModelVMNotFoundException("Model not found");
         return modelMapper.map(modelVM, ModelVMDTO.class);
+    }
+
+    @Override
+    public byte[] getModelVmContent(@PathVariable Long modelVmId) {
+        return utilityService.getModelVm(modelVmId).getContent();
     }
 
     @Override
