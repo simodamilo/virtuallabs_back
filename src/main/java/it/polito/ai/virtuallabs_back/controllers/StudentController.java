@@ -26,7 +26,7 @@ public class StudentController {
     @Autowired
     StudentService studentService;
 
-    @GetMapping("/{studentSerial}")
+    @GetMapping("/{studentSerial}/getOne")
     public StudentDTO getStudent(@PathVariable String studentSerial) {
         if (!studentService.getStudent(studentSerial).isPresent())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, studentSerial);
@@ -38,15 +38,15 @@ public class StudentController {
         return studentService.getStudentImage(studentSerial);
     }
 
-    @GetMapping({"", "/"})
-    public List<StudentDTO> getAllStudents() {
-        return studentService.getAllStudents()
+    @GetMapping("/{courseName}/getAll")
+    public List<StudentDTO> getAllStudents(@PathVariable String courseName) {
+        return studentService.getAllStudents(courseName)
                 .stream()
                 .map(ModelHelper::enrich)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{courseName}/enrolled")
+    @GetMapping("/{courseName}/getEnrolled")
     public List<StudentDTO> getEnrolledStudents(@PathVariable String courseName) {
         return studentService.getEnrolledStudents(courseName)
                 .stream()
@@ -130,7 +130,7 @@ public class StudentController {
     }
 
     @PutMapping("/uploadImage")
-    public StudentDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
+    public byte[] uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         return studentService.uploadImage(file.getBytes());

@@ -55,9 +55,10 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentDTO> getAllStudents() {
+    public List<StudentDTO> getAllStudents(String courseName) {
         return studentRepository.findAll()
                 .stream()
+                .filter(student -> !utilityService.getCourse(courseName).getStudents().contains(student))
                 .map(s -> modelMapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
     }
@@ -168,19 +169,19 @@ public class StudentServiceImpl implements StudentService {
                 .build();
         List<StudentDTO> students = csvToBean.parse();
 
-        List<String> studentIds = new ArrayList<>();
+        List<String> studentSerials = new ArrayList<>();
         for (StudentDTO student : students)
-            studentIds.add(student.getSerial());
+            studentSerials.add(student.getSerial());
 
-        return enrollAll(studentIds, courseName);
+        return enrollAll(studentSerials, courseName);
     }
 
     @Override
-    public StudentDTO uploadImage(byte[] image) {
+    public byte[] uploadImage(byte[] image) {
         Student student = utilityService.getStudent();
 
         student.setImage(/*compressBytes(image)*/image);
-        return modelMapper.map(student, StudentDTO.class);
+        return student.getImage();
     }
 
     @Override

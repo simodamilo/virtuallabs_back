@@ -27,7 +27,13 @@ public interface TeacherService {
      *
      * @return list of found teachers.
      */
-    List<TeacherDTO> getAllTeachers();
+    List<TeacherDTO> getAllTeachers(String courseName);
+
+    /**
+     * @param courseName
+     * @return
+     */
+    List<TeacherDTO> getCourseOwners(String courseName);
 
     /**
      * Used to add a teacher to the course by another teacher.
@@ -46,5 +52,12 @@ public interface TeacherService {
      * @return the modified teacher.
      */
     @PreAuthorize("hasRole('TEACHER')")
-    TeacherDTO uploadImage(byte[] image);
+    byte[] uploadImage(byte[] image);
+
+    /**
+     * @param teacherSerial
+     * @param courseName
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    void deleteTeacherFromCourse(String teacherSerial, String courseName);
 }

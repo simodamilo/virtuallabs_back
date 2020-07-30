@@ -32,7 +32,7 @@ public class ModelVMServiceImpl implements ModelVMService {
     ModelVMRepository modelVMRepository;
 
     @Override
-    public ModelVMDTO getModelVm(String courseName) { //TODO vedere se va bene
+    public ModelVMDTO getModelVm(String courseName) {
         ModelVM modelVM = utilityService.getCourse(courseName).getModelVM();
         if (modelVM == null)
             throw new ModelVMNotFoundException("Model not found");

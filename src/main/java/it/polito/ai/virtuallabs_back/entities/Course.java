@@ -20,19 +20,19 @@ public class Course {
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Team> teams = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<VM> vms = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Assignment> assignments = new ArrayList<>();
 
     @ManyToMany(mappedBy = "courses")
     private List<Teacher> teachers = new ArrayList<>();
 
-    @OneToOne(mappedBy = "course")
+    @OneToOne(mappedBy = "course", cascade = CascadeType.REMOVE)
     private ModelVM modelVM;
 
     public boolean addStudent(Student student) {

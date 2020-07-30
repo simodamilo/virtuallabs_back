@@ -29,7 +29,7 @@ public interface StudentService {
      *
      * @return list of all students.
      */
-    List<StudentDTO> getAllStudents();
+    List<StudentDTO> getAllStudents(String courseName);
 
     /**
      * Used to get all the team that are enrolled in the course.
@@ -125,7 +125,7 @@ public interface StudentService {
      * @return the student modified.
      */
     @PreAuthorize("hasRole('STUDENT')")
-    StudentDTO uploadImage(byte[] image);
+    byte[] uploadImage(byte[] image);
 
     /**
      * Used by the teacher to remove a student from the course, if allowed.

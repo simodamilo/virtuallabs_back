@@ -39,10 +39,20 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<TeacherDTO> getAllTeachers() {
+    public List<TeacherDTO> getAllTeachers(String courseName) {
         return teacherRepository.findAll()
                 .stream()
-                .map(t -> modelMapper.map(t, TeacherDTO.class))
+                .filter(teacher -> !utilityService.getCourse(courseName).getTeachers().contains(teacher))
+                .map(teacher -> modelMapper.map(teacher, TeacherDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeacherDTO> getCourseOwners(String courseName) {
+        return utilityService.getCourse(courseName)
+                .getTeachers()
+                .stream()
+                .map(teacher -> modelMapper.map(teacher, TeacherDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -62,10 +72,20 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public TeacherDTO uploadImage(byte[] image) {
+    public byte[] uploadImage(byte[] image) {
         Teacher teacher = utilityService.getTeacher();
 
         teacher.setImage(/*compressBytes(image)*/image);
-        return modelMapper.map(teacher, TeacherDTO.class);
+        return teacher.getImage();
+    }
+
+    @Override
+    public void deleteTeacherFromCourse(String teacherSerial, String courseName) {
+        utilityService.courseOwnerValid(courseName);
+        Course course = utilityService.getCourse(courseName);
+        if (teacherRepository.existsById(teacherSerial) &&
+                course.getTeachers().contains(teacherRepository.getOne(teacherSerial))) {
+            teacherRepository.getOne(teacherSerial).removeCourse(course);
+        }
     }
 }

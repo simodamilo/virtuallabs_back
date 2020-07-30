@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.CONFLICT)
-public class CourseNotEnabledException extends CourseServiceException {
+public class CourseNotEnabledException extends RuntimeException {
     public CourseNotEnabledException(String msg) {
         super(msg);
     }

@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.CourseDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
+import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.exception.CourseAlreadyExistsException;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,7 +90,10 @@ public class CourseServiceImpl implements CourseService {
         utilityService.courseOwnerValid(courseName);
 
         Course course = utilityService.getCourse(courseName);
-        course.getTeachers().forEach(teacher -> teacher.removeCourse(course));
+        List<Teacher> teachers = new ArrayList<>(course.getTeachers());
+        teachers.forEach(teacher -> teacher.removeCourse(course));
+        List<Student> students = new ArrayList<>(course.getStudents());
+        students.forEach(student -> student.removeCourse(course));
 
         courseRepository.delete(course);
     }

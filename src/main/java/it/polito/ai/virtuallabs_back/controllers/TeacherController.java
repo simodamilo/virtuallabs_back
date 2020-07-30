@@ -21,7 +21,7 @@ public class TeacherController {
     @Autowired
     TeacherService teacherService;
 
-    @GetMapping("/{teacherSerial}")
+    @GetMapping("/{teacherSerial}/getOne")
     public TeacherDTO getTeacher(@PathVariable String teacherSerial) {
         if (!teacherService.getTeacher(teacherSerial).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT, teacherSerial);
@@ -33,15 +33,15 @@ public class TeacherController {
         return teacherService.getTeacherImage(teacherSerial);
     }
 
-    @GetMapping({"", "/"})
-    public List<TeacherDTO> getAllTeachers() {
-        return teacherService.getAllTeachers().stream().map(ModelHelper::enrich).collect(Collectors.toList());
+    @GetMapping("/{courseName}/getAll")
+    public List<TeacherDTO> getAllTeachers(@PathVariable String courseName) {
+        return teacherService.getAllTeachers(courseName).stream().map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
-/*    @GetMapping("/{courseName}")
+    @GetMapping("/{courseName}/getOwners")
     public List<TeacherDTO> getCourseOwners(@PathVariable String courseName) {
-        return teacherService.getCourseOwners().stream().map(ModelHelper::enrich).collect(Collectors.toList());
-    }*/
+        return teacherService.getCourseOwners(courseName).stream().map(ModelHelper::enrich).collect(Collectors.toList());
+    }
 
     @PostMapping("/{courseName}/assign")
     public TeacherDTO addTeacherToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
@@ -51,9 +51,15 @@ public class TeacherController {
     }
 
     @PutMapping("/uploadImage")
-    public TeacherDTO uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
+    public byte[] uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         return teacherService.uploadImage(file.getBytes());
+    }
+
+    @DeleteMapping("/{courseName}/deleteTeacher/{teacherSerial}")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Student deleted")
+    public void deleteTeacherFromCourse(@PathVariable String courseName, @PathVariable String teacherSerial) {
+        teacherService.deleteTeacherFromCourse(teacherSerial, courseName);
     }
 }
