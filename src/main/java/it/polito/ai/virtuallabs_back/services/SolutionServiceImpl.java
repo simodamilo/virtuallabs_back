@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,10 +52,15 @@ public class SolutionServiceImpl implements SolutionService {
         if (!teacher.getCourses().contains(assignment.getCourse()))
             throw new CourseNotValidException("You have no permission to see the solution of this course");
 
-        return solutionRepository.getAllByAssignmentStudentAndMaxTs(assignmentId)
-                .stream()
-                .map(solution -> modelMapper.map(solution, SolutionDTO.class))
-                .collect(Collectors.toList());
+        HashMap<String, SolutionDTO> map = new HashMap<>();
+        solutionRepository.getAllByAssignmentStudentAndMaxTs(assignmentId)
+                .forEach(solution -> {
+                    if (!map.containsKey(solution.getStudent().getSerial()))
+                        map.put(solution.getStudent().getSerial(), modelMapper.map(solution, SolutionDTO.class));
+                    else if (solution.getDeliveryTs().after(map.get(solution.getStudent().getSerial()).getDeliveryTs()))
+                        map.replace(solution.getStudent().getSerial(), modelMapper.map(solution, SolutionDTO.class));
+                });
+        return new ArrayList<>(map.values());
     }
 
     @Override
