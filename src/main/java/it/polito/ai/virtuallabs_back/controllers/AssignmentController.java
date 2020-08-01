@@ -33,7 +33,6 @@ public class AssignmentController {
         return assignmentService.getCourseAssignments(courseName);
     }
 
-
     @PostMapping("/{courseName}")
     public AssignmentDTO addAssignment(@Valid @RequestBody AssignmentDTO assignmentDTO,
                                        @PathVariable String courseName) {
@@ -43,8 +42,10 @@ public class AssignmentController {
     @PutMapping("/{assignmentId}")
     public AssignmentDTO addContent(@RequestParam(value = "imageFile") MultipartFile file,
                                     @PathVariable Long assignmentId) {
-        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image")) {
+            assignmentService.deleteAssignment(assignmentId);
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type not supported");
+        }
         return assignmentService.addContent(assignmentId, file);
     }
 }

@@ -2,6 +2,7 @@ package it.polito.ai.virtuallabs_back.controllers;
 
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
+import it.polito.ai.virtuallabs_back.exception.TeamNotFoundException;
 import it.polito.ai.virtuallabs_back.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,16 +24,8 @@ public class TeamController {
     @GetMapping("/{courseName}/student")
     public TeamDTO getStudentTeamByCourse(@PathVariable String courseName) {
         if (!teamService.getStudentTeamByCourse(courseName).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No team available");
+            throw new TeamNotFoundException("Team not found");
         return ModelHelper.enrich(teamService.getStudentTeamByCourse(courseName).get());
-    }
-
-    @GetMapping("/students/active")
-    public List<TeamDTO> getStudentTeams() {
-        return teamService.getStudentTeams()
-                .stream()
-                .map(ModelHelper::enrich)
-                .collect(Collectors.toList());
     }
 
     @GetMapping("/students/{courseName}/pending")

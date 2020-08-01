@@ -17,13 +17,6 @@ public interface CourseService {
     Optional<CourseDTO> getCourse(String courseName);
 
     /**
-     * Used to get the list of courses.
-     *
-     * @return list of found courses.
-     */
-    List<CourseDTO> getAllCourses();
-
-    /**
      * Used to get the list of courses of the authenticated teacher.
      *
      * @return list of found courses.

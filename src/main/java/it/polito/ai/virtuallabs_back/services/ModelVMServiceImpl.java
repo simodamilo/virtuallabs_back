@@ -83,25 +83,6 @@ public class ModelVMServiceImpl implements ModelVMService {
     }
 
     @Override
-    public ModelVMDTO modifyModelVm(ModelVMDTO modelVMDTO) {
-        ModelVM modelVM = utilityService.getModelVm(modelVMDTO.getId());
-        Course course = utilityService.getCourse(modelVM.getCourse().getName());
-
-        utilityService.courseOwnerValid(modelVM.getCourse().getName());
-
-        if (course.getVms().size() != 0)
-            throw new ModelVMChangeNotValidException("It is not possible to add a new modelVM");
-
-        if (!course.isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
-
-        modelVM.setName(modelVMDTO.getName());
-        modelVM.setType(modelVMDTO.getType());
-
-        return modelMapper.map(modelVM, ModelVMDTO.class);
-    }
-
-    @Override
     public void deleteModelVm(Long modelVmId) {
         Teacher teacher = utilityService.getTeacher();
         ModelVM modelVM = utilityService.getModelVm(modelVmId);

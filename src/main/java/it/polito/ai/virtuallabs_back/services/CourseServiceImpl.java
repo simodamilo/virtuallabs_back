@@ -35,14 +35,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseDTO> getAllCourses() {
-        return courseRepository.findAll()
-                .stream()
-                .map(c -> modelMapper.map(c, CourseDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<CourseDTO> getTeacherCourses() {
         Teacher teacher = utilityService.getTeacher();
         return courseRepository.getTeacherCourses(teacher.getSerial())

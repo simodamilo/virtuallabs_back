@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,20 +36,6 @@ public class VMServiceImpl implements VMService {
     @Autowired
     TeamRepository teamRepository;
 
-
-    @Override
-    public Optional<VMDTO> getVm(Long vmId) {
-        return vmRepository.findById(vmId).map(vm -> modelMapper.map(vm, VMDTO.class));
-    }
-
-    @Override
-    public List<VMDTO> getStudentVms() {
-        return utilityService.getStudent()
-                .getVms()
-                .stream()
-                .map(vm -> modelMapper.map(vm, VMDTO.class))
-                .collect(Collectors.toList());
-    }
 
     @Override
     public List<VMDTO> getTeamVms(Long teamId) {
@@ -122,7 +107,7 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public VMDTO onOff(Long vmId) { //TODO fare il check per vedere se esiste la vm?
+    public VMDTO onOff(Long vmId) {
         VM vm = utilityService.getVm(vmId);
 
         if (utilityService.isTeacher()) {
@@ -151,10 +136,13 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public VMDTO addOwner(Long id, String serial) {
+    public VMDTO addOwner(Long id, String studentSerial) {
         VM vm = getAndCheck(id);
 
-        Student student = studentRepository.getOne(serial);
+        if (!studentRepository.existsById(studentSerial))
+            throw new StudentNotFoundException("Student not found");
+
+        Student student = studentRepository.getOne(studentSerial);
         if (!vm.getTeam().getMembers().contains(student))
             throw new StudentNotFoundException("Student is not part of the team");
 

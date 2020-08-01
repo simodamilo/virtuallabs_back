@@ -66,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
                 teamTokenRepository.save(teamToken);
                 String address = serial + "@studenti.polito.it";
                 String body = "Hello \r\n" +
-                        "a team has been created, confirm or refuse participation ";
+                        "a team has been created, confirm or refuse participation https://localhost:4200/home?doLogin=true";
                 String subject = "Team confirmation";
                 sendMessage(address, subject, body);
             }

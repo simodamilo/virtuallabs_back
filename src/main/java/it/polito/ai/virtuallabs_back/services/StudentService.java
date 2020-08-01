@@ -56,14 +56,6 @@ public interface StudentService {
     List<StudentDTO> getAvailableStudents(String courseName);
 
     /**
-     * Used to get all the students that already have a team for the course.
-     *
-     * @param courseName in which students are searched.
-     * @return list of students engaged for the course.
-     */
-    List<StudentDTO> getEngagedStudents(String courseName);
-
-    /**
      * Used to get the members of a team.
      *
      * @param teamId of the team selected.
@@ -97,16 +89,6 @@ public interface StudentService {
      */
     @PreAuthorize("hasRole('TEACHER')")
     StudentDTO addStudentToCourse(String studentSerial, String courseName);
-
-    /**
-     * Used to enroll a list of students.
-     *
-     * @param studentSerials list of serial that must be added to the course.
-     * @param courseName     in which student are added.
-     * @return the list of the students that have been enrolled to che course.
-     */
-    @PreAuthorize("hasRole('TEACHER')")
-    List<StudentDTO> enrollAll(List<String> studentSerials, String courseName);
 
     /**
      * Used to enroll a list of students that is passed by a csv file.

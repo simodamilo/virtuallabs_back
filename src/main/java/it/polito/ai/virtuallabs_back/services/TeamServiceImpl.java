@@ -56,16 +56,6 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<TeamDTO> getStudentTeams() {
-        return utilityService.getStudent()
-                .getTeams()
-                .stream()
-                .filter(team -> team.getStatus() == 1)
-                .map(t -> modelMapper.map(t, TeamDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<TeamDTO> getStudentPendingTeams(String courseName) {
         return utilityService.getStudent()
                 .getTeams()

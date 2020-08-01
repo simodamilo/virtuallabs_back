@@ -25,14 +25,6 @@ public class CourseController {
         return ModelHelper.enrich(courseService.getCourse(courseName).get());
     }
 
-    @GetMapping({"", "/"})
-    public List<CourseDTO> getAllCourses() {
-        return courseService.getAllCourses()
-                .stream()
-                .map(ModelHelper::enrich)
-                .collect(Collectors.toList());
-    }
-
     @GetMapping("/teachers")
     public List<CourseDTO> getTeacherCourses() {
         return courseService.getTeacherCourses()

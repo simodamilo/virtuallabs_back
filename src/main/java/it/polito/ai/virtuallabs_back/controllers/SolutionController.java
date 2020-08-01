@@ -3,11 +3,14 @@ package it.polito.ai.virtuallabs_back.controllers;
 import it.polito.ai.virtuallabs_back.dtos.SolutionDTO;
 import it.polito.ai.virtuallabs_back.services.SolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/API/solutions")
@@ -44,6 +47,10 @@ public class SolutionController {
 
     @PutMapping("/{solutionId}")
     public SolutionDTO addContent(@PathVariable Long solutionId, @RequestParam(value = "imageFile") MultipartFile file) {
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image")) {
+            solutionService.deleteSolution(solutionId);
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type not supported");
+        }
         return solutionService.addContent(solutionId, file);
     }
 

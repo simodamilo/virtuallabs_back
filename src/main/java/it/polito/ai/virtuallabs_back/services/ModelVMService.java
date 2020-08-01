@@ -44,14 +44,8 @@ public interface ModelVMService {
     ModelVMDTO addContent(Long modelVmId, MultipartFile file);
 
     /**
-     * Used by the student to modify a modelVM.
-     *
-     * @param modelVMDTO which needs to be modified.
-     * @return the modified modelVM.
+     * @param modelVmId
      */
-    @PreAuthorize("hasRole('TEACHER')")
-    ModelVMDTO modifyModelVm(ModelVMDTO modelVMDTO);
-
     @PreAuthorize("hasRole('TEACHER')")
     void deleteModelVm(Long modelVmId);
 }

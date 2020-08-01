@@ -3,9 +3,7 @@ package it.polito.ai.virtuallabs_back.controllers;
 import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import it.polito.ai.virtuallabs_back.services.VMService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -17,21 +15,6 @@ public class VMController {
 
     @Autowired
     VMService vmService;
-
-    @GetMapping("/{vmId}")
-    public VMDTO getVm(@PathVariable Long vmId) {
-        if (!vmService.getVm(vmId).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "VM with id " + vmId + "does not exist");
-        return ModelHelper.enrich(vmService.getVm(vmId).get());
-    }
-
-    @GetMapping("/students")
-    public List<VMDTO> getStudentVms() {
-        return vmService.getStudentVms()
-                .stream()
-                .map(ModelHelper::enrich)
-                .collect(Collectors.toList());
-    }
 
     @GetMapping("/teams/{teamId}")
     public List<VMDTO> getTeamVms(@PathVariable Long teamId) {

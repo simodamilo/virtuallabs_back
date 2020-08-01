@@ -104,6 +104,13 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public void deleteAssignment(Long assignmentId) {
+        Assignment assignment = utilityService.getAssignment(assignmentId);
+        solutionRepository.deleteAllByAssignment(assignment);
+        assignmentRepository.delete(assignment);
+    }
+
+    @Override
     @Scheduled(fixedRate = 1000000)
     public void assignmentExpired() {
         assignmentRepository.findAllByDeadlineBefore(new Date()).forEach(assignment -> {

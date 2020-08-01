@@ -64,4 +64,9 @@ public interface SolutionService {
      */
     SolutionDTO addContent(Long solutionId, MultipartFile file);
 
+    /**
+     * @param solutionId
+     */
+    void deleteSolution(Long solutionId);
+
 }

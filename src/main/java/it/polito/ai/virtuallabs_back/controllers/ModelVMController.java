@@ -36,14 +36,11 @@ public class ModelVMController {
     @PutMapping("/{modelVmId}")
     public ModelVMDTO addContent(@RequestParam(value = "imageFile") MultipartFile file,
                                  @PathVariable Long modelVmId) {
-        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
+        if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image")) {
+            modelVMService.deleteModelVm(modelVmId);
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        }
         return modelVMService.addContent(modelVmId, file);
-    }
-
-    @PutMapping({"", "/"})
-    public ModelVMDTO modifyModelVM(@Valid @RequestBody ModelVMDTO modelVmDTO) {
-        return modelVMService.modifyModelVm(modelVmDTO);
     }
 
     @DeleteMapping("/{modelVmId}")

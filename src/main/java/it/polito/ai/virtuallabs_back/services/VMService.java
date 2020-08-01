@@ -4,25 +4,8 @@ import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface VMService {
-
-    /**
-     * Used to get the vm by the id.
-     *
-     * @param vmId of the desired vm.
-     * @return empty optional if the vm misses.
-     */
-    Optional<VMDTO> getVm(Long vmId);
-
-    /**
-     * Used to get the list of the vms of the authenticated student.
-     *
-     * @return list of found vms.
-     */
-    @PreAuthorize("hasRole('STUDENT')")
-    List<VMDTO> getStudentVms();
 
     /**
      * Used to get the list of the vms of the team.

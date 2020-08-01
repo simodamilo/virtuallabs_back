@@ -46,6 +46,12 @@ public interface AssignmentService {
     AssignmentDTO addContent(Long assignmentId, MultipartFile file);
 
     /**
+     * @param assignmentId
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    void deleteAssignment(Long assignmentId);
+
+    /**
      * Periodically checks the finished assignments and
      * possibly delivers the solutions not yet carried out by the students.
      */

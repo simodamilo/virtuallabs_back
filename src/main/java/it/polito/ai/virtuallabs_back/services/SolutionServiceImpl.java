@@ -138,4 +138,9 @@ public class SolutionServiceImpl implements SolutionService {
         }
         return modelMapper.map(solution, SolutionDTO.class);
     }
+
+    @Override
+    public void deleteSolution(Long solutionId) {
+        solutionRepository.delete(utilityService.getSolution(solutionId));
+    }
 }

@@ -68,14 +68,6 @@ public class StudentController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{courseName}/engaged")
-    public List<StudentDTO> getEngagedStudents(@PathVariable String courseName) {
-        return studentService.getEngagedStudents(courseName)
-                .stream()
-                .map(ModelHelper::enrich)
-                .collect(Collectors.toList());
-    }
-
     @GetMapping("/{teamId}/members")
     public List<StudentDTO> getTeamStudents(@PathVariable Long teamId) {
         return studentService.getTeamStudents(teamId)
@@ -102,16 +94,6 @@ public class StudentController {
         if (!map.containsKey("serial") || map.keySet().size() != 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only serial");
         return ModelHelper.enrich(studentService.addStudentToCourse(map.get("serial"), courseName));
-    }
-
-    @PostMapping("/{courseName}/enrollAll")
-    public List<StudentDTO> enrollAll(@PathVariable String courseName, @RequestBody Map<String, Object> map) {
-        if (!map.containsKey("serials") || map.keySet().size() != 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        return studentService.enrollAll((List<String>) map.get("serials"), courseName)
-                .stream()
-                .map(ModelHelper::enrich)
-                .collect(Collectors.toList());
     }
 
     @PostMapping("/{courseName}/enrollCsv")

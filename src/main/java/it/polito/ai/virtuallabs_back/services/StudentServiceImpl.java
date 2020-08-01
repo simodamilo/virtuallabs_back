@@ -91,17 +91,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentDTO> getEngagedStudents(String courseName) {
-        if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not Found");
-
-        return courseRepository.getStudentsInTeams(courseName)
-                .stream()
-                .map(s -> modelMapper.map(s, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<StudentDTO> getTeamStudents(Long teamId) {
         return utilityService.getTeam(teamId)
                 .getMembers()
@@ -152,16 +141,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentDTO> enrollAll(List<String> studentSerials, String courseName) {
-        utilityService.courseOwnerValid(courseName);
-
-        List<StudentDTO> result = new ArrayList<>();
-        studentSerials.forEach(studentSerial -> result.add(addStudentToCourse(studentSerial, courseName)));
-
-        return result;
-    }
-
-    @Override
     public List<StudentDTO> enrollCsv(Reader reader, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder<StudentDTO>(reader)
                 .withType(StudentDTO.class)
@@ -192,5 +171,15 @@ public class StudentServiceImpl implements StudentService {
                 course.getStudents().contains(studentRepository.getOne(studentSerial))) {
             studentRepository.getOne(studentSerial).removeCourse(course);
         }
+    }
+
+
+    private List<StudentDTO> enrollAll(List<String> studentSerials, String courseName) {
+        utilityService.courseOwnerValid(courseName);
+
+        List<StudentDTO> result = new ArrayList<>();
+        studentSerials.forEach(studentSerial -> result.add(addStudentToCourse(studentSerial, courseName)));
+
+        return result;
     }
 }
