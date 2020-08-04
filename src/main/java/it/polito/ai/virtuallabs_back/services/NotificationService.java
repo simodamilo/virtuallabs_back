@@ -3,6 +3,7 @@ package it.polito.ai.virtuallabs_back.services;
 import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.entities.AppUser;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 public interface NotificationService {
@@ -14,7 +15,7 @@ public interface NotificationService {
      * @param subject of the email.
      * @param body    of the email.
      */
-    void sendMessage(String address, String subject, String body);
+    void sendMessage(String address, String subject, String body) throws MessagingException;
 
     /**
      * Used to generate teamToken for the members and

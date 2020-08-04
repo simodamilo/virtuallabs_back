@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>Account creation</title>
+</head>
+<body>
+<h2 th:text="${'Hi '+ name + ' ' + surname +  ','}"></h2>
+<p>Thanks for your subscription to Virtuallabs, to complete the registration click the following button:</p>
+<form th:action="${'http://localhost:8080/confirm/'+ token}">
+    <input style="background-color: #3f51b5; color: white; font-weight: bold; border: 0px; border-radius: 5px; padding: 7px 15px 7px 15px"
+           type="submit" value="confirm">
+</form>
+<p>If you didn't register, please ignore this email.</p>
+<p>Best regards,</p>
+<p>Virtuallabs</p>
+</body>
+</html>

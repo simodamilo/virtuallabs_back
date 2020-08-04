@@ -5,6 +5,7 @@ import it.polito.ai.virtuallabs_back.entities.Course;
 import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.exception.CourseAlreadyExistsException;
+import it.polito.ai.virtuallabs_back.exception.CourseSizeException;
 import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,8 @@ public class CourseServiceImpl implements CourseService {
     public CourseDTO addCourse(CourseDTO courseDTO) {
         if (courseRepository.existsById(courseDTO.getName()))
             throw new CourseAlreadyExistsException("Course already exists");
+        if (courseDTO.getMax() < courseDTO.getMin())
+            throw new CourseSizeException("Team size are not acceptable");
 
         Course course = courseRepository.save(modelMapper.map(courseDTO, Course.class));
         Teacher teacher = utilityService.getTeacher();
@@ -66,7 +69,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDTO modifyCourse(CourseDTO courseDTO) {
+        if (courseDTO.getMax() < courseDTO.getMin())
+            throw new CourseSizeException("Team size are not acceptable");
         utilityService.courseOwnerValid(courseDTO.getName());
+
 
         Course course = utilityService.getCourse(courseDTO.getName());
         course.setTag(courseDTO.getTag());

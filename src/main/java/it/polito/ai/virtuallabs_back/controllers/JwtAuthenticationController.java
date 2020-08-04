@@ -43,7 +43,6 @@ public class JwtAuthenticationController {
     @PostMapping("/register")
     @ResponseStatus(code = HttpStatus.OK, reason = "User registered")
     public void registration(@RequestBody @Valid RegistrationRequest registrationRequest) {
-        System.out.println("Provaaaaaaaaaaaaaaaa");
         if (!userService.registration(registrationRequest))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User already registered");
     }

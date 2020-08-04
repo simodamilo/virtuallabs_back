@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>Account creation</title>
+</head>
+<body>
+<h2>Hi student,</h2>
+<p th:text="${'You have received a request for the team '+ teamName + ', press the following button to access the site and respond to the request.'}"></p>
+<form th:action="${'https://localhost:4200/home'}">
+    <input style="background-color: #3f51b5; color: white; font-weight: bold; border: 0px; border-radius: 5px; padding: 7px 15px 7px 15px"
+           type="submit" value="Login">
+</form>
+<p>Regards,</p>
+<p>Virtuallabs</p>
+</body>
+</html>

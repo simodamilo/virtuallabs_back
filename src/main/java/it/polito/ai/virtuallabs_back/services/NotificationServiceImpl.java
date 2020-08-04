@@ -7,10 +7,14 @@ import it.polito.ai.virtuallabs_back.entities.UserToken;
 import it.polito.ai.virtuallabs_back.repositories.TeamTokenRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
@@ -19,6 +23,9 @@ import java.util.UUID;
 @Service
 @Transactional
 public class NotificationServiceImpl implements NotificationService {
+
+    @Autowired
+    TemplateEngine templateEngine;
 
     @Autowired
     JavaMailSender javaMailSender;
@@ -37,24 +44,30 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendMessage(String address, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        //message.setTo(address);
-        message.setTo("ApplicazioniInternet2020@gmail.com");
-        message.setSubject(subject);
-        message.setText(body);
-        javaMailSender.send(message);
-    }
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "UTF-8");
 
+        try {
+            //message.setTo(address);
+            mimeMessageHelper.setTo("ApplicazioniInternet2020@gmail.com");
+            mimeMessageHelper.setSubject(subject);
+            mimeMessageHelper.setText(body, true);
+        } catch (MessagingException me) {
+            me.printStackTrace();
+        }
+        javaMailSender.send(mimeMessage);
+    }
 
     @Override
     public void notifyTeam(TeamDTO teamDTO, List<String> studentSerials) {
+        Context context = new Context();
+        context.setVariable("teamName", teamDTO.getName());
         studentSerials.forEach(serial -> {
             if (utilityService.getStudent().getSerial().equals(serial)) {
                 String address = serial + "@studenti.polito.it";
-                String body = "Hello \r\n" +
-                        "your team is correctly created, wait for other members";
                 String subject = "Team creation";
-                sendMessage(address, subject, body);
+                String htmlContent = templateEngine.process("teamCreation.html", context);
+                sendMessage(address, subject, htmlContent);
             } else {
                 TeamToken teamToken = TeamToken.builder()
                         .id(UUID.randomUUID().toString())
@@ -65,10 +78,9 @@ public class NotificationServiceImpl implements NotificationService {
                         .build();
                 teamTokenRepository.save(teamToken);
                 String address = serial + "@studenti.polito.it";
-                String body = "Hello \r\n" +
-                        "a team has been created, confirm or refuse participation https://localhost:4200/home?doLogin=true";
                 String subject = "Team confirmation";
-                sendMessage(address, subject, body);
+                String htmlContent = templateEngine.process("teamInvite.html", context);
+                sendMessage(address, subject, htmlContent);
             }
         });
     }
@@ -85,10 +97,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .expiryDate(new Timestamp(System.currentTimeMillis() + /*3600000*24*/120000))
                 .build();
         userTokenRepository.save(token);
-        String body = "Hello \r\n" +
-                "an account has been created for you, to confirm click the following link: \r\n" +
-                "Confirm : http://localhost:8080/confirm/" + token.getId() + " \r\n";
-        //TODO sistemare email con link al login
-        sendMessage(address, subject, body);
+
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("surname", surname);
+        context.setVariable("token", token.getId());
+        String htmlContent = templateEngine.process("user.html", context);
+        sendMessage(address, subject, htmlContent);
     }
 }
