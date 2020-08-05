@@ -11,6 +11,7 @@ import it.polito.ai.virtuallabs_back.repositories.TeacherRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserRepository;
 import it.polito.ai.virtuallabs_back.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,10 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
@@ -43,6 +41,7 @@ public class UserServiceImpl implements UserService {
     UserTokenRepository userTokenRepository;
 
     @Autowired
+    @Lazy
     NotificationService notificationService;
 
     @Autowired
@@ -52,7 +51,7 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         AppUser appUser = userRepository.findByUsername(username);
         if (appUser == null || !appUser.isStatus())
-            throw new UsernameNotFoundException("User not found with username: " + username);
+            throw new UsernameNotFoundException("Username or password not valid");
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         List<String> roles = appUser.getRoles();
         for (String role : roles) {
@@ -64,18 +63,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean registration(RegistrationRequest registrationRequest) {
-        //TODO fare check per vedere il dominio email
+        if (!registrationRequest.getEmail().endsWith("studenti.polito.it") ||
+                !registrationRequest.getEmail().endsWith("polito.it"))
+            return false;
+
         String serial = registrationRequest.getEmail().split("@")[0];
         if ((userRepository.findByUsername(registrationRequest.getEmail()) != null)
                 || !serial.equals(registrationRequest.getSerial()))
             return false;
         AppUser user = AppUser.builder()
-                .password(passwordEncoder.encode(registrationRequest.getPassword())) //vedere il sale
+                .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .username(registrationRequest.getEmail())
                 .status(false)
                 .build();
         userRepository.save(user);
-        notificationService.notifyUser(user, registrationRequest.getName(), registrationRequest.getSurname());
+
+        UserToken token = UserToken.builder()
+                .id(UUID.randomUUID().toString())
+                .appUserId(user.getId())
+                .name(registrationRequest.getName())
+                .surname(registrationRequest.getSurname())
+                .expiryDate(new Timestamp(System.currentTimeMillis() + /*3600000*24*/120000)) //TODO
+                .build();
+        userTokenRepository.save(token);
+
+        notificationService.notifyUser(user, token);
         return true;
     }
 

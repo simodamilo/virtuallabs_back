@@ -45,7 +45,7 @@ public class VMServiceImpl implements VMService {
             utilityService.courseOwnerValid(team.getCourse().getName());
         } else {
             if (!utilityService.getStudent().getTeams().contains(team))
-                throw new TeamNotFoundException("The student is not part of the team");
+                throw new TeamMemberNotFoundException("The student is not part of the team");
         }
 
         return team.getVms()
@@ -71,10 +71,10 @@ public class VMServiceImpl implements VMService {
         Student student = utilityService.getStudent();
 
         if (!student.getTeams().contains(team))
-            throw new TeamNotFoundException("The student is not part of the team");
+            throw new TeamMemberNotFoundException("The student is not part of the team");
 
         if (!team.getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         if (team.getCourse().getModelVM() == null)
             throw new VmChangeNotValidException("It is not possible to add a new VM");
@@ -114,18 +114,16 @@ public class VMServiceImpl implements VMService {
             utilityService.courseOwnerValid(vm.getTeam().getCourse().getName());
         } else {
             if (!utilityService.getStudent().getTeams().contains(vm.getTeam()) || isNotValid(vmId))
-                throw new TeamNotFoundException("You have no permission to modify this vm");
+                throw new TeamChangeNotValidException("You are not allowed to modify this vm");
         }
 
         if (!vm.getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         long alreadyActiveVms = vm.getTeam().getVms()
                 .stream()
                 .filter(VM::isActive)
                 .count();
-
-        System.out.println("Already active: " + alreadyActiveVms);
 
         if (!vm.isActive() && alreadyActiveVms >= vm.getTeam().getActiveInstance())
             throw new VmChangeNotValidException("There are too many active vms");
@@ -140,7 +138,7 @@ public class VMServiceImpl implements VMService {
         VM vm = getAndCheck(id);
 
         if (!studentRepository.existsById(studentSerial))
-            throw new StudentNotFoundException("Student not found");
+            throw new StudentNotFoundException("The student you are looking for does not exist");
 
         Student student = studentRepository.getOne(studentSerial);
         if (!vm.getTeam().getMembers().contains(student))
@@ -175,13 +173,13 @@ public class VMServiceImpl implements VMService {
 
     private VM getAndCheck(Long vmId) {
         if (isNotValid(vmId))
-            throw new VmChangeNotValidException("You have no permission to modify this vm");
+            throw new VmChangeNotValidException("You are not allowed to edit this vm");
 
         VM vm = utilityService.getVm(vmId);
         if (vm.isActive())
-            throw new VmActiveException("Vm is on, so it is not possible to modify it");
+            throw new VmActiveException("Vm is currently running");
         if (!vm.getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         return vm;
     }

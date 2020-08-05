@@ -17,6 +17,7 @@ import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -86,30 +87,41 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseSizeException("Team does not respect the size of the course");
 
         if (!studentSerials.contains(utilityService.getStudent().getSerial()))
-            throw new UserRequestNotValidException("You are not part of the team");
+            throw new UserRequestNotValidException("You must be part of the team");
 
         Team team = new Team();
+
+        team.setName(teamName);
+        team.setCourse(course);
+        TeamDTO teamDTO = modelMapper.map(teamRepository.save(team), TeamDTO.class);
+        teamDTO.setDuration(timeout);
         studentSerials.forEach(studentSerial -> {
             if (!studentRepository.existsById(studentSerial))
-                throw new StudentNotFoundException("Student not found");
+                throw new StudentNotFoundException("The student you are looking for does not exist");
 
             Student student = studentRepository.getOne(studentSerial);
             if (!course.getStudents().contains(student))
                 throw new StudentNotEnrolledException("One or more student are not enrolled in the course");
 
             if (courseRepository.getStudentsInTeams(courseName).contains(student))
-                throw new StudentAlreadyInTeamException("One or more student are already in team");
-            //TODO fare check per vedere se lo studente è in un team con stato 1, ho messo uno status=1 nella query
+                throw new StudentAlreadyInTeamException("One or more student are already in a team");
 
             if (!team.addMember(student))
-                throw new StudentDuplicatedException("Team contains duplicate");
+                throw new StudentDuplicatedException("One or more student are duplicated in the team");
+
+            if (!utilityService.getStudent().getSerial().equals(studentSerial)) {
+                TeamToken teamToken = TeamToken.builder()
+                        .id(UUID.randomUUID().toString())
+                        .studentSerial(studentSerial)
+                        .teamId(team.getId())
+                        .expiryDate(new Timestamp(System.currentTimeMillis() + timeout * 1000 * 3600))
+                        .status(0)
+                        .build();
+                teamTokenRepository.save(teamToken);
+            }
         });
 
-        team.setName(teamName);
-        team.setCourse(course);
-        TeamDTO teamDTO = modelMapper.map(teamRepository.save(team), TeamDTO.class);
-        teamDTO.setDuration(timeout);
-        notificationService.notifyTeam(teamDTO, studentSerials);
+        notificationService.notifyTeam(teamDTO, studentSerials, utilityService.getStudent().getSerial());
 
         return teamDTO;
     }
@@ -119,7 +131,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = utilityService.getTeam(teamDTO.getId());
 
         if (team.getStatus() == 0)
-            throw new TeamNotFoundException("Team is no active");
+            throw new TeamChangeNotValidException("Team is no active");
 
         Teacher teacher = utilityService.getTeacher();
         if (!teacher.getCourses().contains(team.getCourse()))
@@ -180,11 +192,11 @@ public class TeamServiceImpl implements TeamService {
 
     private Team isValid(TeamTokenDTO teamTokenDTO) {
         if (!teamTokenRepository.existsById(teamTokenDTO.getId()))
-            throw new TeamTokenNotFoundException("Token not found");
+            throw new TeamTokenNotFoundException("The token you are looking for does not exist");
 
         TeamToken teamToken = teamTokenRepository.getOne(teamTokenDTO.getId());
         if (teamToken.getExpiryDate().before(new Timestamp(System.currentTimeMillis())))
-            throw new TeamTokenExpiredException("Token already expired");
+            throw new TeamTokenExpiredException("The token is already expired");
 
         return utilityService.getTeam(teamTokenDTO.getTeamId());
     }

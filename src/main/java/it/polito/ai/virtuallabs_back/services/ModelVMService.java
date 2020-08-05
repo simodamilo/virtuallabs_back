@@ -34,17 +34,19 @@ public interface ModelVMService {
     ModelVMDTO addModelVm(ModelVMDTO modelVMDTO, String courseName);
 
     /**
-     * Used by the teacher add the content to an assignment.
+     * Used by the teacher to add the content to a modelVm.
      *
-     * @param modelVmId of the assignment modified.
-     * @param file      content of the assignment.
-     * @return the modified assignment.
+     * @param modelVmId of the added modelVm.
+     * @param file      content of the modelVm.
+     * @return the modified modelVm.
      */
     @PreAuthorize("hasRole('TEACHER')")
     ModelVMDTO addContent(Long modelVmId, MultipartFile file);
 
     /**
-     * @param modelVmId
+     * Used by the teacher to delete a modelVm.
+     *
+     * @param modelVmId of the deleted modelVm.
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteModelVm(Long modelVmId);

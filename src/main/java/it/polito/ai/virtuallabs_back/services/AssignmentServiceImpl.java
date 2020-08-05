@@ -8,6 +8,7 @@ import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.exception.AssignmentChangeNotValid;
 import it.polito.ai.virtuallabs_back.exception.AssignmentDateException;
 import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
+import it.polito.ai.virtuallabs_back.exception.ImageException;
 import it.polito.ai.virtuallabs_back.repositories.AssignmentRepository;
 import it.polito.ai.virtuallabs_back.repositories.SolutionRepository;
 import org.modelmapper.ModelMapper;
@@ -59,13 +60,13 @@ public class AssignmentServiceImpl implements AssignmentService {
         Course course = utilityService.getCourse(courseName);
 
         if (!course.isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         if (!teacher.getCourses().contains(course))
-            throw new AssignmentChangeNotValid("You have no permission to add an assignment to this course");
+            throw new AssignmentChangeNotValid("You are not allowed to add an assignment to this course");
 
         if (assignmentDTO.getReleaseDate().after(assignmentDTO.getDeadline()))
-            throw new AssignmentDateException("Deadline before release");
+            throw new AssignmentDateException("The deadline is before the release");
 
         Assignment assignment = assignmentRepository.save(modelMapper.map(assignmentDTO, Assignment.class));
         teacher.addAssignment(assignment);
@@ -91,14 +92,14 @@ public class AssignmentServiceImpl implements AssignmentService {
         Teacher teacher = utilityService.getTeacher();
         Assignment assignment = utilityService.getAssignment(assignmentId);
         if (!assignment.getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         if (!assignment.getTeacher().equals(teacher))
-            throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
+            throw new AssignmentChangeNotValid("You are not allowed to add an assignment to this course");
         try {
             assignment.setContent(file.getBytes());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ImageException("It is not possible to upload the image");
         }
         return modelMapper.map(assignment, AssignmentDTO.class);
     }

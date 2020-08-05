@@ -2,19 +2,19 @@ package it.polito.ai.virtuallabs_back.dtos;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Data
 public class RegistrationRequest {
 
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String name;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String surname;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String serial;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String email;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String password;
 }

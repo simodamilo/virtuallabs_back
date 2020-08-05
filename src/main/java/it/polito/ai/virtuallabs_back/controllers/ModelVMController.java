@@ -38,7 +38,7 @@ public class ModelVMController {
                                  @PathVariable Long modelVmId) {
         if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image")) {
             modelVMService.deleteModelVm(modelVmId);
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type not supported");
         }
         return modelVMService.addContent(modelVmId, file);
     }

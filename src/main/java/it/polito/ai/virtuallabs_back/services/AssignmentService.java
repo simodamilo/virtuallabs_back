@@ -36,9 +36,9 @@ public interface AssignmentService {
     AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName);
 
     /**
-     * Used by the teacher add the content to an assignment.
+     * Used by the teacher to add the content to an assignment.
      *
-     * @param assignmentId of the assignment modified.
+     * @param assignmentId of the modified assignment.
      * @param file         content of the assignment.
      * @return the modified assignment.
      */
@@ -46,7 +46,9 @@ public interface AssignmentService {
     AssignmentDTO addContent(Long assignmentId, MultipartFile file);
 
     /**
-     * @param assignmentId
+     * Used by the teacher to remove an assignment.
+     *
+     * @param assignmentId of the deleted assignment.
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteAssignment(Long assignmentId);

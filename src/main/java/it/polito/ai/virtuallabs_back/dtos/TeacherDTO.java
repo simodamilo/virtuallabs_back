@@ -4,18 +4,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class TeacherDTO extends RepresentationModel<TeacherDTO> {
 
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String serial;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String email;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String name;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String surname;
 }

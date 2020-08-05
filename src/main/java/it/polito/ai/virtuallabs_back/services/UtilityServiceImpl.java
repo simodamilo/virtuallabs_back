@@ -2,9 +2,7 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.VMDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
-import it.polito.ai.virtuallabs_back.exception.CourseChangeNotValidException;
-import it.polito.ai.virtuallabs_back.exception.CourseNotFoundException;
-import it.polito.ai.virtuallabs_back.exception.VmConstraintException;
+import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,28 +43,28 @@ public class UtilityServiceImpl implements UtilityService {
     @Override
     public Assignment getAssignment(Long assignmentId) {
         if (!assignmentRepository.existsById(assignmentId))
-            throw new CourseNotFoundException("Assignment not found");
+            throw new AssignmentNotFoundException("The assignment you are looking for does not exist");
         return assignmentRepository.getOne(assignmentId);
     }
 
     @Override
     public Course getCourse(String courseName) {
         if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not found");
+            throw new CourseNotFoundException("The course you are looking for does not exist");
         return courseRepository.getOne(courseName);
     }
 
     @Override
     public ModelVM getModelVm(Long modelVmId) {
         if (!modelVMRepository.existsById(modelVmId))
-            throw new CourseNotFoundException("modelVm not found");
+            throw new ModelVMNotFoundException("The VM model you are looking for does not exist");
         return modelVMRepository.getOne(modelVmId);
     }
 
     @Override
     public Solution getSolution(Long solutionId) {
         if (!solutionRepository.existsById(solutionId))
-            throw new CourseNotFoundException("Solution not found");
+            throw new SolutionNotFoundException("The solution you are looking for does not exist");
         return solutionRepository.getOne(solutionId);
     }
 
@@ -85,21 +83,21 @@ public class UtilityServiceImpl implements UtilityService {
     @Override
     public Team getTeam(Long teamId) {
         if (!teamRepository.existsById(teamId))
-            throw new CourseNotFoundException("Team not found");
+            throw new TeamNotFoundException("The team you are looking for does not exist");
         return teamRepository.getOne(teamId);
     }
 
     @Override
     public VM getVm(Long vmId) {
         if (!vmRepository.existsById(vmId))
-            throw new CourseNotFoundException("Vm not found");
+            throw new VmNotFoundException("The VM you are looking for does not exist");
         return vmRepository.getOne(vmId);
     }
 
     @Override
     public void courseOwnerValid(String courseName) {
         if (!getTeacher().getCourses().contains(getCourse(courseName)))
-            throw new CourseChangeNotValidException("You have no permission to change this course");
+            throw new CourseChangeNotValidException("You are not allowed to edit this course");
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ModelVMServiceImpl implements ModelVMService {
     public ModelVMDTO getModelVm(String courseName) {
         ModelVM modelVM = utilityService.getCourse(courseName).getModelVM();
         if (modelVM == null)
-            throw new ModelVMNotFoundException("Model not found");
+            throw new ModelVMNotFoundException("The VM model you are looking for does not exist");
         return modelMapper.map(modelVM, ModelVMDTO.class);
     }
 
@@ -54,7 +54,7 @@ public class ModelVMServiceImpl implements ModelVMService {
             throw new ModelVMChangeNotValidException("It is not possible to add a new modelVM");
 
         if (!course.isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         ModelVM modelVM = ModelVM.builder()
                 .name(modelVMDTO.getName())
@@ -70,10 +70,10 @@ public class ModelVMServiceImpl implements ModelVMService {
         Teacher teacher = utilityService.getTeacher();
         ModelVM modelVM = utilityService.getModelVm(modelVmId);
         if (!modelVM.getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         if (!teacher.getCourses().contains(modelVM.getCourse()))
-            throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
+            throw new AssignmentChangeNotValid("You are not allowed to add a VM model to this course");
         try {
             modelVM.setContent(file.getBytes());
         } catch (IOException e) {
@@ -88,13 +88,13 @@ public class ModelVMServiceImpl implements ModelVMService {
         ModelVM modelVM = utilityService.getModelVm(modelVmId);
 
         if (!teacher.getCourses().contains(modelVM.getCourse()))
-            throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
+            throw new AssignmentChangeNotValid("You are not allowed to delete the VM model of this course");
 
         if (!modelVM.getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         if (modelVM.getCourse().getVms().size() != 0)
-            throw new ModelVMChangeNotValidException("It is not possible to delete a new modelVM");
+            throw new ModelVMChangeNotValidException("It is not possible to delete the VM model");
 
         modelVMRepository.delete(modelVM);
     }

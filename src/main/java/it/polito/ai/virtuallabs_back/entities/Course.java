@@ -103,7 +103,6 @@ public class Course {
         return true;
     }
 
-    /* vedere se ha senso mettere la possibilità di eliminare il modelVM dal team */
     public void setModelVM(ModelVM modelVM) {
         if (modelVM != null) {
             this.modelVM = modelVM;

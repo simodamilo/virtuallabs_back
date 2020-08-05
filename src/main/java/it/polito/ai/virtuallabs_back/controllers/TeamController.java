@@ -24,7 +24,7 @@ public class TeamController {
     @GetMapping("/{courseName}/student")
     public TeamDTO getStudentTeamByCourse(@PathVariable String courseName) {
         if (!teamService.getStudentTeamByCourse(courseName).isPresent())
-            throw new TeamNotFoundException("Team not found");
+            throw new TeamNotFoundException("The team you are looking for does not exist");
         return ModelHelper.enrich(teamService.getStudentTeamByCourse(courseName).get());
     }
 
@@ -46,10 +46,8 @@ public class TeamController {
 
     @PostMapping("/{courseName}")
     public TeamDTO proposeTeam(@PathVariable String courseName, @RequestBody Map<String, Object> map) {
-        if (!map.containsKey("name"))
-            System.out.println("Method called: " + map);
         if (!map.containsKey("name") || !map.containsKey("serials") || !map.containsKey("timeout") || map.keySet().size() != 3)
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The request is not correct");
         return teamService.proposeTeam(courseName, map.get("name").toString(), Integer.parseInt(map.get("timeout").toString()), (List<String>) map.get("serials"));
     }
 

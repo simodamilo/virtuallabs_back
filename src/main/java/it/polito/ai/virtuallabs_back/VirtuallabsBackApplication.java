@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -15,6 +16,7 @@ import java.util.Collections;
 
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 public class VirtuallabsBackApplication {
 
     @Bean
@@ -37,9 +39,8 @@ public class VirtuallabsBackApplication {
 
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("mail/MailMessages");
-        // Message source, internationalization specific to emails
-        templateEngine.setTemplateEngineMessageSource(messageSource);
 
+        templateEngine.setTemplateEngineMessageSource(messageSource);
 
         return templateEngine;
     }

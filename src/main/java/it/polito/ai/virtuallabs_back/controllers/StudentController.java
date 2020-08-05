@@ -29,7 +29,7 @@ public class StudentController {
     @GetMapping("/{studentSerial}/getOne")
     public StudentDTO getStudent(@PathVariable String studentSerial) {
         if (!studentService.getStudent(studentSerial).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, studentSerial);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The student you are looking for does not exist");
         return ModelHelper.enrich(studentService.getStudent(studentSerial).get());
     }
 
@@ -92,14 +92,14 @@ public class StudentController {
     @PostMapping("/{courseName}/enroll")
     public StudentDTO addStudentToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
         if (!map.containsKey("serial") || map.keySet().size() != 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only serial");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The request is not correct");
         return ModelHelper.enrich(studentService.addStudentToCourse(map.get("serial"), courseName));
     }
 
     @PostMapping("/{courseName}/enrollCsv")
     public List<StudentDTO> enrollCsv(@PathVariable String courseName, @RequestParam("file") MultipartFile file) {
-        if (!file.getContentType().equals("text/csv"))
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        if (!Objects.equals(file.getContentType(), "text/csv"))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type not supported");
         try {
             Reader reader = new InputStreamReader(file.getInputStream());
             return studentService.enrollCsv(reader, courseName)
@@ -114,7 +114,7 @@ public class StudentController {
     @PutMapping("/uploadImage")
     public byte[] uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type noy supported");
         return studentService.uploadImage(file.getBytes());
     }
 

@@ -50,7 +50,7 @@ public class SolutionServiceImpl implements SolutionService {
         Assignment assignment = utilityService.getAssignment(assignmentId);
 
         if (!teacher.getCourses().contains(assignment.getCourse()))
-            throw new CourseNotValidException("You have no permission to see the solution of this course");
+            throw new CourseNotValidException("You are not allowed to see the solution of this course");
 
         HashMap<String, SolutionDTO> map = new HashMap<>();
         solutionRepository.getAllByAssignmentStudentAndMaxTs(assignmentId)
@@ -70,7 +70,7 @@ public class SolutionServiceImpl implements SolutionService {
             utilityService.courseOwnerValid(assignment.getCourse().getName());
         } else {
             if (!studentSerial.equals(utilityService.getStudent().getSerial()))
-                throw new SolutionChangeNotValid("you are not allowed to change this solution");
+                throw new SolutionChangeNotValid("You are not allowed to see the solution of this student");
         }
         return assignment.getSolutions()
                 .stream()
@@ -82,14 +82,14 @@ public class SolutionServiceImpl implements SolutionService {
     @Override
     public SolutionDTO addSolution(SolutionDTO solutionDTO, Long assignmentId) {
         if (solutionDTO.getState().equals(Solution.State.NULL) || solutionDTO.getState().equals(Solution.State.REVIEWED))
-            throw new SolutionChangeNotValid("Impossible to change this solution");
+            throw new SolutionChangeNotValid("You are not allowed to add the solution");
 
         Assignment assignment = utilityService.getAssignment(assignmentId);
         Student student = utilityService.getStudent();
 
         if (solutionRepository.getAllByStudentSerialAndAssignmentId(student.getSerial(), assignment.getId())
                 .stream().anyMatch(solution -> !solution.isModifiable()))
-            throw new SolutionChangeNotValid("Impossible to change this solution");
+            throw new SolutionChangeNotValid("You are not allowed to add a new solution");
 
         Solution solution = solutionRepository.save(modelMapper.map(solutionDTO, Solution.class));
         student.addSolution(solution);
@@ -101,7 +101,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Override
     public SolutionDTO addSolutionReview(SolutionDTO solutionDTO, Long assignmentId, String studentSerial) {
         if (!solutionDTO.getState().equals(Solution.State.REVIEWED))
-            throw new SolutionChangeNotValid("Impossible to change this solution");
+            throw new SolutionChangeNotValid("You are not allowed to add the solution");
 
         Assignment assignment = utilityService.getAssignment(assignmentId);
 
@@ -123,12 +123,12 @@ public class SolutionServiceImpl implements SolutionService {
     public SolutionDTO addContent(Long solutionId, MultipartFile file) {
         Solution solution = utilityService.getSolution(solutionId);
         if (!solution.getAssignment().getCourse().isEnabled())
-            throw new CourseNotEnabledException("The course is not enabled");
+            throw new CourseNotEnabledException("The course is not active");
 
         if (utilityService.isTeacher()) {
             Teacher teacher = utilityService.getTeacher();
             if (!solution.getAssignment().getTeacher().equals(teacher))
-                throw new AssignmentChangeNotValid("You have no permission to modify an assignment to this course");
+                throw new AssignmentChangeNotValid("You are not allowed to add a solution to this assignment");
         }
 
         try {

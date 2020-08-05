@@ -9,10 +9,12 @@ import java.util.Optional;
 public interface TeacherService {
 
     /**
-     * @param teacherId
-     * @return
+     * Used to get the teacher by the serial.
+     *
+     * @param teacherSerial of the desired teacher.
+     * @return a teacher if exists.
      */
-    Optional<TeacherDTO> getTeacher(String teacherId);
+    Optional<TeacherDTO> getTeacher(String teacherSerial);
 
     /**
      * Used to get the image of the teacher by the serial.
@@ -30,8 +32,10 @@ public interface TeacherService {
     List<TeacherDTO> getAllTeachers(String courseName);
 
     /**
-     * @param courseName
-     * @return
+     * Used to get the owners of the course.
+     *
+     * @param courseName of the desired course.
+     * @return list of found owners.
      */
     List<TeacherDTO> getCourseOwners(String courseName);
 
@@ -55,8 +59,10 @@ public interface TeacherService {
     byte[] uploadImage(byte[] image);
 
     /**
-     * @param teacherSerial
-     * @param courseName
+     * Used to delete the teacher from the course.
+     *
+     * @param teacherSerial of the deleted teacher.
+     * @param courseName    in which the teacher is owner.
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteTeacherFromCourse(String teacherSerial, String courseName);

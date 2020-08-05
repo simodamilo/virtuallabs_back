@@ -13,12 +13,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
-@RestController
+@Controller
 public class JwtAuthenticationController {
 
     @Autowired
@@ -30,7 +31,8 @@ public class JwtAuthenticationController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/authenticate")
+    @PostMapping("/authenticate")
+    @ResponseBody
     public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody JwtRequest authenticationRequest) throws Exception {
         System.out.println(authenticationRequest.getUsername() + " " + authenticationRequest.getPassword());
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
@@ -41,16 +43,17 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping("/register")
+    @ResponseBody
     @ResponseStatus(code = HttpStatus.OK, reason = "User registered")
     public void registration(@RequestBody @Valid RegistrationRequest registrationRequest) {
         if (!userService.registration(registrationRequest))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already registered");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "It is not possible to register");
     }
 
     @GetMapping("/confirm/{token}")
     public String confirmRegistration(@PathVariable String token) {
-        if (userService.confirmRegistration(token)) return "ConfirmPageTrue";
-        else return "ConfirmPageFalse"; //TODO sistemare
+        if (userService.confirmRegistration(token)) return "confirmPage";
+        else return "rejectPage";
     }
 
 

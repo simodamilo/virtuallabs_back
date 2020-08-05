@@ -81,7 +81,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course not Found");
+            throw new CourseNotFoundException("The course you are looking for does not exist");
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream()
@@ -111,10 +111,10 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public TeamTokenDTO getStudentTeamStatus(Long teamId, String studentSerial) {
         if (!studentRepository.existsById(studentSerial))
-            throw new StudentNotFoundException("Student not found");
+            throw new StudentNotFoundException("The student you are looking for does not exist");
 
         if (!teamRepository.existsById(teamId))
-            throw new TeamNotFoundException("Team not found");
+            throw new TeamNotFoundException("The team you are looking for does not exist");
 
         if (!teamTokenRepository.existsByTeamIdAndStudentSerial(teamId, studentSerial))
             return null;
@@ -125,17 +125,17 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDTO addStudentToCourse(String studentSerial, String courseName) {
         if (!studentRepository.existsById(studentSerial))
-            throw new StudentNotFoundException("Student not found");
+            throw new StudentNotFoundException("The student you are looking for does not exist");
         Student student = studentRepository.getOne(studentSerial);
 
         utilityService.courseOwnerValid(courseName);
 
         Course course = utilityService.getCourse(courseName);
         if (!course.isEnabled())
-            throw new CourseNotEnabledException("Course is not enabled");
+            throw new CourseNotEnabledException("Course is not active");
 
         if (!course.addStudent(student))
-            throw new StudentAlreadyInCourseException("Student already enrolled");
+            throw new StudentAlreadyInCourseException("The student is already enrolled in the course");
 
         return modelMapper.map(student, StudentDTO.class);
     }
@@ -159,7 +159,7 @@ public class StudentServiceImpl implements StudentService {
     public byte[] uploadImage(byte[] image) {
         Student student = utilityService.getStudent();
 
-        student.setImage(/*compressBytes(image)*/image);
+        student.setImage(image);
         return student.getImage();
     }
 

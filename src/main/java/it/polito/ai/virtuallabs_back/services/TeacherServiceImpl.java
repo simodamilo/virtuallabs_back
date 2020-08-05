@@ -59,14 +59,14 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherDTO addTeacherToCourse(String teacherId, String courseName) {
         if (!teacherRepository.existsById(teacherId))
-            throw new TeacherNotFoundException("Teacher not found");
+            throw new TeacherNotFoundException("The teacher you are looking for does not exist");
         Teacher teacher = teacherRepository.getOne(teacherId);
 
         utilityService.courseOwnerValid(courseName);
         Course course = utilityService.getCourse(courseName);
 
         if (!course.addTeacher(teacher))
-            throw new TeacherAlreadyOwnerException("Teacher is already owner of this course");
+            throw new TeacherAlreadyOwnerException("The teacher is already owner of this course");
 
         return modelMapper.map(teacher, TeacherDTO.class);
     }
@@ -75,7 +75,7 @@ public class TeacherServiceImpl implements TeacherService {
     public byte[] uploadImage(byte[] image) {
         Teacher teacher = utilityService.getTeacher();
 
-        teacher.setImage(/*compressBytes(image)*/image);
+        teacher.setImage(image);
         return teacher.getImage();
     }
 

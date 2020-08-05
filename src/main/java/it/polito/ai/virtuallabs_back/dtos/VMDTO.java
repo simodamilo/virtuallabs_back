@@ -4,20 +4,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class VMDTO extends RepresentationModel<VMDTO> {
 
     private Long id;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String name;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private int vcpu;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private int disk;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private int ram;
     private boolean active;
 }

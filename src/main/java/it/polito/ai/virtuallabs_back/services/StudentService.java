@@ -11,10 +11,12 @@ import java.util.Optional;
 public interface StudentService {
 
     /**
-     * @param studentId
-     * @return
+     * Used to get the student by the serial.
+     *
+     * @param studentSerial of the desired student.
+     * @return a student if exists.
      */
-    Optional<StudentDTO> getStudent(String studentId);
+    Optional<StudentDTO> getStudent(String studentSerial);
 
     /**
      * Used to get the profile image of a student by the serial.

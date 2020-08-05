@@ -24,7 +24,7 @@ public class TeacherController {
     @GetMapping("/{teacherSerial}/getOne")
     public TeacherDTO getTeacher(@PathVariable String teacherSerial) {
         if (!teacherService.getTeacher(teacherSerial).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, teacherSerial);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The teacher you are looking for does not exist");
         return ModelHelper.enrich(teacherService.getTeacher(teacherSerial).get());
     }
 
@@ -46,19 +46,19 @@ public class TeacherController {
     @PostMapping("/{courseName}/assign")
     public TeacherDTO addTeacherToCourse(@PathVariable String courseName, @RequestBody Map<String, String> map) {
         if (!map.containsKey("serial") || map.keySet().size() != 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must contains only id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The request is not correct");
         return ModelHelper.enrich(teacherService.addTeacherToCourse(map.get("serial"), courseName));
     }
 
     @PutMapping("/uploadImage")
     public byte[] uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type not supported");
         return teacherService.uploadImage(file.getBytes());
     }
 
     @DeleteMapping("/{courseName}/deleteTeacher/{teacherSerial}")
-    @ResponseStatus(code = HttpStatus.OK, reason = "Student deleted")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Teacher deleted")
     public void deleteTeacherFromCourse(@PathVariable String courseName, @PathVariable String teacherSerial) {
         teacherService.deleteTeacherFromCourse(teacherSerial, courseName);
     }

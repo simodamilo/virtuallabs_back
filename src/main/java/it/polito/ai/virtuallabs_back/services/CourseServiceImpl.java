@@ -56,7 +56,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDTO addCourse(CourseDTO courseDTO) {
         if (courseRepository.existsById(courseDTO.getName()))
-            throw new CourseAlreadyExistsException("Course already exists");
+            throw new CourseAlreadyExistsException("The course you are creating already exists");
         if (courseDTO.getMax() < courseDTO.getMin())
             throw new CourseSizeException("Team size are not acceptable");
 
@@ -72,7 +72,6 @@ public class CourseServiceImpl implements CourseService {
         if (courseDTO.getMax() < courseDTO.getMin())
             throw new CourseSizeException("Team size are not acceptable");
         utilityService.courseOwnerValid(courseDTO.getName());
-
 
         Course course = utilityService.getCourse(courseDTO.getName());
         course.setTag(courseDTO.getTag());

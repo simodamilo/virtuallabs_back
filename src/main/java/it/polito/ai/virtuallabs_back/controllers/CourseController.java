@@ -21,7 +21,7 @@ public class CourseController {
     @GetMapping("/{courseName}")
     public CourseDTO getCourse(@PathVariable String courseName) {
         if (!courseService.getCourse(courseName).isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, courseName);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The course you are looking for does not exist");
         return ModelHelper.enrich(courseService.getCourse(courseName).get());
     }
 

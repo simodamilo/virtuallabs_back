@@ -6,15 +6,15 @@ import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class CourseDTO extends RepresentationModel<CourseDTO> {
 
-    @NotEmpty(message = "Name of the course must not be empty")
+    @NotBlank(message = "Must not be blank")
     private String name;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String tag;
     @Min(1)
     @Max(40)

@@ -24,7 +24,7 @@ public class Student {
     private String surname;
     private byte[] image;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany()
     @JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_serial"),
             inverseJoinColumns = @JoinColumn(name = "course_name"))
     private List<Course> courses = new ArrayList<>();

@@ -5,21 +5,21 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class StudentDTO extends RepresentationModel<StudentDTO> {
 
     @CsvBindByName
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String serial;
     @CsvBindByName
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String name;
     @CsvBindByName
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String surname;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String email;
 }

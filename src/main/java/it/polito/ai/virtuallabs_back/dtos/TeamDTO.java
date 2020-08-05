@@ -4,14 +4,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class TeamDTO extends RepresentationModel<TeamDTO> {
 
     private Long id;
-    @NotEmpty
+    @NotBlank(message = "Must not be blank")
     private String name;
     private int duration;
     private int status;

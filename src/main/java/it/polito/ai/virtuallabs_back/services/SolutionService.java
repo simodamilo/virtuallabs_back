@@ -55,8 +55,7 @@ public interface SolutionService {
     SolutionDTO addSolutionReview(SolutionDTO solutionDTO, Long assignmentId, String studentSerial);
 
     /**
-     * Used by the teacher to enable/disable the possibilities
-     * to modify a solution.
+     * Used to add the content of a solution.
      *
      * @param solutionId which is modified.
      * @param file       content of the solution.
@@ -65,7 +64,9 @@ public interface SolutionService {
     SolutionDTO addContent(Long solutionId, MultipartFile file);
 
     /**
-     * @param solutionId
+     * Used to delete a solution.
+     *
+     * @param solutionId of the deleted solution.
      */
     void deleteSolution(Long solutionId);
 
