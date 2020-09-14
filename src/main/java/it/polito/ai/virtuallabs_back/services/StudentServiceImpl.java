@@ -5,18 +5,17 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import it.polito.ai.virtuallabs_back.dtos.StudentDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
+import it.polito.ai.virtuallabs_back.entities.Solution;
 import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.exception.*;
-import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
-import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
-import it.polito.ai.virtuallabs_back.repositories.TeamRepository;
-import it.polito.ai.virtuallabs_back.repositories.TeamTokenRepository;
+import it.polito.ai.virtuallabs_back.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.Reader;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +42,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     TeamTokenRepository teamTokenRepository;
+
+    @Autowired
+    SolutionRepository solutionRepository;
 
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
@@ -137,6 +139,17 @@ public class StudentServiceImpl implements StudentService {
         if (!course.addStudent(student))
             throw new StudentAlreadyInCourseException("The student is already enrolled in the course");
 
+        course.getAssignments().forEach(assignment -> {
+            Solution solution = new Solution();
+            if (assignment.isTerminated()) solution.setModifiable(false);
+            else solution.setModifiable(true);
+            solution.setStudent(student);
+            solution.setAssignment(assignment);
+            solution.setState(Solution.State.NULL);
+            solution.setDeliveryTs(new Timestamp(System.currentTimeMillis()));
+            solutionRepository.save(solution);
+        });
+
         return modelMapper.map(student, StudentDTO.class);
     }
 
@@ -167,10 +180,21 @@ public class StudentServiceImpl implements StudentService {
     public void deleteStudentFromCourse(String studentSerial, String courseName) {
         utilityService.courseOwnerValid(courseName);
         Course course = utilityService.getCourse(courseName);
-        if (studentRepository.existsById(studentSerial) &&
-                course.getStudents().contains(studentRepository.getOne(studentSerial))) {
-            studentRepository.getOne(studentSerial).removeCourse(course);
-        }
+        if (!studentRepository.existsById(studentSerial))
+            throw new StudentNotFoundException("The student you are looking for does not exist");
+        if (!course.getStudents().contains(studentRepository.getOne(studentSerial)))
+            throw new StudentAlreadyInCourseException("The student is not enrolled in the course");
+        Student student = studentRepository.getOne(studentSerial);
+        if (student.getTeams().stream().anyMatch(team -> team.getCourse() == course))
+            throw new StudentAlreadyInTeamException("Delete the team before to remove the student");
+
+        student.removeCourse(course);
+        List<Solution> solutionsToRemove = studentRepository.getOne(studentSerial).getSolutions()
+                .stream()
+                .filter(solution -> solution.getAssignment().getCourse() == course)
+                .collect(Collectors.toList());
+        solutionsToRemove.forEach(solution -> solutionRepository.delete(solution));
+
     }
 
 

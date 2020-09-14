@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @EqualsAndHashCode(callSuper = false)
@@ -13,11 +13,11 @@ import java.sql.Timestamp;
 public class SolutionDTO extends RepresentationModel<SolutionDTO> {
 
     private Long id;
-    @NotBlank(message = "Must not be blank")
+    @NotNull(message = "Must not be null")
     private Solution.State state;
-    @NotBlank(message = "Must not be blank")
+    @NotNull(message = "Must not be null")
     private Timestamp deliveryTs;
     private String grade;
-    @NotBlank(message = "Must not be blank")
+    @NotNull(message = "Must not be null")
     private boolean modifiable;
 }

@@ -2,15 +2,18 @@ package it.polito.ai.virtuallabs_back.services;
 
 import it.polito.ai.virtuallabs_back.dtos.TeacherDTO;
 import it.polito.ai.virtuallabs_back.entities.Course;
+import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
 import it.polito.ai.virtuallabs_back.exception.TeacherAlreadyOwnerException;
 import it.polito.ai.virtuallabs_back.exception.TeacherNotFoundException;
+import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
 import it.polito.ai.virtuallabs_back.repositories.TeacherRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,6 +30,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Autowired
     TeacherRepository teacherRepository;
+
+    @Autowired
+    CourseRepository courseRepository;
 
     @Override
     public Optional<TeacherDTO> getTeacher(String teacherId) {
@@ -86,6 +92,12 @@ public class TeacherServiceImpl implements TeacherService {
         if (teacherRepository.existsById(teacherSerial) &&
                 course.getTeachers().contains(teacherRepository.getOne(teacherSerial))) {
             teacherRepository.getOne(teacherSerial).removeCourse(course);
+        }
+        if (course.getTeachers().isEmpty()) {
+            List<Student> students = new ArrayList<>(course.getStudents());
+            students.forEach(student -> student.removeCourse(course));
+
+            courseRepository.delete(course);
         }
     }
 }

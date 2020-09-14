@@ -4,10 +4,7 @@ import it.polito.ai.virtuallabs_back.dtos.TeamDTO;
 import it.polito.ai.virtuallabs_back.dtos.TeamTokenDTO;
 import it.polito.ai.virtuallabs_back.entities.*;
 import it.polito.ai.virtuallabs_back.exception.*;
-import it.polito.ai.virtuallabs_back.repositories.CourseRepository;
-import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
-import it.polito.ai.virtuallabs_back.repositories.TeamRepository;
-import it.polito.ai.virtuallabs_back.repositories.TeamTokenRepository;
+import it.polito.ai.virtuallabs_back.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -46,9 +43,24 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     TeamTokenRepository teamTokenRepository;
 
+    @Autowired
+    VMRepository vmRepository;
+
     @Override
     public Optional<TeamDTO> getStudentTeamByCourse(String courseName) {
         return utilityService.getStudent()
+                .getTeams()
+                .stream()
+                .filter(team -> team.getCourse().getName().equals(courseName) && team.getStatus() == 1)
+                .map(team -> modelMapper.map(team, TeamDTO.class))
+                .findAny();
+    }
+
+    @Override
+    public Optional<TeamDTO> getStudentTeamByCourseAndSerial(String courseName, String studentSerial) {
+        if (!studentRepository.existsById(studentSerial))
+            throw new StudentNotFoundException("The student you are looking for does not exist");
+        return studentRepository.getOne(studentSerial)
                 .getTeams()
                 .stream()
                 .filter(team -> team.getCourse().getName().equals(courseName) && team.getStatus() == 1)
@@ -176,6 +188,17 @@ public class TeamServiceImpl implements TeamService {
     public void rejectTeam(TeamTokenDTO teamTokenDTO) {
         teamRepository.delete(isValid(teamTokenDTO));
         teamTokenRepository.findAllByTeamId(teamTokenDTO.getTeamId()).forEach(teamToken -> teamTokenRepository.delete(teamToken));
+    }
+
+    @Override
+    public void deleteTeam(Long teamId) {
+        Team team = utilityService.getTeam(teamId);
+        team.setCourse(null);
+        List<VM> vmsToRemove = team.getVms();
+        vmsToRemove.forEach(vm -> vmRepository.delete(vm));
+        List<Student> studentsToRemove = team.getMembers();
+        studentsToRemove.forEach(team::removeMember);
+        teamRepository.delete(team);
     }
 
     @Override

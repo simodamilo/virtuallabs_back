@@ -19,6 +19,14 @@ public interface TeamService {
     Optional<TeamDTO> getStudentTeamByCourse(String courseName);
 
     /**
+     * @param courseName    of the student team.
+     * @param studentSerial
+     * @return
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    Optional<TeamDTO> getStudentTeamByCourseAndSerial(String courseName, String studentSerial);
+
+    /**
      * Used to get the list of pending teams request of a student.
      *
      * @param courseName in which teams are searched.
@@ -72,6 +80,12 @@ public interface TeamService {
      */
     @PreAuthorize("hasRole('STUDENT')")
     void rejectTeam(TeamTokenDTO teamTokenDTO);
+
+    /**
+     * @param teamId
+     */
+    @PreAuthorize("hasRole('TEACHER')")
+    void deleteTeam(Long teamId);
 
     /**
      * Periodically checks the expired teamToken and

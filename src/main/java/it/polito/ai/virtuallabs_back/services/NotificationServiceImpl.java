@@ -84,7 +84,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         try {
             //message.setTo(address);
-            mimeMessageHelper.setTo("ApplicazioniInternet2020@gmail.com");
+            mimeMessageHelper.setTo("applicazioniinternet2020@gmail.com");
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(body, true);
         } catch (MessagingException me) {

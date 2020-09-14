@@ -56,9 +56,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDTO addCourse(CourseDTO courseDTO) {
         if (courseRepository.existsById(courseDTO.getName()))
-            throw new CourseAlreadyExistsException("The course you are creating already exists");
+            throw new CourseAlreadyExistsException("The course already exists");
         if (courseDTO.getMax() < courseDTO.getMin())
-            throw new CourseSizeException("Team size are not acceptable");
+            throw new CourseSizeException("Team size is not acceptable");
 
         Course course = courseRepository.save(modelMapper.map(courseDTO, Course.class));
         Teacher teacher = utilityService.getTeacher();
@@ -70,10 +70,16 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDTO modifyCourse(CourseDTO courseDTO) {
         if (courseDTO.getMax() < courseDTO.getMin())
-            throw new CourseSizeException("Team size are not acceptable");
+            throw new CourseSizeException("Team size is not acceptable");
         utilityService.courseOwnerValid(courseDTO.getName());
 
         Course course = utilityService.getCourse(courseDTO.getName());
+
+        if (course.getTeams().stream().anyMatch(team -> team.getMembers().size() < courseDTO.getMin() ||
+                team.getMembers().size() > courseDTO.getMax())) {
+            throw new CourseSizeException("Team size is not acceptable");
+        }
+
         course.setTag(courseDTO.getTag());
         course.setMin(courseDTO.getMin());
         course.setMax(courseDTO.getMax());

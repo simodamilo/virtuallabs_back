@@ -28,6 +28,13 @@ public class TeamController {
         return ModelHelper.enrich(teamService.getStudentTeamByCourse(courseName).get());
     }
 
+    @GetMapping("/{courseName}/{studentSerial}")
+    public TeamDTO getStudentTeamByCourseAndSerial(@PathVariable String courseName, @PathVariable String studentSerial) {
+        if (!teamService.getStudentTeamByCourseAndSerial(courseName, studentSerial).isPresent())
+            return null;
+        return ModelHelper.enrich(teamService.getStudentTeamByCourseAndSerial(courseName, studentSerial).get());
+    }
+
     @GetMapping("/students/{courseName}/pending")
     public List<TeamDTO> getStudentPendingTeams(@PathVariable String courseName) {
         return teamService.getStudentPendingTeams(courseName)
@@ -65,6 +72,12 @@ public class TeamController {
     @ResponseStatus(code = HttpStatus.OK, reason = "Teams rejected")
     public void rejectTeam(@Valid @RequestBody TeamTokenDTO teamTokenDTO) {
         teamService.rejectTeam(teamTokenDTO);
+    }
+
+    @DeleteMapping("/{teamId}/delete")
+    @ResponseStatus(code = HttpStatus.OK, reason = "Team deleted")
+    public void deleteTeam(@PathVariable Long teamId) {
+        teamService.deleteTeam(teamId);
     }
 
 }

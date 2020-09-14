@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @EqualsAndHashCode(callSuper = false)
@@ -14,8 +15,8 @@ public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
     private Long id;
     @NotBlank(message = "Must not be blank")
     private String name;
-    @NotBlank(message = "Must not be blank")
+    @NotNull(message = "Must not be null")
     private Date releaseDate;
-    @NotBlank(message = "Must not be blank")
+    @NotNull(message = "Must not be null")
     private Date deadline;
 }

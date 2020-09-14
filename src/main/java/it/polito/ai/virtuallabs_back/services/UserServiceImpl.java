@@ -63,14 +63,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean registration(RegistrationRequest registrationRequest) {
-        if (!registrationRequest.getEmail().endsWith("studenti.polito.it") ||
+        if (registrationRequest.getEmail().startsWith("s") &&
+                !registrationRequest.getEmail().endsWith("studenti.polito.it"))
+            return false;
+        if (registrationRequest.getEmail().startsWith("d") &&
                 !registrationRequest.getEmail().endsWith("polito.it"))
             return false;
 
         String serial = registrationRequest.getEmail().split("@")[0];
-        if ((userRepository.findByUsername(registrationRequest.getEmail()) != null)
+        if (userRepository.findByUsername(registrationRequest.getEmail()) != null
                 || !serial.equals(registrationRequest.getSerial()))
             return false;
+
         AppUser user = AppUser.builder()
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .username(registrationRequest.getEmail())
