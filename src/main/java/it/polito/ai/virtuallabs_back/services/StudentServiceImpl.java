@@ -194,7 +194,6 @@ public class StudentServiceImpl implements StudentService {
                 .filter(solution -> solution.getAssignment().getCourse() == course)
                 .collect(Collectors.toList());
         solutionsToRemove.forEach(solution -> solutionRepository.delete(solution));
-
     }
 
 

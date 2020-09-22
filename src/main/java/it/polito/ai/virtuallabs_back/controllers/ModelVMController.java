@@ -20,7 +20,7 @@ public class ModelVMController {
 
     @GetMapping("/{courseName}")
     public ModelVMDTO getModelVM(@PathVariable String courseName) {
-        return modelVMService.getModelVm(courseName);
+        return ModelHelper.enrich(modelVMService.getModelVm(courseName));
     }
 
     @GetMapping("/{modelVmId}/image")

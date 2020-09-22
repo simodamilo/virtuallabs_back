@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/API/assignments")
@@ -30,7 +31,10 @@ public class AssignmentController {
 
     @GetMapping("/courses/{courseName}")
     public List<AssignmentDTO> getCourseAssignments(@PathVariable String courseName) {
-        return assignmentService.getCourseAssignments(courseName);
+        return assignmentService.getCourseAssignments(courseName)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/{courseName}")

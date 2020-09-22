@@ -5,10 +5,7 @@ import it.polito.ai.virtuallabs_back.entities.Assignment;
 import it.polito.ai.virtuallabs_back.entities.Solution;
 import it.polito.ai.virtuallabs_back.entities.Student;
 import it.polito.ai.virtuallabs_back.entities.Teacher;
-import it.polito.ai.virtuallabs_back.exception.AssignmentChangeNotValid;
-import it.polito.ai.virtuallabs_back.exception.CourseNotEnabledException;
-import it.polito.ai.virtuallabs_back.exception.CourseNotValidException;
-import it.polito.ai.virtuallabs_back.exception.SolutionChangeNotValid;
+import it.polito.ai.virtuallabs_back.exception.*;
 import it.polito.ai.virtuallabs_back.repositories.SolutionRepository;
 import it.polito.ai.virtuallabs_back.repositories.StudentRepository;
 import org.modelmapper.ModelMapper;
@@ -41,6 +38,11 @@ public class SolutionServiceImpl implements SolutionService {
 
     @Override
     public byte[] getSolutionContent(Long solutionId) {
+        if (!utilityService.isTeacher()) {
+            if (!utilityService.getStudent().getSerial().equals(utilityService.getSolution(solutionId).getStudent().getSerial()))
+                throw new SolutionNotAllowedException("You are not allowed to see the solution of this student");
+        }
+
         return utilityService.getSolution(solutionId).getContent();
     }
 
@@ -70,7 +72,7 @@ public class SolutionServiceImpl implements SolutionService {
             utilityService.courseOwnerValid(assignment.getCourse().getName());
         } else {
             if (!studentSerial.equals(utilityService.getStudent().getSerial()))
-                throw new SolutionChangeNotValid("You are not allowed to see the solution of this student");
+                throw new SolutionNotAllowedException("You are not allowed to see the solution of this student");
         }
         return assignment.getSolutions()
                 .stream()

@@ -21,7 +21,7 @@ public class Team {
     private int activeInstance;
     private int maxInstance;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE)
     private List<VM> vms;
 
     @ManyToOne

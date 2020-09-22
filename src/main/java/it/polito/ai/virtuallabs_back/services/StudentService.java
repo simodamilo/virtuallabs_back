@@ -14,7 +14,7 @@ public interface StudentService {
      * Used to get the student by the serial.
      *
      * @param studentSerial of the desired student.
-     * @return a student if exists.
+     * @return empty optional if the student does not exists.
      */
     Optional<StudentDTO> getStudent(String studentSerial);
 
@@ -22,7 +22,7 @@ public interface StudentService {
      * Used to get the profile image of a student by the serial.
      *
      * @param studentSerial of the desired student.
-     * @return empty optional if the student misses.
+     * @return the searched profile image.
      */
     byte[] getStudentImage(String studentSerial);
 
@@ -34,7 +34,7 @@ public interface StudentService {
     List<StudentDTO> getAllStudents(String courseName);
 
     /**
-     * Used to get all the team that are enrolled in the course.
+     * Used to get all the students that are enrolled in the course.
      *
      * @param courseName in which students are searched.
      * @return list of enrolled students.
@@ -61,7 +61,7 @@ public interface StudentService {
      * Used to get the members of a team.
      *
      * @param teamId of the team selected.
-     * @return list of students engaged in the team passed.
+     * @return list of students engaged in the team.
      */
     List<StudentDTO> getTeamStudents(Long teamId);
 
@@ -74,26 +74,26 @@ public interface StudentService {
     List<StudentDTO> getVmOwners(Long vmId);
 
     /**
-     * Used to get the status of a student
+     * Used to get the status of a student.
      *
      * @param teamId        of the team in which the student is.
-     * @param studentSerial of the searched student
-     * @return the student status.
+     * @param studentSerial of the searched student.
+     * @return the student TeamToken, in which there is the status.
      */
     TeamTokenDTO getStudentTeamStatus(Long teamId, String studentSerial);
 
     /**
-     * Used to enroll a student to the course passed.
+     * Used to enroll a student in the passed course.
      *
-     * @param studentSerial to identify the student.
+     * @param studentSerial of the student that must be added.
      * @param courseName    in which student is added.
-     * @return the student that was added to the course.
+     * @return the student that is added to the course.
      */
     @PreAuthorize("hasRole('TEACHER')")
     StudentDTO addStudentToCourse(String studentSerial, String courseName);
 
     /**
-     * Used to enroll a list of students that is passed by a csv file.
+     * Used to enroll a list of students that is passed as a csv file.
      *
      * @param reader     used to handle the csv file.
      * @param courseName in which student are added.
@@ -103,10 +103,10 @@ public interface StudentService {
     List<StudentDTO> enrollCsv(Reader reader, String courseName);
 
     /**
-     * Used by the student to add an image for the student.
+     * Used by the student to add a profile image.
      *
      * @param image updated by the student.
-     * @return the student modified.
+     * @return the modified student.
      */
     @PreAuthorize("hasRole('STUDENT')")
     byte[] uploadImage(byte[] image);
@@ -114,7 +114,7 @@ public interface StudentService {
     /**
      * Used by the teacher to remove a student from the course, if allowed.
      *
-     * @param studentSerial to identify the student.
+     * @param studentSerial of the student that must be deleted.
      * @param courseName    from which student is removed.
      */
     @PreAuthorize("hasRole('TEACHER')")

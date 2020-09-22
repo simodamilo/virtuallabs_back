@@ -1,6 +1,5 @@
 package it.polito.ai.virtuallabs_back.services;
 
-
 import it.polito.ai.virtuallabs_back.dtos.RegistrationRequest;
 import it.polito.ai.virtuallabs_back.entities.AppUser;
 import it.polito.ai.virtuallabs_back.entities.Student;
@@ -64,10 +63,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean registration(RegistrationRequest registrationRequest) {
         if (registrationRequest.getEmail().startsWith("s") &&
-                !registrationRequest.getEmail().endsWith("studenti.polito.it"))
+                !registrationRequest.getEmail().endsWith("@studenti.polito.it"))
             return false;
         if (registrationRequest.getEmail().startsWith("d") &&
-                !registrationRequest.getEmail().endsWith("polito.it"))
+                !registrationRequest.getEmail().endsWith("@polito.it"))
             return false;
 
         String serial = registrationRequest.getEmail().split("@")[0];
@@ -87,7 +86,7 @@ public class UserServiceImpl implements UserService {
                 .appUserId(user.getId())
                 .name(registrationRequest.getName())
                 .surname(registrationRequest.getSurname())
-                .expiryDate(new Timestamp(System.currentTimeMillis() + /*3600000*24*/120000)) //TODO
+                .expiryDate(new Timestamp(System.currentTimeMillis() + 1000 * 3600 * 24))
                 .build();
         userTokenRepository.save(token);
 
@@ -121,7 +120,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1000 * 3600 * 24)
     public void clearUser() {
         userTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
                 .forEach(t -> {

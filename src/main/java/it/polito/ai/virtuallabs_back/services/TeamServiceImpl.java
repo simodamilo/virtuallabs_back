@@ -101,6 +101,9 @@ public class TeamServiceImpl implements TeamService {
         if (!studentSerials.contains(utilityService.getStudent().getSerial()))
             throw new UserRequestNotValidException("You must be part of the team");
 
+        if (course.getTeams().stream().anyMatch(team -> team.getName().equals(teamName)))
+            throw new TeamNameAlreadyExistException("Name is already used");
+
         Team team = new Team();
 
         team.setName(teamName);
@@ -174,10 +177,16 @@ public class TeamServiceImpl implements TeamService {
             team.setStatus(1);
             teamTokenRepository.findAllByTeamId(teamTokenDTO.getTeamId()).forEach(teamToken1 -> teamTokenRepository.delete(teamToken1));
 
-            getStudentPendingTeams(team.getCourse().getName()).forEach(teamDTO -> {
-                Team teamToRemove = modelMapper.map(teamDTO, Team.class);
-                team.getMembers().forEach(student -> student.removeTeam(teamToRemove));
-                teamRepository.delete(teamToRemove);
+            team.getMembers().forEach(student -> {
+                List<Team> teamsToRemove = student.getTeams()
+                        .stream()
+                        .filter(t -> t.getStatus() == 0 && t.getCourse().getName().equals(team.getCourse().getName()))
+                        .collect(Collectors.toList());
+
+                teamsToRemove.forEach(t -> {
+                    team.getMembers().forEach(s -> s.removeTeam(t));
+                    teamRepository.delete(t);
+                });
             });
         }
 
@@ -194,15 +203,13 @@ public class TeamServiceImpl implements TeamService {
     public void deleteTeam(Long teamId) {
         Team team = utilityService.getTeam(teamId);
         team.setCourse(null);
-        List<VM> vmsToRemove = team.getVms();
-        vmsToRemove.forEach(vm -> vmRepository.delete(vm));
         List<Student> studentsToRemove = team.getMembers();
-        studentsToRemove.forEach(team::removeMember);
+        studentsToRemove.forEach(student -> student.removeTeam(team));
         teamRepository.delete(team);
     }
 
     @Override
-    @Scheduled(fixedRate = 600000)
+    @Scheduled(fixedRate = 1000 * 3600 * 12)
     public void clearTeamToken() {
         teamTokenRepository.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()))
                 .forEach(teamToken -> {

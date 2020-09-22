@@ -12,7 +12,7 @@ public interface CourseService {
      * Used to get the course by the name.
      *
      * @param courseName of the desired course.
-     * @return empty optional if the course misses.
+     * @return empty optional if the course does not exists.
      */
     Optional<CourseDTO> getCourse(String courseName);
 

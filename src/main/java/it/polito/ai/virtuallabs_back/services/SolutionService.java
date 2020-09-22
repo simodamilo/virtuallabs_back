@@ -19,18 +19,18 @@ public interface SolutionService {
     /**
      * Used to get the list of solution of an assignment.
      *
-     * @param assignmentId of the assignment in which solutions  are searched.
-     * @return list of found solution.
+     * @param assignmentId of the assignment in which solutions are searched.
+     * @return list of found solutions.
      */
     @PreAuthorize("hasRole('TEACHER')")
     List<SolutionDTO> getAssignmentSolutions(Long assignmentId);
 
     /**
-     * Used by the teacher or student to get the list of solution of an student for a specific course.
+     * Used by the teacher or student to get the list of solution of an student for a specific assignment.
      *
      * @param assignmentId of the solutions searched.
      * @param studentId    of the solutions searched.
-     * @return list of found solution.
+     * @return list of found solutions.
      */
     List<SolutionDTO> getStudentSolutions(Long assignmentId, String studentId);
 
@@ -64,7 +64,8 @@ public interface SolutionService {
     SolutionDTO addContent(Long solutionId, MultipartFile file);
 
     /**
-     * Used to delete a solution.
+     * Used to remove the solution if there is an error with the content
+     * to prevent inconsistency in the database.
      *
      * @param solutionId of the deleted solution.
      */

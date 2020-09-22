@@ -68,7 +68,7 @@ public interface UtilityService {
     VM getVm(Long vmId);
 
     /**
-     * Used to check if a teacher is the owner of the course
+     * Used to check if a teacher is the owner of the course.
      *
      * @param courseName of the course that must be checked.
      */
@@ -78,7 +78,7 @@ public interface UtilityService {
      * Used to check if the constraint of a team are respected.
      *
      * @param vmDTO  the vm that is added/modified.
-     * @param teamId in which the vm is added/modified.
+     * @param teamId of the team in which the vm is added/modified.
      */
     void constraintsCheck(VMDTO vmDTO, Long teamId);
 

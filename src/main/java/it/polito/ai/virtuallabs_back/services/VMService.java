@@ -28,8 +28,8 @@ public interface VMService {
      * Used by the student to add a vm.
      *
      * @param vmDTO  which needs to be added.
-     * @param teamId in which the vm is added.
-     * @return it returns the inserted vm.
+     * @param teamId of the team in which the vm is added.
+     * @return the inserted vm.
      */
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO addVm(VMDTO vmDTO, Long teamId);

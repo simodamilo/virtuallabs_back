@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/API/solutions")
@@ -26,12 +27,18 @@ public class SolutionController {
 
     @GetMapping("/assignments/{assignmentId}")
     public List<SolutionDTO> getAssignmentSolutions(@PathVariable Long assignmentId) {
-        return solutionService.getAssignmentSolutions(assignmentId);
+        return solutionService.getAssignmentSolutions(assignmentId)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/assignments/{assignmentId}/students/{studentSerial}")
     public List<SolutionDTO> getStudentSolutions(@PathVariable Long assignmentId, @PathVariable String studentSerial) {
-        return solutionService.getStudentSolutions(assignmentId, studentSerial);
+        return solutionService.getStudentSolutions(assignmentId, studentSerial)
+                .stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/{assignmentId}")

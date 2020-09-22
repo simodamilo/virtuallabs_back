@@ -114,7 +114,7 @@ public class StudentController {
     @PutMapping("/uploadImage")
     public byte[] uploadImage(@RequestParam(value = "imageFile") MultipartFile file) throws IOException {
         if (!Objects.requireNonNull(file.getContentType()).split("/")[0].equals("image"))
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type noy supported");
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "File type not supported");
         return studentService.uploadImage(file.getBytes());
     }
 

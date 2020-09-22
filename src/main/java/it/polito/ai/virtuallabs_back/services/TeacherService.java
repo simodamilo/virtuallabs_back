@@ -12,15 +12,15 @@ public interface TeacherService {
      * Used to get the teacher by the serial.
      *
      * @param teacherSerial of the desired teacher.
-     * @return a teacher if exists.
+     * @return empty optional if the teacher does not exists.
      */
     Optional<TeacherDTO> getTeacher(String teacherSerial);
 
     /**
-     * Used to get the image of the teacher by the serial.
+     * Used to get the profile image of the teacher by the serial.
      *
      * @param teacherSerial of the desired teacher.
-     * @return empty optional if the course misses.
+     * @return the searched profile image.
      */
     byte[] getTeacherImage(String teacherSerial);
 
@@ -50,9 +50,9 @@ public interface TeacherService {
     TeacherDTO addTeacherToCourse(String teacherSerial, String courseName);
 
     /**
-     * Used to add an image to the teacher.
+     * Used by the teacher to add a profile image.
      *
-     * @param image which needs to be added.
+     * @param image updated by the teacher.
      * @return the modified teacher.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -62,7 +62,7 @@ public interface TeacherService {
      * Used to delete the teacher from the course.
      *
      * @param teacherSerial of the deleted teacher.
-     * @param courseName    in which the teacher is owner.
+     * @param courseName    from which teacher is removed.
      */
     @PreAuthorize("hasRole('TEACHER')")
     void deleteTeacherFromCourse(String teacherSerial, String courseName);

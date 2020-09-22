@@ -13,6 +13,12 @@ import java.util.Map;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
+    /**
+     * Used to generate an error message when the input parameters are not valid.
+     *
+     * @param ex the exception that must be managed.
+     * @return map containing the strings that describe the errors.
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {

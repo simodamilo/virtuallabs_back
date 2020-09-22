@@ -29,7 +29,7 @@ public interface AssignmentService {
      * generate a empty solution for each student of the course.
      *
      * @param assignmentDTO which needs to be added.
-     * @param courseName    in which assignments are searched.
+     * @param courseName    in which assignment is inserted.
      * @return the added assignment.
      */
     @PreAuthorize("hasRole('TEACHER')")
@@ -46,7 +46,8 @@ public interface AssignmentService {
     AssignmentDTO addContent(Long assignmentId, MultipartFile file);
 
     /**
-     * Used by the teacher to remove an assignment.
+     * Used to remove the assignment if there is an error with the content
+     * to prevent inconsistency in the database.
      *
      * @param assignmentId of the deleted assignment.
      */

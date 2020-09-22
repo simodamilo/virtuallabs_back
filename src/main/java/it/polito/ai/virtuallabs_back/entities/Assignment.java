@@ -28,7 +28,7 @@ public class Assignment {
     @JoinColumn(name = "teacher_serial")
     private Teacher teacher;
 
-    @OneToMany(mappedBy = "assignment")
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.REMOVE)
     private List<Solution> solutions = new ArrayList<>();
 
     public void setCourse(Course course) {

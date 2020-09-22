@@ -24,7 +24,7 @@ public interface ModelVMService {
     byte[] getModelVmContent(@PathVariable Long modelVmId);
 
     /**
-     * Used by the student to add a modelVM.
+     * Used by the teacher to add a modelVM.
      *
      * @param modelVMDTO which needs to be added.
      * @param courseName in which the modelVM is added.
@@ -36,7 +36,7 @@ public interface ModelVMService {
     /**
      * Used by the teacher to add the content to a modelVm.
      *
-     * @param modelVmId of the added modelVm.
+     * @param modelVmId of the modelVm in which the model is added.
      * @param file      content of the modelVm.
      * @return the modified modelVm.
      */

@@ -7,7 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService extends UserDetailsService {
 
     /**
-     * Used for the authentication.
+     * Used to check if the user is correctly registered and eventually to
+     * take the corresponding role.
      *
      * @param username that needs to be compared.
      * @return if match the username return the userDetails.
@@ -17,6 +18,7 @@ public interface UserService extends UserDetailsService {
     /**
      * Used for the first part of the registration, generate the user
      * with status set to false.
+     *
      * @param registrationRequest contains all the data needed for the registration.
      * @return true if the registration works correctly.
      */
@@ -24,9 +26,10 @@ public interface UserService extends UserDetailsService {
 
     /**
      * Used when the user confirm the registration by email, set the status
-     * to true, and add the student/teacher.
+     * to true, and add the student/teacher entity.
+     *
      * @param token used to identify the user.
-     * @return true if confirm the registration correctly.
+     * @return true if registration confirm is correct.
      */
     boolean confirmRegistration(String token);
 
